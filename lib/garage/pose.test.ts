@@ -5,19 +5,24 @@ import { cameraUp, lookAtQuaternion, viewQuaternion } from "./pose";
 
 const DEG = Math.PI / 180;
 
-// The bike computer as it sits in the blockout: on a bike turned 30 degrees
-// about y, the 9 x 2 x 6 cm box pitched 20 degrees so the face leans to the
-// rider. Sized and placed like the fixture in screen.test.ts.
+// The bike computer as it sits in the GLB: on a bike turned 30 degrees about
+// y, the computer group pitched 20 degrees so the face leans to the rider,
+// its 7.4 x 0.2 x 4.6 cm display panel on top. Placed like the fixture in
+// screen.test.ts.
 function bikeComputerScene(turnDeg: number) {
   const scene = new Group();
   const bike = new Group();
   bike.name = "Rad";
   bike.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), turnDeg * DEG);
-  const display = new Mesh(new BoxGeometry(0.09, 0.02, 0.06));
-  display.name = "Radcomputer";
-  display.position.set(0.58, 1.07, 0);
-  display.quaternion.setFromAxisAngle(new Vector3(0, 0, 1), 20 * DEG);
-  bike.add(display);
+  const computer = new Group();
+  computer.name = "Radcomputer";
+  computer.position.set(0.5, 1.075, 0);
+  computer.quaternion.setFromAxisAngle(new Vector3(0, 0, 1), 20 * DEG);
+  const display = new Mesh(new BoxGeometry(0.074, 0.002, 0.046));
+  display.name = "Radcomputer_Display";
+  display.position.set(0, 0.0075, 0);
+  computer.add(display);
+  bike.add(computer);
   scene.add(bike);
   return scene;
 }
@@ -86,10 +91,20 @@ describe("viewQuaternion", () => {
   });
 
   it("would sit askew with world y as up", () => {
-    // The point of the roll: the same view with world y as up leaves the
-    // display's vertical edge leaning on screen.
+    // The point of the roll: a camera beside the bike's centre plane with
+    // world y as up leaves the display's vertical edge leaning on screen.
+    // (The real camera sits in that plane, over the bar, where both agree.)
     const scene = bikeComputerScene(30);
-    const view = views.radcomputer;
+    const real = views.radcomputer;
+    const side = new Vector3(0.5, 0, -0.866).multiplyScalar(0.05);
+    const view = {
+      ...real,
+      camera: [
+        real.camera[0] + side.x,
+        real.camera[1],
+        real.camera[2] + side.z,
+      ] as const,
+    };
     const level = lookAtQuaternion(view.camera, view.target);
     const rolled = viewQuaternion(view, scene);
     expect(Math.abs(rollDeg(rolled) - rollDeg(level))).toBeGreaterThan(1);
