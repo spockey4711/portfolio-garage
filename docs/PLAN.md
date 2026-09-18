@@ -64,8 +64,9 @@ Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallba
   Export rendert die Ruheansicht quer und hoch, Klickflächen aus denselben Boxen wie in 3D.
 - ~~2D-Seiten als Gerüst: Startseite-Inhalt, `/projekte/[slug]`, `/ueber`.~~ Erledigt 18.09.:
   Startseite unter dem Hero, drei Projektseiten aus `content/projects/`, `/ueber`.
-- Portfolio2 ablösen: Inhalte als Quellmaterial neu schreiben, Rad in die Positionierung (ADR-0001).
-- Go-live auf `yannikwuenker.de`.
+- ~~Portfolio2 ablösen: Inhalte als Quellmaterial neu schreiben, Rad in die Positionierung
+  (ADR-0001).~~ Erledigt 18.09. mit dem 2D-Gerüst.
+- Go-live auf `yannikwuenker.de`. Vertagt 18.09., kommt nach Phase 2.
 
 ### Woche 3 und 4: 06. bis 19.10. - Phase 2, echte Daten
 
