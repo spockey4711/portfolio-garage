@@ -96,12 +96,12 @@ Rückwand (Fläche z = -2,00):
 
 Raummitte:
 
-| Objekt         | Größe                                                                          | Position                                                                              |
-| -------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| Rennrad        | Länge 1,70, Laufräder Ø 0,68 (700c), Radstand 1,00, Lenker 0,42                | Mitte (-0,20, -, 0,90), Reifen 0,20 über dem Boden, Lenkeroberkante 1,05, Sattel 1,15 |
-| Ausrichtung    | Front zeigt nach (0,87, 0, -0,50), also 30° von der Kamera weg                 | Begründung unten                                                                      |
-| Montageständer | Dreibein r 0,45, Säule Ø 0,04 x 1,10, Klemmarm 0,35                            | Säule bei (-0,55, 0, 0,75), auf der kameraabgewandten Seite                           |
-| Radcomputer    | 0,06 x 0,09 x 0,02 (Edge 540), Aero-Halter 0,08 vor dem Lenker, 20° angestellt | (0,30, 1,07, 0,00)                                                                    |
+| Objekt         | Größe                                                                                                                                                     | Position                                                                              |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Rennrad        | Länge 1,70, Laufräder Ø 0,68 (700c), Radstand 1,00, Lenker 0,42                                                                                           | Mitte (-0,20, -, 0,90), Reifen 0,20 über dem Boden, Lenkeroberkante 1,05, Sattel 1,15 |
+| Ausrichtung    | Front zeigt nach (0,87, 0, -0,50), also 30° von der Kamera weg                                                                                            | Begründung unten                                                                      |
+| Montageständer | Dreibein r 0,45, Säule Ø 0,04 x 1,10, Klemmarm 0,35                                                                                                       | Säule bei (-0,55, 0, 0,75), auf der kameraabgewandten Seite                           |
+| Radcomputer    | 0,08 x 0,10 x 0,03 (Edge 540, ein Drittel größer als echt, damit das Display aus Fahrersicht lesbar ist), Aero-Halter 0,10 vor dem Lenker, 20° angestellt | (0,30, 1,07, 0,00)                                                                    |
 
 Atmosphäre (von der Ruhekamera sichtbar nur bei z < 1,35 und etwa |x| < 2,4; kein Möbel
 darf von der Ruhekamera aus einen Hotspot verdecken, deshalb steht der Schrank vorn an der
@@ -149,7 +149,7 @@ die DOM-UI darauf nicht lesbar.
 | Hotspot      | Kamera-Position                           | Blick auf                   | UI-Typ                                           | URL               |
 | ------------ | ----------------------------------------- | --------------------------- | ------------------------------------------------ | ----------------- |
 | Ruhe         | (0, 1.6, 5.2), vertikales FOV 55° (23 mm) | (0, 1.1, 0)                 | Hover-Labels                                     | `/`               |
-| Radcomputer  | (0.23, 1.22, 0.05), 17 cm über dem Lenker | Display (0.3, 1.07, 0.0)    | DOM in `<Html>`, Edge-UI mit echten Daten        | `/?view=computer` |
+| Radcomputer  | (0.18, 1.25, 0.68), 14,5 cm vor dem Glas  | Display (0.3, 1.07, 0.0)    | DOM in `<Html>`, Edge-UI mit echten Daten        | `/?view=computer` |
 | Laptop       | (-1.8, 1.08, -1.23), auf der Lid-Normalen | Display (-1.8, 1.01, -1.63) | DOM in `<Html>`, Projektliste, Fuelivo-Mini live | `/?view=laptop`   |
 | Pinnwand     | (1.7, 1.5, 0.3)                           | (1.75, 1.5, -1.9)           | DOM-Overlay, Zettel klickbar                     | `/?view=board`    |
 | Whiteboard   | (0.4, 1.5, 0.2)                           | (0.4, 1.5, -1.9)            | DOM-Overlay, Blogliste in Handschrift-Optik      | `/?view=plan`     |
