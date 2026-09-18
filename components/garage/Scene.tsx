@@ -3,6 +3,8 @@
 import { useGLTF } from "@react-three/drei";
 import { useLayoutEffect } from "react";
 import { Mesh, MeshLambertMaterial } from "three";
+import { focusViews } from "@/lib/garage/hotspots";
+import { Hotspot } from "./Hotspot";
 
 export const GARAGE_MODEL_URL = "/models/garage.glb";
 
@@ -52,7 +54,14 @@ export function Scene() {
     });
   }, [scene]);
 
-  return <primitive object={scene} />;
+  return (
+    <>
+      <primitive object={scene} />
+      {focusViews.map((view) => (
+        <Hotspot key={view.id} view={view} scene={scene} />
+      ))}
+    </>
+  );
 }
 
 useGLTF.preload(GARAGE_MODEL_URL);

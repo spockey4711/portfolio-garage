@@ -9,7 +9,15 @@ Maße des Blockouts dort in §2. Zeitplan und Setup-Reihenfolge: `docs/PLAN.md`.
 
 Stand 2026-09-18: Tag 0 aus `docs/PLAN.md` ist erledigt (Scaffold, Toolchain, CI, 3D-Stack,
 Blockout im Browser mit Parallax). Toolchain-Vorlage ist Kuechenzettel, devblueprint kommt
-nicht zum Einsatz. Nächster Schritt ist Woche 1 im Plan.
+nicht zum Einsatz. Aus Woche 1 steht die Interaktion: Store, Kamerafahrten, Hotspot-Klick,
+`?view=`-Sync, Tastatur. Offen aus Woche 1: Hover-Outline (Postprocessing), Screens als
+`<Html transform occlude>`, Blender-Modellierung, VPS-Deploy.
+
+Interaktion: Die URL ist die Quelle der Wahrheit für den offenen Hotspot. Klick und Tastatur
+schreiben `?view=` per `history.pushState` (`lib/garage/navigate.ts`), `ViewSync.tsx` liest
+sie über `useSearchParams` und ruft den Store; der Store schreibt nie die URL. Jeder Hotspot
+hat eine unsichtbare, auf 35 cm aufgepolsterte Klickbox (`Hotspot.tsx`), der gerade
+fokussierte Hotspot hat keine, sonst fängt sie den "Klick ins Leere" ab.
 
 # Kommandos
 

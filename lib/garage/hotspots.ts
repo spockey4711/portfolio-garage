@@ -11,6 +11,9 @@ export type ViewId = keyof typeof generated;
 
 export const REST_VIEW = "ruhe" satisfies ViewId;
 
+/** Every view the camera can drive into, i.e. all but the rest view. */
+export type FocusViewId = Exclude<ViewId, typeof REST_VIEW>;
+
 /** The kind of UI a focused view shows; drives which screen component mounts. */
 export type ViewUi =
   | "labels" // rest position: hover labels only
@@ -18,8 +21,8 @@ export type ViewUi =
   | "overlay" // DOM overlay in front of a wall object
   | "hover"; // no screen, hovering parts of the object reveals text
 
-export interface View {
-  readonly id: ViewId;
+export interface View<Id extends ViewId = ViewId> {
+  readonly id: Id;
   readonly camera: Vec3;
   readonly target: Vec3;
   /** Value of the ?view= search param; the rest view has none. */
@@ -47,7 +50,7 @@ function toVec3(v: number[]): Vec3 {
   return [v[0], v[1], v[2]];
 }
 
-export const views: Readonly<Record<ViewId, View>> = Object.fromEntries(
+export const views: { readonly [Id in ViewId]: View<Id> } = Object.fromEntries(
   (Object.keys(generated) as ViewId[]).map((id) => [
     id,
     {
@@ -57,7 +60,16 @@ export const views: Readonly<Record<ViewId, View>> = Object.fromEntries(
       ...meta[id],
     },
   ]),
-) as Record<ViewId, View>;
+) as { [Id in ViewId]: View<Id> };
+
+export function isFocusView(id: ViewId): id is FocusViewId {
+  return id !== REST_VIEW;
+}
+
+/** The hotspots in the order Tab walks through them, left to right in the room. */
+export const focusViews: ReadonlyArray<View<FocusViewId>> = (
+  ["werkzeugwand", "laptop", "whiteboard", "radcomputer", "pinnwand"] as const
+).map((id) => views[id]);
 
 /** Vertical field of view of the rest camera in degrees (24 mm equivalent). */
 export const REST_FOV = 45;
