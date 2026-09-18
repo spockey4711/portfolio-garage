@@ -73,7 +73,9 @@ SUN_ELEVATION_DEG = 25  # low enough that the streak through the gate reaches th
 # pillar's shadow cuts a diagonal across the floor to the rear wall: light on the bench
 # and the bike, shade on the shelf and the boxes.
 SUN_AZIMUTH_DEG = 35
-SKY_COLOR = (0.62, 0.70, 0.80)  # a hazy sky, barely blue: the fill must not cool the shadows
+# Afternoon haze, warm grey rather than blue: the fill must not cool the shadows, and
+# behind the facade the sky was the coldest patch of the picture (docs/ATMOSPHAERE.md §2).
+SKY_COLOR = (0.78, 0.74, 0.66)
 # The sky enters over the whole gate and lights the floor from a third of the hemisphere,
 # the low sun only with sin 25°. At strength 1.0 the shade was half as bright as the
 # streak and the streak went flat; the streak needs about four times the shade.
@@ -108,6 +110,20 @@ view_layer = bpy.context.view_layer
 def to_yup(v):
     """Blender (x, y, z) -> three.js (x, z, -y), the same axis swap the glTF exporter applies."""
     return [round(v.x, 3) + 0.0, round(v.z, 3) + 0.0, round(-v.y, 3) + 0.0]
+
+
+def sky_hex():
+    """The sky as the stills show it: the bake world through the Standard view transform.
+
+    Below the soft-clip knee, so sRGB of SKY_COLOR * SKY_STRENGTH. The canvas paints
+    this behind the gate (SKY_COLOR in lib/garage/lightmap.ts) so it matches the still.
+    """
+
+    def to_srgb(c):
+        c = min(max(c, 0.0), 1.0)
+        return 12.92 * c if c <= 0.0031308 else 1.055 * c ** (1 / 2.4) - 0.055
+
+    return "#" + "".join(f"{round(to_srgb(c * SKY_STRENGTH) * 255):02x}" for c in SKY_COLOR)
 
 
 def select_only(objects, active=None):
@@ -561,6 +577,7 @@ if not skip_bake:
         json.dump(
             {
                 "fov": REST_FOV_DEG,
+                "sky": sky_hex(),
                 **{kind: {"width": w, "height": h} for kind, (w, h) in STILL_SIZES.items()},
                 "areas": areas,
             },

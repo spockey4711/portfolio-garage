@@ -7,6 +7,7 @@ import {
   SRGBColorSpace,
   type Texture,
 } from "three";
+import generated from "./still.generated.json";
 
 // Light is baked in Blender (docs/KONZEPT.md §5): the export bakes diffuse
 // direct + indirect light without colour into one atlas over the GLB's second
@@ -29,8 +30,11 @@ export const LIGHTMAP_EXPOSURE_STOPS = -1.5;
  */
 export const LIGHTMAP_INTENSITY = Math.PI * 2 ** -LIGHTMAP_EXPOSURE_STOPS;
 
-/** Sky the bake used, what shows through the window and behind the gate. */
-export const SKY_COLOR = "#bcd3ee";
+/**
+ * Sky the bake used, what shows behind the gate: the export writes it as the
+ * stills show it, so the canvas background and the still cannot drift apart.
+ */
+export const SKY_COLOR: string = generated.sky;
 
 /** The GLB's UV set the atlas is laid over (TEXCOORD_1); TEXCOORD_0 tiles the textures. */
 export const LIGHTMAP_UV_CHANNEL = 1;
