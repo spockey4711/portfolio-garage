@@ -69,8 +69,12 @@ Tor weiß. Regel: kein reines Grau, kein reines Weiß. Die Fototexturen bekommen
 `#fae9cb` (Sandstein statt Grau), Asphalt `#ffe9d2` (leicht bräunlich), Werkbankplatte
 `#ad9e94` (geölte Eiche statt heller Kiefer). Tor `#e9dfcb` (Creme), Decke und Beton einen
 Hauch warm. Die Bilder in `blender/textures/` bleiben, wie sie sind. `Lack_Gruen` bleibt.
-Nach dem Bake damit ist das Kälteste im Standbild der Himmel hinter der Fassade, ein graues
-Blau (Bake-Welt, `SKY_COLOR` mal `SKY_STRENGTH` in `export.py`), kein Material.
+Nach dem Bake damit war das Kälteste im Standbild der Himmel hinter der Fassade, ein graues
+Blau (Bake-Welt, `SKY_COLOR` mal `SKY_STRENGTH` in `export.py`), kein Material. Seit dem
+Bake vom 2026-09-18 ist er Dunst, warmes Grau (0,78/0,74/0,66 bei 0,4), die Schatten
+ändern sich dabei nicht sichtbar, weil der Himmel bei 0,4 kaum Fülllicht ist. Der Export
+schreibt den Himmel als sRGB nach `still.generated.json`, `SKY_COLOR` in `lightmap.ts`
+liest ihn von dort: Canvas-Hintergrund und Standbild sind pixelgleich (gemessen).
 
 ### Nachbearbeitung
 
@@ -109,11 +113,14 @@ Nicht zu wenig Polygone, sondern perfekt gerade Kanten und Achsparallelität.
 1. Erledigt: Licht, Sonne warm und tief, Himmel runter, Leuchte an, `Review_Licht` aus
    dem Bake, neu gebacken (PR #14, Werte in `export.py`). Größter Sprung; Streiflicht mit
    Fasen und Schatten erledigt die Hälfte des Blockigen.
-2. Erledigt: Farben der Flächenmaterialien, siehe §2.
+2. Erledigt: Farben der Flächenmaterialien und der Himmel, siehe §2.
 3. Kleinkram und Kurven.
 4. Das Rad.
 
 ## 5. Offene Entscheidung
+
+Entschieden 2026-09-18 in ADR-0007: Skripte für Maßhaltiges und Kurven, CC0-Assets für
+Stoff und Organisches, vom Skript platziert.
 
 ADR-0004 sagt, alles kommt aus bpy-Skripten. Für Kisten und Regale ist das richtig, für
 Trikot, Lappen, Schlauch und organische Formen wird es zäh. Zwei Wege, beide als Nachtrag

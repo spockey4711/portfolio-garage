@@ -1,6 +1,6 @@
 # ADR-0004: Das Rad wird selbst modelliert, prozedural per bpy
 
-- Status: Akzeptiert
+- Status: Akzeptiert, ergänzt durch ADR-0007 (CC0-Assets für Stoff und organische Deko)
 - Datum: 2026-09-18
 - Weicht ab von: `docs/KONZEPT.md` §6 ("Die eine Abkürzung, die sich lohnt: das Rad kaufen")
   und §9 (offene Entscheidung)

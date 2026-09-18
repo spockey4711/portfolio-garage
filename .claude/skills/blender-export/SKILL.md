@@ -18,8 +18,9 @@ Baut `blender/garage-blockout.blend` headless zu drei Dateien:
 - `lib/garage/hotspots.generated.json`: `Cam_*`/`Ziel_*`-Empties als Y-up-Koordinaten.
 - `public/models/garage-ruhe-tag-quer.webp` und `-hoch.webp`: die Ruheansicht als Standbild
   für das statische Fallback, 2400x1000 und 1200x2400, so gerendert wie das Web sie zeichnet.
-- `lib/garage/still.generated.json`: Größe beider Standbilder und je Hotspot sein Rechteck
-  im Querformat (Pixel, Ursprung oben links).
+- `lib/garage/still.generated.json`: Größe beider Standbilder, je Hotspot sein Rechteck
+  im Querformat (Pixel, Ursprung oben links) und der Himmel als sRGB-Hex, wie ihn die
+  Standbilder zeigen.
 
 ## Ausführen
 
@@ -73,7 +74,9 @@ Backtrace ist der Metal-Kernel-Cache, einmal wiederholen.
 - Lichtrig "Tag" steht als Konstanten in `export.py` (`SUN_*`, `SKY_*`, `LAMP_*`):
   Nachmittag, Sonne warm (4000 K) mit 3,0 von vorn rechts, 25° hoch, 35° Azimut, so dass
   ein Streifen durchs Tor bis zur Werkbank läuft und der rechte Pfeiler eine Schattenkante
-  bis zur Rückwand wirft; Himmel 0,4 als schwaches, kaum blaues Fülllicht; die
+  bis zur Rückwand wirft; Himmel 0,4 als schwaches Fülllicht, warmgrauer Dunst statt Blau,
+  weil er hinter der Fassade sichtbar ist (das Web liest ihn als `sky` aus
+  `still.generated.json`, so bleiben Canvas-Hintergrund und Standbild gleich); die
   Werkbankleuchte brennt mit 10 W bei 2700 K, die Birne sitzt vor der Diffusorscheibe der
   `Leuchte` (drittes Materialfach). Die Fassade deckelt die Sonne: sie steht fast frontal
   zu ihr, und über etwa 3,2 clippt die Lightmap dort (`EXPOSURE_STOPS`). Die Lichter der
