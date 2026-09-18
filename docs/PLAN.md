@@ -53,7 +53,8 @@ Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallba
 
 - Blender: Werkbank, Schrank, Regal, Montageständer. Rad kaufen (Sketchfab, low-poly) und die
   Szene stilistisch daran anpassen.
-- Erster Bake (Tag): AO + Diffuse in einen Atlas, `MeshBasicMaterial` mit Lightmap im Web.
+- ~~Erster Bake (Tag): AO + Diffuse in einen Atlas, `MeshBasicMaterial` mit Lightmap im Web.~~
+  Erledigt 18.09.: Diffuse direkt + indirekt ohne Farbe, WebP, im Export-Skill.
 - `gltf-transform`-Pipeline, GLB unter 3 MB, `PerformanceMonitor` senkt DPR.
 - Statisches Fallback (WebP mit klickbaren Bereichen) für `prefers-reduced-motion`, unter
   768 px und schwache GPU. Canvas lädt erst nach dem ersten Paint.

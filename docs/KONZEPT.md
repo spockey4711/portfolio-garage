@@ -47,7 +47,7 @@ Boden in der Raummitte, x nach rechts, y nach oben, z zeigt zum Tor (Kamera).
   |                                                        |
   |                                                        |
   +=================== Garagentor, hochgefahren ===========+
-                            ^ Kamera (z = +4.2)
+                            ^ Kamera (z = +5.2)
 ```
 
 ### Dach und Tor
@@ -55,11 +55,12 @@ Boden in der Raummitte, x nach rechts, y nach oben, z zeigt zum Tor (Kamera).
 Das Dach ist geschlossen. "Halb offen" ist das Sektionaltor, nicht das Dach: die Szene lebt
 davon, dass Licht nur durch die Toröffnung (und das kleine Fenster) in einen dunklen Kasten
 fällt. Ein literal halb offenes Tor (Unterkante bei 1,10 m) geht aber nicht, weil die
-Ruhekamera 2,2 m vor dem Tor auf 1,60 m Augenhöhe steht und das Tor dann zwei Drittel des
+Ruhekamera 3,2 m vor dem Tor auf 1,60 m Augenhöhe steht und das Tor dann die Hälfte des
 Bildes verdeckt. Deshalb: Tor zu ca. 80 % hochgefahren, **Unterkante bei 1,85 m**. Das
-hängende Segment erscheint als Band am oberen Bildrand (ca. 22 % der Höhe), verdeckt die Decke
-komplett und alles an der Rückwand unterhalb von 2,27 m bleibt sichtbar. Falls das Band zu
-schwer wirkt: Unterkante 1,95 m ergibt ca. 15 %.
+hängende Segment erscheint als Band im oberen Bilddrittel, darüber Sturz und Außenwand
+(ADR-0005: die Kamera steht vor der Garage, damit man Pfeiler, Sturz und Vorplatz sieht und
+das Bild als Garage liest), die Decke bleibt verdeckt und alles an der Rückwand unterhalb
+von 2,27 m bleibt sichtbar.
 
 ### Maße (Blockout `blender/garage-blockout.blend`, 2026-09-18)
 
@@ -88,7 +89,7 @@ Rückwand (Fläche z = -2,00):
 | Werkbankleuchte | Klemme (-1,00, 0,90, -1,85), Kopf auf 1,50                   |                                             | Tag/Nacht    |
 | Werkzeugwand    | 1,20 x 1,20 x 0,02                                           | x = -2,35, y = 1,60 (1,00 bis 2,20)         | Werkzeugwand |
 | Whiteboard      | 1,20 x 0,90 x 0,03                                           | x = 0,40, y = 1,50 (1,05 bis 1,95)          | Whiteboard   |
-| Pinnwand (Kork) | 0,90 x 0,60 x 0,03                                           | x = 1,85, y = 1,50 (1,20 bis 1,80)          | Pinnwand     |
+| Pinnwand (Kork) | 0,90 x 0,60 x 0,03                                           | x = 1,75, y = 1,50 (1,20 bis 1,80)          | Pinnwand     |
 
 Raummitte:
 
@@ -99,12 +100,14 @@ Raummitte:
 | Montageständer | Dreibein r 0,45, Säule Ø 0,04 x 1,10, Klemmarm 0,35                            | Säule bei (-0,55, 0, 0,15), auf der kameraabgewandten Seite                           |
 | Radcomputer    | 0,06 x 0,09 x 0,02 (Edge 840), Aero-Halter 0,08 vor dem Lenker, 20° angestellt | (0,30, 1,07, 0,00)                                                                    |
 
-Atmosphäre (von der Ruhekamera sichtbar nur bei z < 1,35 und etwa |x| < 2,4):
+Atmosphäre (von der Ruhekamera sichtbar nur bei z < 1,35 und etwa |x| < 2,4; kein Möbel
+darf von der Ruhekamera aus einen Hotspot verdecken, deshalb steht der Schrank vorn an der
+Wand und das Regal ist schmaler als das Fenster):
 
 | Objekt                       | Größe                            | Position                                       |
 | ---------------------------- | -------------------------------- | ---------------------------------------------- |
-| Werkstattschrank, linke Wand | 0,50 x 2,00 x 1,00, zwei Türen   | x = -2,75, z = -0,60, Türen zeigen in den Raum |
-| Schwerlastregal              | 0,80 x 1,75 x 0,40, vier Böden   | x = 2,55, z = -1,78, unter dem Fenster         |
+| Werkstattschrank, linke Wand | 0,50 x 2,00 x 1,00, zwei Türen   | x = -2,75, z = +0,25, Türen zeigen in den Raum |
+| Schwerlastregal              | 0,60 x 1,75 x 0,40, vier Böden   | x = 2,65, z = -1,78, unter dem Fenster         |
 | Rollentrainer                | 0,50 x 0,70 x 0,50               | (2,50, 0, -0,30)                               |
 | Zwei Kartons                 | je 0,60 x 0,40 x 0,40, gestapelt | (2,60, 0, -1,20), Katze später obendrauf       |
 
@@ -142,10 +145,10 @@ die DOM-UI darauf nicht lesbar.
 
 | Hotspot      | Kamera-Position                           | Blick auf                   | UI-Typ                                           | URL               |
 | ------------ | ----------------------------------------- | --------------------------- | ------------------------------------------------ | ----------------- |
-| Ruhe         | (0, 1.6, 4.2), vertikales FOV 45° (24 mm) | (0, 1.1, 0)                 | Hover-Labels                                     | `/`               |
+| Ruhe         | (0, 1.6, 5.2), vertikales FOV 55° (23 mm) | (0, 1.1, 0)                 | Hover-Labels                                     | `/`               |
 | Radcomputer  | (0.23, 1.22, 0.05), 17 cm über dem Lenker | Display (0.3, 1.07, 0.0)    | DOM in `<Html>`, Edge-UI mit echten Daten        | `/?view=computer` |
 | Laptop       | (-1.8, 1.08, -1.23), auf der Lid-Normalen | Display (-1.8, 1.01, -1.63) | DOM in `<Html>`, Projektliste, Fuelivo-Mini live | `/?view=laptop`   |
-| Pinnwand     | (1.8, 1.5, 0.3)                           | (1.85, 1.5, -1.9)           | DOM-Overlay, Zettel klickbar                     | `/?view=board`    |
+| Pinnwand     | (1.7, 1.5, 0.3)                           | (1.75, 1.5, -1.9)           | DOM-Overlay, Zettel klickbar                     | `/?view=board`    |
 | Whiteboard   | (0.4, 1.5, 0.2)                           | (0.4, 1.5, -1.9)            | DOM-Overlay, Blogliste in Handschrift-Optik      | `/?view=plan`     |
 | Werkzeugwand | (-2.3, 1.5, 0.2)                          | (-2.4, 1.6, -1.9)           | Hover auf Werkzeug zeigt Tool/Tech               | `/?view=tools`    |
 
@@ -296,10 +299,8 @@ Blender-Szene grob blocken (nur Boxen an den richtigen Stellen), als GLB exporti
 laden, Kamera-Positionen und Hotspot-Gefühl testen, bevor ein einziges Objekt schön ist. Ein
 Nachmittag. Beantwortet die Frage, ob sich die Garage richtig anfühlt.
 
-Stand 2026-09-18: Blender-Hälfte erledigt, `blender/garage-blockout.blend`. Collection
-`Blockout` mit allen Objekten aus §2, Collection `Hotspots` mit `Cam_*`/`Ziel_*`-Empties für
-alle sechs Ansichten, Kamera in Ruheposition, Workbench-Render mit Objektfarben (F12). Kein
-Material, kein Licht, kein Export. Offen: GLB-Export und der R3F-Test.
+Stand 2026-09-18: Erledigt. Szene aus `blender/build/` (ADR-0004), Export und Tag-Bake über
+den Skill `blender-export`, Ruhe- und Fokuskameras im Browser geprüft.
 
 ## 9. Offene Entscheidungen
 

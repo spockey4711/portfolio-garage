@@ -71,8 +71,10 @@ def schraubstock(bm):
 multi("Schraubstock", schraubstock, [M["Metall_Dunkel"], M["Metall_Hell"]])
 
 # ---------------------------------------------------------------- Schrank
-# steel workshop cabinet against the left wall, doors face into the room (+x)
-SX0, SX1, SY0, SY1, SH = -3.0, -2.5, 0.1, 1.1, 2.0
+# steel workshop cabinet against the left wall, doors face into the room (+x).
+# It stands towards the gate so that from Cam_Ruhe its door edge (x -2.5,
+# y -0.75) clears the bench's left end (x -2.9, y 1.4) and the pegboard.
+SX0, SX1, SY0, SY1, SH = -3.0, -2.5, -0.75, 0.25, 2.0
 
 
 def schrank(bm):
@@ -100,8 +102,9 @@ def griffe(bm):
 multi("Schrank_Griffe", griffe, [M["Metall_Hell"]])
 
 # ---------------------------------------------------------------- Regal
-# heavy-duty rack under the window, rear right corner
-RX0, RX1, RY0, RY1, RH = 2.15, 2.95, 1.58, 1.98, 1.75
+# heavy-duty rack under the window, rear right corner; 0.60 wide so its
+# front post stays right of the cork board from Cam_Ruhe
+RX0, RX1, RY0, RY1, RH = 2.35, 2.95, 1.58, 1.98, 1.75
 
 
 def regal(bm):
@@ -152,8 +155,8 @@ karton("Karton_1", (0.6, 0.4, 0.4), (2.55, 1.15, 0.2), radians(4))
 karton("Karton_2", (0.5, 0.36, 0.36), (2.55, 1.15, 0.58), radians(-14))
 
 # ---------------------------------------------------------------- Pinnwand
-# cork board, x 1.40..2.30, z 1.20..1.80, 3 cm frame in dark wood
-PX, PZ, PW, PH = 1.85, 1.5, 0.9, 0.6
+# cork board, x 1.30..2.20, z 1.20..1.80, 3 cm frame in dark wood
+PX, PZ, PW, PH = 1.75, 1.5, 0.9, 0.6
 
 
 def pinnwand(bm):

@@ -39,8 +39,9 @@ boxes("Boden", slabs, P["Beton_Boden"], bevel=0.004)
 # the underlayer's top sits `depth` below the slab top
 box("Boden_Fugen", (6.0, 4.0, 0.03), (0, 0, -depth - 0.015), P["Fuge"])
 
-# driveway outside the gate, visible through the opening from the focus views
-box("Vorplatz", (9.0, 4.0, 0.05), (0, -4.24, -0.025 - 0.01), P["Asphalt"])
+# driveway outside the gate, flush with the slabs and running under the pillars so the
+# threshold has no gap to the sky; the rest camera stands on it
+box("Vorplatz", (9.0, 4.24, 0.05), (0, -4.12, -0.025), P["Asphalt"])
 
 # ---------------------------------------------------------------- shell
 box("Decke", (6.48, 4.48, 0.24), (0, 0, 2.92), P["Decke"])

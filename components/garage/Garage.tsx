@@ -3,6 +3,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import { REST_FOV, REST_VIEW, views } from "@/lib/garage/hotspots";
+import { SKY_COLOR } from "@/lib/garage/lightmap";
 import { closeView } from "@/lib/garage/navigate";
 import { useGarageStore } from "@/lib/garage/store";
 import { CameraRig } from "./CameraRig";
@@ -26,14 +27,13 @@ export function Garage() {
       camera={{ position: rest.camera, fov: REST_FOV, near: 0.05, far: 30 }}
       onPointerMissed={onPointerMissed}
       dpr={[1, 2]}
-      // HoverOutline.tsx renders through a multisampled composer instead.
+      // HoverOutline.tsx renders through a multisampled composer instead,
+      // which also owns the tone mapping.
       gl={{ antialias: false, powerPreference: "high-performance" }}
       className="h-full w-full"
     >
-      <color attach="background" args={["#1a1a1a"]} />
-      {/* Placeholder until the bake: daylight through the gate (see Scene.tsx). */}
-      <hemisphereLight args={["#dfe6ee", "#3a3632", 1.2]} />
-      <directionalLight position={[-2, 6, 8]} intensity={2.5} />
+      {/* No lights: the scene is lit by its baked atlas (Scene.tsx). */}
+      <color attach="background" args={[SKY_COLOR]} />
       <Suspense fallback={null}>
         <Scene />
         <CameraRig />

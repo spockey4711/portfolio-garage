@@ -11,8 +11,16 @@ Stand 2026-09-18: Tag 0 aus `docs/PLAN.md` ist erledigt (Scaffold, Toolchain, CI
 Blockout im Browser mit Parallax). Toolchain-Vorlage ist Kuechenzettel, devblueprint kommt
 nicht zum Einsatz. Aus Woche 1 steht der Code: Store, Kamerafahrten, Hotspot-Klick,
 `?view=`-Sync, Tastatur, Hover-Outline, Screens als `<Html transform occlude>` mit
-Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Offen aus Woche 1:
-Blender-Modellierung.
+Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Woche 1 komplett:
+Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Aus Woche 2 steht der Tag-Bake.
+
+Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
+`public/models/garage-lightmap-tag.webp` (Licht ohne Farbe), `Scene.tsx` tauscht jedes
+GLB-Material gegen `MeshBasicMaterial` mit dieser Lightmap (`lib/garage/lightmap.ts`). Die
+Belichtung der Datei und `LIGHTMAP_INTENSITY` gehören zusammen (`EXPOSURE_STOPS` in
+`export.py`). Der Composer in `HoverOutline.tsx` umgeht das Tonemapping des Renderers, den
+Highlight-Roll-off macht `SoftClipEffect` (`lib/garage/softclip.ts`): unter 0,8 bleibt das
+Bild exakt Cycles, gemessen. Lichtrig ändern heißt `export.py` ändern und neu exportieren.
 
 Interaktion: Die URL ist die Quelle der Wahrheit für den offenen Hotspot. Klick und Tastatur
 schreiben `?view=` per `history.pushState` (`lib/garage/navigate.ts`), `ViewSync.tsx` liest

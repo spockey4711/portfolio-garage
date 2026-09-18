@@ -14,7 +14,7 @@ describe("views", () => {
   });
 
   it("puts the rest camera where the concept says", () => {
-    expect(views[REST_VIEW].camera).toEqual([0, 1.6, 4.2]);
+    expect(views[REST_VIEW].camera).toEqual([0, 1.6, 5.2]);
     expect(views[REST_VIEW].target).toEqual([0, 1.1, 0]);
   });
 

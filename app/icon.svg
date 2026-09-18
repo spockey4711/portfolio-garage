@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Outer rim/tire -->
+  <circle cx="50" cy="50" r="40" stroke="#1F2937" stroke-width="12"/>
+  
+  <!-- Spokes -->
+  <g stroke="#1F2937" stroke-width="4" stroke-linecap="round">
+    <line x1="50" y1="18" x2="50" y2="42" />
+    <line x1="50" y1="58" x2="50" y2="82" />
+    <line x1="18" y1="50" x2="42" y2="50" />
+    <line x1="58" y1="50" x2="82" y2="50" />
+    <line x1="27" y1="27" x2="44" y2="44" />
+    <line x1="73" y1="73" x2="56" y2="56" />
+    <line x1="27" y1="73" x2="44" y2="56" />
+    <line x1="73" y1="27" x2="56" y2="44" />
+  </g>
+  
+  <!-- Inner hub with accent color -->
+  <circle cx="50" cy="50" r="10" fill="#F97316"/>
+  <circle cx="50" cy="50" r="4" fill="#1F2937"/>
+</svg>
