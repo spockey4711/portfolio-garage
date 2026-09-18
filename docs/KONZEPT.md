@@ -31,6 +31,9 @@ begehbare 3D-Welt (Bruno-Simon-Derivat), Animation auf allem.
 
 Stil: Low-Poly, gebackenes Licht, wenige Farben (Beton, Holz, ein Akzent in Teamfarbe), Flat
 Shading. Verzeiht Modellierfehler, wirkt kohärent, 60 fps auf jedem Laptop. Kein Fotorealismus.
+Seit ADR-0006 gilt das für die Geometrie: die Garage ist roter Backstein mit weißem Tor und
+Asphalt, die großen Flächen tragen kachelnde Fototexturen (Backstein, Asphalt, Holz), alles
+andere bleibt Flächenfarbe.
 
 Grundriss 6 x 4 m, lichte Höhe 2,80 m (Blockout-Entscheidung, siehe unten). Ursprung auf dem
 Boden in der Raummitte, x nach rechts, y nach oben, z zeigt zum Tor (Kamera).
@@ -249,7 +252,8 @@ Stack: Next.js App Router, `@react-three/fiber`, `@react-three/drei` (`useGLTF`,
   GPU: statt Canvas ein vorgerendertes WebP der Szene mit klickbaren Hotspot-Bereichen. Sieht
   gleich aus, kostet nichts, Lighthouse bleibt bei 100. Das Canvas lädt erst nach dem ersten
   Paint.
-- **Budget:** GLB unter 3 MB, Texturen 2k als KTX2, unter 100k Dreiecke, `PerformanceMonitor`
+- **Budget:** GLB unter 3 MB, Texturen 2k als WebP im GLB (ADR-0006, kein KTX2), unter 100k
+  Dreiecke, `PerformanceMonitor`
   senkt DPR bei Einbrüchen.
 
 ## 6. Blender-Aufwand

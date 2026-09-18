@@ -14,19 +14,23 @@ import { describe, expect, it } from "vitest";
 import {
   LIGHTMAP_EXPOSURE_STOPS,
   LIGHTMAP_INTENSITY,
+  LIGHTMAP_UV_CHANNEL,
   applyLightmap,
   lightmapMaterial,
   prepareLightmap,
 } from "./lightmap";
 
-// A GLB as GLTFLoader hands it over: PBR materials, one of them transparent
-// glass, one mesh with two material slots. Typed as plain Mesh, like the
-// loader's objects, so the swapped materials type-check.
+// A GLB as GLTFLoader hands it over: PBR materials, the wall with a tiling
+// texture, one of them transparent glass, one mesh with two material slots.
+// Typed as plain Mesh, like the loader's objects, so the swapped materials
+// type-check.
 function gltfScene() {
   const scene = new Group();
+  const brick = new Texture();
+  brick.repeat.set(1 / 1.05, 1 / 1.05);
   const wall: Mesh = new Mesh(
     new BoxGeometry(),
-    new MeshStandardMaterial({ color: "#b7b2aa", name: "Putz" }),
+    new MeshStandardMaterial({ map: brick, name: "Backstein" }),
   );
   wall.name = "Wand";
   const glass: Mesh = new Mesh(
@@ -46,7 +50,7 @@ function gltfScene() {
   ]);
   box.name = "Karton";
   scene.add(wall, glass, box);
-  return { scene, wall, glass, box };
+  return { scene, wall, glass, box, brick };
 }
 
 describe("lightmapMaterial", () => {
@@ -67,6 +71,18 @@ describe("lightmapMaterial", () => {
     expect(material.lightMapIntensity).toBe(LIGHTMAP_INTENSITY);
   });
 
+  it("keeps the tiling texture as the loader set it up, with the atlas's anisotropy", () => {
+    const { wall, brick } = gltfScene();
+    const atlas = prepareLightmap(new Texture(), 16);
+    const material = lightmapMaterial(wall.material as Material, atlas);
+
+    expect(material.map).toBe(brick);
+    expect(brick.repeat.x).toBeCloseTo(1 / 1.05);
+    expect(brick.channel).toBe(0);
+    expect(brick.anisotropy).toBe(16);
+    expect(material.color.getHexString()).toBe("ffffff");
+  });
+
   it("undoes the export's exposure and MeshBasicMaterial's 1/pi", () => {
     expect(LIGHTMAP_INTENSITY).toBeCloseTo(
       Math.PI * 2 ** -LIGHTMAP_EXPOSURE_STOPS,
@@ -81,7 +97,7 @@ describe("applyLightmap", () => {
     applyLightmap(scene, atlas);
 
     expect(wall.material).toBeInstanceOf(MeshBasicMaterial);
-    expect((wall.material as MeshBasicMaterial).name).toBe("Putz");
+    expect((wall.material as MeshBasicMaterial).name).toBe("Backstein");
     const slots = box.material as MeshBasicMaterial[];
     expect(slots).toHaveLength(2);
     expect(slots.every((m) => m.lightMap === atlas)).toBe(true);
@@ -104,12 +120,13 @@ describe("applyLightmap", () => {
 });
 
 describe("prepareLightmap", () => {
-  it("reads the atlas like glTF UVs expect it, sRGB and top-down", () => {
+  it("reads the atlas like glTF UVs expect it, sRGB, top-down, second UV set", () => {
     const texture = prepareLightmap(new Texture(), 8);
 
     expect(texture.flipY).toBe(false);
     expect(texture.colorSpace).toBe(SRGBColorSpace);
-    expect(texture.channel).toBe(0);
+    expect(texture.channel).toBe(LIGHTMAP_UV_CHANNEL);
+    expect(LIGHTMAP_UV_CHANNEL).toBe(1);
     expect(texture.anisotropy).toBe(8);
   });
 });

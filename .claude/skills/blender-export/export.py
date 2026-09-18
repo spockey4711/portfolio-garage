@@ -2,10 +2,13 @@
 
 Writes, relative to <out> (the first argument after "--"):
   public/models/garage.glb              collection "Blockout", object names kept, modifiers
-                                        applied, one UV set "Lightmap"
-  public/models/garage-lightmap-tag.webp daylight baked with Cycles into that UV set: diffuse
-                                        direct + indirect light without colour, so the web
-                                        multiplies it with the material colour (KONZEPT §5)
+                                        applied, two UV sets: "Textur" (TEXCOORD_0, world
+                                        metres for the tiling photo textures, which travel
+                                        inside the GLB as WebP) and "Lightmap" (TEXCOORD_1)
+  public/models/garage-lightmap-tag.webp daylight baked with Cycles into the Lightmap set:
+                                        diffuse direct + indirect light without colour, so
+                                        the web multiplies it with the material colour or
+                                        texture (KONZEPT §5)
   lib/garage/hotspots.generated.json    Cam_*/Ziel_* empties of collection "Hotspots",
                                         Blender Z-up converted to three.js Y-up
   public/models/garage-ruhe-tag-quer.webp
@@ -48,6 +51,9 @@ still_json_path = os.path.join(out_root, "lib", "garage", "still.generated.json"
 
 LIGHTMAP_SIZE = 2048
 BAKE_SAMPLES = 128
+TEXTURE_UV = "Textur"  # the tiling textures' UV set, laid by blender/build/garage_lib.py
+LIGHTMAP_UV = "Lightmap"
+TEXTURE_QUALITY = 90  # WebP inside the GLB
 LIGHTMAP_QUALITY = 90  # lossy WebP: 0.5 MB instead of 3.5 MB as PNG, no visible difference
 # Sunlit surfaces exceed 1.0; the PNG stores the bake darkened by this many stops and
 # lib/garage/lightmap.ts (LIGHTMAP_EXPOSURE_STOPS) brightens it back in the shader.
@@ -170,10 +176,17 @@ for o in meshes:
             bmesh.ops.delete(bm, geom=dead, context="FACES")
             bm.to_mesh(o.data)
         bm.free()
-    # exactly one UV set, the same on every object, so the bake proxy below has one too
-    while o.data.uv_layers:
-        o.data.uv_layers.remove(o.data.uv_layers[0])
-    o.data.uv_layers.new(name="Lightmap")
+    # the same two UV sets in the same order on every object: TEXCOORD_0 is the
+    # textures' (empty where nothing is textured, the web reads it anyway), TEXCOORD_1
+    # the atlas. The bake proxy below joins them by name, so the order must not vary.
+    for layer in list(o.data.uv_layers):
+        if layer.name != TEXTURE_UV:
+            o.data.uv_layers.remove(layer)
+    if TEXTURE_UV not in o.data.uv_layers:
+        o.data.uv_layers.new(name=TEXTURE_UV)
+    lightmap_uv = o.data.uv_layers.new(name=LIGHTMAP_UV)
+    o.data.uv_layers.active = lightmap_uv
+    lightmap_uv.active_render = True
 
 faces = sum(len(o.data.polygons) for o in meshes)
 
@@ -202,10 +215,10 @@ if not skip_bake:
     world.use_nodes = True
     background = world.node_tree.nodes["Background"]
     background.inputs["Color"].default_value = (0.5, 0.65, 0.85, 1.0)
-    background.inputs["Strength"].default_value = 1.0
+    background.inputs["Strength"].default_value = 1.3  # brick swallows more than plaster did
     scene.world = world
     sun_data = bpy.data.lights.new("Sonne", "SUN")
-    sun_data.energy = 3.0
+    sun_data.energy = 2.2  # 3.0 blew the sunlit brick facade out to pink
     sun_data.angle = radians(3)
     sun = bpy.data.objects.new("Sonne", sun_data)
     scene.collection.objects.link(sun)
@@ -258,6 +271,8 @@ if not skip_bake:
     bpy.ops.object.join()
     proxy = view_layer.objects.active
     proxy.name = "Bake_Proxy"
+    proxy.data.uv_layers.active = proxy.data.uv_layers[LIGHTMAP_UV]
+    proxy.data.uv_layers[LIGHTMAP_UV].active_render = True
     for o in meshes:
         o.hide_render = True
     select_only([proxy])
@@ -310,6 +325,16 @@ if not skip_bake:
 
 # ---------------------------------------------------------------- glb
 # Everything in the collection, the group empties (Rad, Laptop, Radcomputer) included.
+# The normal maps have done their work in the bake; the web lights nothing, so only the
+# colour textures go into the GLB, as WebP (EXT_texture_webp), with the Mapping node's
+# tile scale as KHR_texture_transform.
+for mat in bpy.data.materials:
+    if not mat.use_nodes:
+        continue
+    bsdf = mat.node_tree.nodes.get("Principled BSDF")
+    if bsdf is not None:
+        for link in list(bsdf.inputs["Normal"].links):
+            mat.node_tree.links.remove(link)
 select_only(list(bpy.data.collections["Blockout"].all_objects))
 os.makedirs(os.path.dirname(glb_path), exist_ok=True)
 bpy.ops.export_scene.gltf(
@@ -318,6 +343,8 @@ bpy.ops.export_scene.gltf(
     use_selection=True,
     export_apply=True,
     export_yup=True,
+    export_image_format="WEBP",
+    export_image_quality=TEXTURE_QUALITY,
 )
 
 os.makedirs(os.path.dirname(hotspots_path), exist_ok=True)
@@ -327,7 +354,7 @@ with open(hotspots_path, "w", encoding="utf-8") as f:
 
 # ---------------------------------------------------------------- stills
 # The static fallback (KONZEPT §5) is the rest view exactly as Scene.tsx draws it: every
-# material becomes colour times lightmap, lifted by the exposure the file took out
+# material becomes colour (or texture) times lightmap, lifted by the exposure the file took out
 # (lib/garage/lightmap.ts), the sky is the bake's sky, and the compositor applies the
 # highlight roll-off of SoftClipEffect. Emission needs no light, so Cycles only
 # antialiases. This runs after the GLB export because it rewires the materials.
@@ -342,13 +369,19 @@ if not skip_bake:
         output = next((n for n in nodes if n.type == "OUTPUT_MATERIAL"), None)
         if bsdf is None or output is None:
             continue
-        color = tuple(bsdf.inputs["Base Color"].default_value)[:3]
         alpha = bsdf.inputs["Alpha"].default_value
+        atlas_uv = nodes.new("ShaderNodeUVMap")
+        atlas_uv.uv_map = LIGHTMAP_UV
         atlas = nodes.new("ShaderNodeTexImage")
         atlas.image = lightmap_image
+        node_links.new(atlas_uv.outputs["UV"], atlas.inputs["Vector"])
         lit = nodes.new("ShaderNodeVectorMath")
         lit.operation = "MULTIPLY"
-        lit.inputs[0].default_value = color
+        base = bsdf.inputs["Base Color"]
+        if base.links:
+            node_links.new(base.links[0].from_socket, lit.inputs[0])
+        else:
+            lit.inputs[0].default_value = tuple(base.default_value)[:3]
         node_links.new(atlas.outputs["Color"], lit.inputs[1])
         emission = nodes.new("ShaderNodeEmission")
         emission.inputs["Strength"].default_value = 2**-EXPOSURE_STOPS

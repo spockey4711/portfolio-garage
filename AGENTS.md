@@ -15,8 +15,10 @@ Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Woche 
 Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Aus Woche 2 steht der Tag-Bake.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
-`public/models/garage-lightmap-tag.webp` (Licht ohne Farbe), `Scene.tsx` tauscht jedes
-GLB-Material gegen `MeshBasicMaterial` mit dieser Lightmap (`lib/garage/lightmap.ts`). Die
+`public/models/garage-lightmap-tag.webp` (Licht ohne Farbe, UV-Set 2), `Scene.tsx` tauscht
+jedes GLB-Material gegen `MeshBasicMaterial` mit dieser Lightmap und der Textur des Materials
+(UV-Set 1 in Weltmetern, `lib/garage/lightmap.ts`). Backstein, Asphalt und Holz sind
+Fototexturen aus `blender/textures/` (ADR-0006), alles andere Flächenfarbe. Die
 Belichtung der Datei und `LIGHTMAP_INTENSITY` gehören zusammen (`EXPOSURE_STOPS` in
 `export.py`). Der Composer in `HoverOutline.tsx` umgeht das Tonemapping des Renderers, den
 Highlight-Roll-off macht `SoftClipEffect` (`lib/garage/softclip.ts`): unter 0,8 bleibt das

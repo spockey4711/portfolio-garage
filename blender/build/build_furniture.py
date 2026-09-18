@@ -5,7 +5,6 @@ from mathutils import Matrix, Vector
 exec(open(LIB).read())  # LIB: absolute path to garage_lib.py, set by the caller
 
 M = {m.name: m for m in bpy.data.materials}
-M["Stahl"] = material("Stahl", "#4a4f57", roughness=0.45, metallic=0.5)
 M["Kunststoff"] = material("Kunststoff", "#1a1b1d", roughness=0.5)
 M["Alu_Dunkel"] = material("Alu_Dunkel", "#5c6066", roughness=0.35, metallic=0.7)
 M["Papier"] = material("Papier", "#f2efe8", roughness=0.9)
@@ -54,7 +53,7 @@ def werkbank_schublade(bm):
     bm_box(bm, (0.20, 0.02, 0.02), (BX1 - 0.40, BY0 + 0.02, 0.72), 1)  # handle
 
 
-multi("Werkbank_Schublade", werkbank_schublade, [M["Stahl"], M["Metall_Hell"]], bevel=0.004)
+multi("Werkbank_Schublade", werkbank_schublade, [M["Lack_Gruen"], M["Metall_Hell"]], bevel=0.004)
 
 
 def schraubstock(bm):
@@ -83,13 +82,13 @@ def schrank(bm):
     bm_box(bm, (SX1 - SX0, SY1 - SY0 + 0.01, 0.02), ((SX0 + SX1) / 2, (SY0 + SY1) / 2, SH - 0.01), 0)  # top
 
 
-multi("Schrank", schrank, [M["Stahl"], M["Sockel"]], bevel=0.004)
+multi("Schrank", schrank, [M["Lack_Gruen"], M["Sockel"]], bevel=0.004)
 for n, yc in (("Schrank_Tuer_L", (SY0 + SY1) / 2 + 0.25), ("Schrank_Tuer_R", (SY0 + SY1) / 2 - 0.25)):
     def door(bm, yc=yc):
         bm_box(bm, (0.02, 0.485, SH - 0.08 - 0.06), (SX1 - 0.01, yc, 0.11 + (SH - 0.08 - 0.06) / 2), 0)
         for k in range(3):  # ventilation louvres at the top
             bm_box(bm, (0.006, 0.30, 0.010), (SX1 + 0.002, yc, SH - 0.20 + k * 0.03), 1)
-    multi(n, door, [M["Stahl"], M["Sockel"]], bevel=0.004)
+    multi(n, door, [M["Lack_Gruen"], M["Sockel"]], bevel=0.004)
 
 
 def griffe(bm):
