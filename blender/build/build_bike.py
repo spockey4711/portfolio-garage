@@ -1,10 +1,12 @@
 """Cube Agree C:62 Pro (blackline) as a low-poly road bike, hanging in the repair stand.
 
 Built in the bike's local frame: x forward, y left, z up, origin on the floor
-below the wheelbase centre; wheels at x = -0.5 / +0.5. The `Rad` empty places
-it in the room (docs/KONZEPT.md §2, ADR-0004). Frame numbers are a 56 cm
-road frame: 700x28c, wheelbase 1.00, BB drop 0.07, stack 0.565, reach 0.385,
-seat angle 73.5, head angle 73, fork rake 0.045.
+below the wheelbase centre. The `Rad` empty places it in the room
+(docs/KONZEPT.md §2, ADR-0004). Frame numbers are Cube's size 56 (Agree C:62
+2025, via bikeinsights.com): 700x28c, wheelbase 1.007, chainstay 0.412 (0.406
+horizontal), BB drop 0.071, stack 0.572, reach 0.391, seat angle 73.5, head
+angle 72.5, head tube 0.157, seat tube 0.50, fork rake 0.05. Saddle and
+cockpit heights are measured off the product photo, aligned by the axles.
 """
 import bpy, bmesh
 from math import radians, pi, cos, sin
@@ -28,16 +30,18 @@ for n in ("Staender_Arm", "Staender_Fuss_1", "Staender_Fuss_2", "Staender_Fuss_3
 # ---------------------------------------------------------------- geometry
 R_WHEEL = 0.34
 Z_AXLE = 0.20 + R_WHEEL  # tyres 20 cm above the floor, the bike hangs in the stand
-REAR = Vector((-0.5, 0, Z_AXLE))
-FRONT = Vector((0.5, 0, Z_AXLE))
-BB = Vector((-0.095, 0, Z_AXLE - 0.07))
-ST_DIR = Vector((cos(radians(73.5)), 0, sin(radians(73.5))))
-ST_TOP = BB + ST_DIR * 0.53
-HT_TOP = Vector((BB.x + 0.385, 0, BB.z + 0.565))
-HT_DIR = Vector((cos(radians(-73)), 0, sin(radians(-73))))  # down the steering axis
-HT_BOT = HT_TOP + HT_DIR * 0.16
-SEAT = BB + ST_DIR * 0.68
-BAR = Vector((0.40, 0, 1.055))
+WHEELBASE = 1.007
+REAR = Vector((-WHEELBASE / 2, 0, Z_AXLE))
+FRONT = Vector((WHEELBASE / 2, 0, Z_AXLE))
+BB = REAR + Vector((0.406, 0, -0.071))
+ST_DIR = Vector((-cos(radians(73.5)), 0, sin(radians(73.5))))  # up the seat tube, leaning back
+ST_TOP = BB + ST_DIR * 0.50
+HT_TOP = BB + Vector((0.391, 0, 0.572))
+HT_DIR = Vector((cos(radians(-72.5)), 0, sin(radians(-72.5))))  # down the steering axis
+HT_BOT = HT_TOP + HT_DIR * 0.157
+SEAT = BB + ST_DIR * 0.65  # rail height, saddle top ends up 0.69 above the BB
+SPACERS = 0.035
+BAR = Vector((0.41, 0, 1.09))  # bar tops 5 cm above the head tube, 110 mm stem
 DT_DIR = (HT_BOT - BB).normalized()
 Y = Vector((0, 1, 0))
 
@@ -165,18 +169,18 @@ def frame(bm):
         cube(bm, c, (0.04, 0.012, 0.04), None, 0)
     # seat post and stem (matt), aero tops
     tube(bm, ST_TOP, SEAT, 0.013, 0.7, 10, 1)
-    tube(bm, HT_TOP - HT_DIR * 0.02, HT_TOP - HT_DIR * 0.035, 0.03, 0.85, 12, 1)  # top cap / spacer
-    tube(bm, HT_TOP - HT_DIR * 0.03, BAR, 0.015, 0.8, 8, 1, 0.01)
+    tube(bm, HT_TOP, HT_TOP - HT_DIR * SPACERS, 0.028, 0.85, 12, 1)  # spacer stack under the stem
+    tube(bm, HT_TOP - HT_DIR * (SPACERS - 0.01), BAR, 0.015, 0.8, 8, 1, 0.01)
     cube(bm, BAR, (0.045, 0.40, 0.018), Matrix.Rotation(radians(-8), 4, "Y"), 1)
-    # drops and hoods
+    # drops and hoods: 85 reach, 140 drop, hoods 4 cm above the tops
     for y in (-0.20, 0.20):
-        rel = [(0, 0), (0.05, -0.005), (0.085, -0.045), (0.075, -0.105), (0.03, -0.135), (-0.04, -0.135)]
+        rel = [(0, 0), (0.05, -0.005), (0.085, -0.045), (0.075, -0.105), (0.03, -0.14), (-0.04, -0.14)]
         pts = [BAR + Vector((dx, y, dz)) for dx, dz in rel]
         for a, b in zip(pts, pts[1:]):
             tube(bm, a, b, 0.0115, 1, 8, 1, 0.004)
-        cube(bm, BAR + Vector((0.065, y, 0.008)), (0.075, 0.03, 0.036), Matrix.Rotation(radians(-18), 4, "Y"), 1)
-    # front derailleur and brake calipers (left side, flat mount)
-    cube(bm, BB + ST_DIR * 0.19 + Vector((0.01, -0.045, 0)), (0.03, 0.03, 0.06), None, 1)
+        cube(bm, BAR + Vector((0.085, y, 0.02)), (0.09, 0.03, 0.04), Matrix.Rotation(radians(-20), 4, "Y"), 1)
+    # front derailleur just above the big ring, brake calipers (left side, flat mount)
+    cube(bm, BB + Vector((0.0, -0.045, 0.135)), (0.03, 0.03, 0.05), None, 1)
     cube(bm, REAR + Vector((-0.02, 0.078, 0.04)), (0.075, 0.03, 0.028), None, 1)
     cube(bm, FRONT + Vector((-0.045, 0.078, 0.06)), (0.075, 0.03, 0.028), None, 1)
 
@@ -213,7 +217,7 @@ def drivetrain(bm):
     cyl(bm, 0.105, 0.003, BB + Y * -0.052, "y", 28, mi=2)  # 52 t, Ultegra rings are dark
     cyl(bm, 0.072, 0.003, BB + Y * -0.060, "y", 24, mi=2)  # 36 t
     cyl(bm, 0.03, 0.02, BB + Y * -0.052, "y", 12, mi=0)  # spider / crank axle
-    ang = radians(-35)  # drive side crank points forward and down
+    ang = radians(-10)  # drive side crank points forward, a touch down
     for y, sgn in ((-0.078, 1), (0.078, -1)):
         tip = BB + Vector((sgn * 0.1725 * cos(ang), y, sgn * 0.1725 * sin(ang)))
         rot = (tip - (BB + Y * y)).normalized().to_track_quat("X", "Y").to_matrix().to_4x4()
@@ -322,9 +326,12 @@ bpy.data.objects["Ziel_Radcomputer"].location = disp_w
 bpy.data.objects["Cam_Radcomputer"].location = disp_w + cam_dir * 0.172
 
 # ---------------------------------------------------------------- Montageständer
-# clamps the seat post; column behind the bike, away from the camera
-post_w = rad.matrix_world @ (ST_TOP + ST_DIR * 0.07)
-col = Vector((-0.42, 0.05, 0))
+# clamps the seat post; column 42 cm to the bike's left (away from the camera) and a
+# little behind the post, built in world space because the tripod stands on the floor
+post_l = ST_TOP + ST_DIR * 0.07
+post_w = rad.matrix_world @ post_l
+col = rad.matrix_world @ Vector((post_l.x - 0.10, 0.42, 0))
+col.z = 0
 arm_z = post_w.z
 
 

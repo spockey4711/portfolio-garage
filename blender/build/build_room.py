@@ -18,7 +18,7 @@ P = {
     "Glas": material("Glas", "#bcdde6", roughness=0.1, alpha=0.35),
     "Holz": material("Holz", "#b5844e", roughness=0.7),
     "Holz_Dunkel": material("Holz_Dunkel", "#6f4a2c", roughness=0.75),
-    "Akzent": material("Akzent", "#e0472f", roughness=0.5),
+    "Akzent": material("Akzent", "#1cb5a3", roughness=0.5),  # teal, same value as --accent in app/globals.css
     "Display": material("Display", "#0b0c0f", roughness=0.3),
     "Kork": material("Kork", "#c69a5e", roughness=0.95),
     "Whiteboard": material("Whiteboard", "#f5f5f2", roughness=0.3),
