@@ -7,17 +7,12 @@ import type { Vec3 } from "./hotspots";
 // tilted, and a remodelled laptop lid moves the React tree with it. The
 // rule is the same for every device: the face is the thin side of the
 // mesh's bounding box that looks at the view's camera, and "up" is
-// whichever in-plane edge points closest to the ceiling.
-
-/**
- * How far in front of the face the DOM floats, in metres. Enough that the
- * occlusion ray reaches the DOM before it reaches the panel, too little to
- * show as a gap from the side.
- */
-export const SCREEN_LIFT_M = 0.001;
+// whichever in-plane edge points closest to the ceiling. The DOM sits
+// exactly on the face, so it covers the panel pixel for pixel; the display
+// mesh therefore never counts as an occluder of its own screen (glb.ts).
 
 export interface ScreenPlane {
-  /** World centre of the display face, lifted by SCREEN_LIFT_M. */
+  /** World centre of the display face. */
   readonly position: Vector3;
   /** World rotation; local +z is the face normal, local +y is up. */
   readonly quaternion: Quaternion;
@@ -67,8 +62,7 @@ export function screenPlaneFor(mesh: Mesh, camera: Vec3): ScreenPlane {
   const position = centre
     .clone()
     .addScaledVector(unit(thin, 1), (side * sizeOf(thin)) / 2)
-    .applyMatrix4(world)
-    .addScaledVector(normal, SCREEN_LIFT_M);
+    .applyMatrix4(world);
 
   // Up is whichever in-plane edge, in either direction, rises the most.
   let up = new Vector3();

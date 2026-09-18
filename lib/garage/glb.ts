@@ -41,3 +41,13 @@ export function displayMesh(view: View<ScreenViewId>, scene: Object3D): Mesh {
   }
   return object;
 }
+
+/**
+ * What may hide a screen: every mesh in the GLB except the display it sits
+ * on. The DOM lies exactly on that display's face, and drei's occlusion ray
+ * stops at the first surface it meets, so the panel would hide its own
+ * screen half the time by rounding alone.
+ */
+export function occludersOf(display: Mesh, scene: Object3D): Mesh[] {
+  return meshesOf(scene).filter((mesh) => mesh !== display);
+}

@@ -1,6 +1,6 @@
 import { BoxGeometry, Group, Mesh } from "three";
 import { describe, expect, it } from "vitest";
-import { displayMesh, hotspotObject, meshesOf } from "./glb";
+import { displayMesh, hotspotObject, meshesOf, occludersOf } from "./glb";
 import { views } from "./hotspots";
 
 // A stand-in for the GLB with the laptop as the export carries it: a group
@@ -55,5 +55,15 @@ describe("displayMesh", () => {
     expect(() => displayMesh(views.laptop, scene)).toThrow(
       "Screen laptop: Laptop_Display is not a mesh",
     );
+  });
+});
+
+describe("occludersOf", () => {
+  it("leaves out the display so it cannot hide its own screen", () => {
+    const { scene, base, lid } = laptopScene();
+    const wall = new Mesh(new BoxGeometry(6, 3, 0.1));
+    wall.name = "Wand";
+    scene.add(wall);
+    expect(occludersOf(lid, scene)).toEqual([base, wall]);
   });
 });

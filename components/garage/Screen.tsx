@@ -1,25 +1,22 @@
 "use client";
 
 import { Html } from "@react-three/drei";
-import {
-  useMemo,
-  type PointerEvent,
-  type RefObject,
-  type SyntheticEvent,
-} from "react";
+import { useMemo, type PointerEvent, type SyntheticEvent } from "react";
 import type { Object3D } from "three";
 import type { ScreenViewId, View } from "@/lib/garage/hotspots";
-import { displayMesh } from "@/lib/garage/glb";
+import { displayMesh, occludersOf } from "@/lib/garage/glb";
 import { screenPlaneFor } from "@/lib/garage/screen";
 import { useGarageStore } from "@/lib/garage/store";
 import { screens } from "./screens";
 
 interface ScreenProps {
   readonly view: View<ScreenViewId>;
-  /** The loaded GLB; the screen sits on the display mesh found in here. */
+  /**
+   * The loaded GLB; the screen sits on the display mesh found in here and
+   * hides behind the rest of it. The hotspot click boxes are siblings of the
+   * GLB, not children, so they never occlude.
+   */
   readonly scene: Object3D;
-  /** What may hide the screen: the room's geometry, never the click boxes. */
-  readonly occlude: ReadonlyArray<RefObject<Object3D>>;
 }
 
 /** drei scales <Html transform> so that one CSS pixel is distanceFactor / 400 metres. */
@@ -30,16 +27,19 @@ const DREI_PX_PER_DISTANCE_FACTOR = 400;
 // controls once the camera is there. Until then it is scenery: no pointer
 // events, so a click on it is a click on the hotspot box behind it, and
 // inert, so Tab and screen readers skip it (KONZEPT §4).
-export function Screen({ view, scene, occlude }: ScreenProps) {
+export function Screen({ view, scene }: ScreenProps) {
   const isOpen = useGarageStore(
     (state) => state.phase === "focused" && state.view === view.id,
   );
   const { Component, pxWidth } = screens[view.id];
 
-  const plane = useMemo(
-    () => screenPlaneFor(displayMesh(view, scene), view.camera),
-    [scene, view],
-  );
+  const { plane, occlude } = useMemo(() => {
+    const display = displayMesh(view, scene);
+    return {
+      plane: screenPlaneFor(display, view.camera),
+      occlude: occludersOf(display, scene).map((mesh) => ({ current: mesh })),
+    };
+  }, [scene, view]);
 
   const pxHeight = Math.round((pxWidth * plane.height) / plane.width);
   const distanceFactor = (DREI_PX_PER_DISTANCE_FACTOR * plane.width) / pxWidth;
@@ -47,7 +47,7 @@ export function Screen({ view, scene, occlude }: ScreenProps) {
   return (
     <Html
       transform
-      occlude={occlude as RefObject<Object3D>[]}
+      occlude={occlude}
       position={plane.position}
       quaternion={plane.quaternion}
       distanceFactor={distanceFactor}

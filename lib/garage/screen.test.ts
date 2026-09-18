@@ -1,7 +1,7 @@
 import { BoxGeometry, Group, Mesh, Quaternion, Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import { views } from "./hotspots";
-import { SCREEN_LIFT_M, screenPlaneFor } from "./screen";
+import { screenPlaneFor } from "./screen";
 
 // The two display meshes as the blockout GLB carries them (node transforms
 // and bounds read from public/models/garage.glb). If the Blender model
@@ -44,11 +44,8 @@ describe("screenPlaneFor", () => {
     // Portrait: the 6 cm edge runs across, the 9 cm edge runs up.
     expect(plane.width).toBeCloseTo(0.06);
     expect(plane.height).toBeCloseTo(0.09);
-    // 1 cm above the device centre along the normal, plus the lift.
-    const expected = new Vector3(0.58, 1.07, 0).addScaledVector(
-      normal,
-      0.01 + SCREEN_LIFT_M,
-    );
+    // 1 cm above the device centre along the normal, on the face itself.
+    const expected = new Vector3(0.58, 1.07, 0).addScaledVector(normal, 0.01);
     expectClose(plane.position, [expected.x, expected.y, expected.z]);
   });
 
@@ -74,8 +71,8 @@ describe("screenPlaneFor", () => {
     const mesh = deviceMesh([0.32, 0.21, 0.005], [0, 1, 0], new Quaternion());
     const front = screenPlaneFor(mesh, [0, 1, 2]);
     const back = screenPlaneFor(mesh, [0, 1, -2]);
-    expect(front.position.z).toBeCloseTo(0.0025 + SCREEN_LIFT_M);
-    expect(back.position.z).toBeCloseTo(-0.0025 - SCREEN_LIFT_M);
+    expect(front.position.z).toBeCloseTo(0.0025);
+    expect(back.position.z).toBeCloseTo(-0.0025);
     // Up stays up on both sides; the basis stays right-handed.
     const upFront = new Vector3(0, 1, 0).applyQuaternion(front.quaternion);
     const upBack = new Vector3(0, 1, 0).applyQuaternion(back.quaternion);
