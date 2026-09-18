@@ -11,11 +11,16 @@ export interface ScreenSpec {
    * from the face's aspect ratio.
    */
   readonly pxWidth: number;
+  /**
+   * Width over height of the box the still's stand-in (StillView.tsx) shows
+   * the component in. In 3D the display face in the GLB decides instead.
+   */
+  readonly aspect: number;
 }
 
 // One entry per view whose ui is "screen" in lib/garage/hotspots.ts; the
 // type makes a new screen view a compile error until it has a component.
 export const screens: Readonly<Record<ScreenViewId, ScreenSpec>> = {
-  radcomputer: { Component: BikeComputer, pxWidth: 400 },
-  laptop: { Component: Laptop, pxWidth: 960 },
+  radcomputer: { Component: BikeComputer, pxWidth: 400, aspect: 2 / 3 },
+  laptop: { Component: Laptop, pxWidth: 960, aspect: 16 / 10 },
 };

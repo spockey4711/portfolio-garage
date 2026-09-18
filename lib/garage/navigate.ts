@@ -18,3 +18,23 @@ export function openView(view: View): void {
 export function closeView(): void {
   openView(views[REST_VIEW]);
 }
+
+/** The parts of a mouse event that say whether the browser should handle it. */
+export interface ClickModifiers {
+  readonly button: number;
+  readonly metaKey: boolean;
+  readonly ctrlKey: boolean;
+  readonly shiftKey: boolean;
+  readonly altKey: boolean;
+}
+
+/** A modified or non-primary click wants a new tab; leave that to the browser. */
+export function isPlainClick(event: ClickModifiers): boolean {
+  return (
+    event.button === 0 &&
+    !event.metaKey &&
+    !event.ctrlKey &&
+    !event.shiftKey &&
+    !event.altKey
+  );
+}

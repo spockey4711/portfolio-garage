@@ -8,9 +8,17 @@ Writes, relative to <out> (the first argument after "--"):
                                         multiplies it with the material colour (KONZEPT §5)
   lib/garage/hotspots.generated.json    Cam_*/Ziel_* empties of collection "Hotspots",
                                         Blender Z-up converted to three.js Y-up
+  public/models/garage-ruhe-tag-quer.webp
+  public/models/garage-ruhe-tag-hoch.webp
+                                        the rest view as the web draws it, for the static
+                                        fallback (KONZEPT §5): landscape for desktops,
+                                        portrait for phones
+  lib/garage/still.generated.json       size of both stills and, per hotspot, where it is
+                                        in the landscape one, in its pixels
 
-"--skip-bake" as second argument leaves the lightmap file alone. The UV layout is
-recomputed either way, so the old lightmap only fits if no geometry changed.
+"--skip-bake" as second argument leaves the lightmap and the stills alone (both need
+Cycles, and the stills need a lightmap that fits the geometry). The UV layout is recomputed
+either way, so the old lightmap only fits if no geometry changed.
 
 The .blend is never saved: everything here happens in the session and is thrown away.
 """
@@ -23,6 +31,7 @@ from math import radians
 
 import bmesh
 import bpy
+from bpy_extras.object_utils import world_to_camera_view
 from mathutils import Vector
 
 args = sys.argv[sys.argv.index("--") + 1 :]
@@ -31,6 +40,11 @@ skip_bake = "--skip-bake" in args[1:]
 glb_path = os.path.join(out_root, "public", "models", "garage.glb")
 lightmap_path = os.path.join(out_root, "public", "models", "garage-lightmap-tag.webp")
 hotspots_path = os.path.join(out_root, "lib", "garage", "hotspots.generated.json")
+still_paths = {
+    "wide": os.path.join(out_root, "public", "models", "garage-ruhe-tag-quer.webp"),
+    "portrait": os.path.join(out_root, "public", "models", "garage-ruhe-tag-hoch.webp"),
+}
+still_json_path = os.path.join(out_root, "lib", "garage", "still.generated.json")
 
 LIGHTMAP_SIZE = 2048
 BAKE_SAMPLES = 128
@@ -41,6 +55,21 @@ EXPOSURE_STOPS = -1.5
 # A camera closer than this to a face's plane keeps the face, so parallax and small
 # camera moves never uncover a hole (CameraRig lerps positions, so the endpoints suffice).
 CULL_MARGIN = 0.5
+
+# The stills: the rest view as the canvas shows it, so the canvas can take over from the
+# image without a visible cut. The view is named like its empties, the field of view is
+# vertical and the same for every aspect ratio (three.js keeps the vertical one), so a
+# viewport narrower than a still shows exactly the still's centre with `object-fit: cover`.
+REST_VIEW = "ruhe"
+REST_FOV_DEG = 55  # same as REST_FOV in lib/garage/hotspots.ts
+STILL_SIZES = {
+    "wide": (2400, 1000),  # 12:5, wider than a 21:9 desktop, so cover never crops the height
+    "portrait": (1200, 2400),  # 1:2, a phone held upright
+}
+STILL_SAMPLES = 32  # emission only: samples are antialiasing, there is no light to converge
+STILL_QUALITY = 90
+MIN_HIT_SIZE_M = 0.35  # same as MIN_HIT_SIZE_M in components/garage/Hotspot.tsx
+SOFT_CLIP_KNEE = 0.8  # same as SOFT_CLIP_KNEE in lib/garage/softclip.ts
 
 t_start = time.time()
 scene = bpy.context.scene
@@ -66,16 +95,27 @@ def is_opaque(obj):
 
 # ---------------------------------------------------------------- hotspots
 hotspots = {}
+hotspot_empties = {}  # view -> {"camera": empty, "target": empty}, Blender space, for the stills
+hotspot_names = {}  # view -> the object it opens: the suffix of Cam_<Name> as written
 for obj in bpy.data.collections["Hotspots"].objects:
-    prefix, _, view = obj.name.partition("_")
+    prefix, _, name = obj.name.partition("_")
     key = {"Cam": "camera", "Ziel": "target"}.get(prefix)
     if key is None:
         sys.exit(f"ERROR unexpected object in Hotspots: {obj.name} (expected Cam_* or Ziel_*)")
-    hotspots.setdefault(view.lower(), {})[key] = to_yup(obj.matrix_world.translation)
+    view = name.lower()
+    hotspots.setdefault(view, {})[key] = to_yup(obj.matrix_world.translation)
+    hotspot_empties.setdefault(view, {})[key] = obj
+    hotspot_names[view] = name
 
 incomplete = sorted(v for v, d in hotspots.items() if set(d) != {"camera", "target"})
 if incomplete:
     sys.exit(f"ERROR views without a Cam_/Ziel_ pair: {incomplete}")
+if REST_VIEW not in hotspots:
+    sys.exit(f"ERROR no Cam_Ruhe/Ziel_Ruhe pair, the stills need the rest view")
+# The still's click areas wrap the object named like the view, as Hotspot.tsx does in 3D.
+missing = sorted(n for v, n in hotspot_names.items() if v != REST_VIEW and n not in bpy.data.objects)
+if missing:
+    sys.exit(f"ERROR Cam_<Name> without an object <Name> to click on: {missing}")
 
 camera_positions = [
     o.matrix_world.translation.copy() for o in bpy.data.collections["Hotspots"].objects if o.name.startswith("Cam_")
@@ -285,10 +325,149 @@ with open(hotspots_path, "w", encoding="utf-8") as f:
     json.dump(hotspots, f, indent=2)
     f.write("\n")
 
+# ---------------------------------------------------------------- stills
+# The static fallback (KONZEPT §5) is the rest view exactly as Scene.tsx draws it: every
+# material becomes colour times lightmap, lifted by the exposure the file took out
+# (lib/garage/lightmap.ts), the sky is the bake's sky, and the compositor applies the
+# highlight roll-off of SoftClipEffect. Emission needs no light, so Cycles only
+# antialiases. This runs after the GLB export because it rewires the materials.
+if not skip_bake:
+    t_still = time.time()
+    lightmap_image = bpy.data.images.load(lightmap_path)  # sRGB, decoded like the web does
+    for mat in bpy.data.materials:
+        if not mat.use_nodes:
+            continue
+        nodes, node_links = mat.node_tree.nodes, mat.node_tree.links
+        bsdf = nodes.get("Principled BSDF")
+        output = next((n for n in nodes if n.type == "OUTPUT_MATERIAL"), None)
+        if bsdf is None or output is None:
+            continue
+        color = tuple(bsdf.inputs["Base Color"].default_value)[:3]
+        alpha = bsdf.inputs["Alpha"].default_value
+        atlas = nodes.new("ShaderNodeTexImage")
+        atlas.image = lightmap_image
+        lit = nodes.new("ShaderNodeVectorMath")
+        lit.operation = "MULTIPLY"
+        lit.inputs[0].default_value = color
+        node_links.new(atlas.outputs["Color"], lit.inputs[1])
+        emission = nodes.new("ShaderNodeEmission")
+        emission.inputs["Strength"].default_value = 2**-EXPOSURE_STOPS
+        node_links.new(lit.outputs["Vector"], emission.inputs["Color"])
+        surface = emission.outputs["Emission"]
+        if alpha < 1.0:
+            # Glass: MeshBasicMaterial blends it by its opacity, so does this mix.
+            mix = nodes.new("ShaderNodeMixShader")
+            mix.inputs["Fac"].default_value = alpha
+            node_links.new(nodes.new("ShaderNodeBsdfTransparent").outputs["BSDF"], mix.inputs[1])
+            node_links.new(surface, mix.inputs[2])
+            surface = mix.outputs["Shader"]
+        node_links.new(surface, output.inputs["Surface"])
+    for blocker in blockers:
+        blocker.hide_render = True
+
+    rest_camera = hotspot_empties[REST_VIEW]["camera"].matrix_world.translation
+    rest_target = hotspot_empties[REST_VIEW]["target"].matrix_world.translation
+    still_camera_data = bpy.data.cameras.new("Still_Camera")
+    still_camera_data.sensor_fit = "VERTICAL"
+    still_camera_data.angle_y = radians(REST_FOV_DEG)
+    still_camera_data.clip_start = 0.05
+    still_camera_data.clip_end = 30
+    still_camera = bpy.data.objects.new("Still_Camera", still_camera_data)
+    scene.collection.objects.link(still_camera)
+    still_camera.location = rest_camera
+    # -Z along the view, Y towards the ceiling: lookAt with world up, like CameraRig at rest.
+    still_camera.rotation_euler = (rest_target - rest_camera).to_track_quat("-Z", "Y").to_euler()
+    scene.camera = still_camera
+    view_layer.update()
+
+    def math(tree, operation, a, b=None):
+        node = tree.nodes.new("ShaderNodeMath")
+        node.operation = operation
+        for socket, value in zip(node.inputs, (a, b)):
+            if isinstance(value, (int, float)):
+                socket.default_value = value
+            elif value is not None:
+                tree.links.new(value, socket)
+        return node.outputs[0]
+
+    def soft_clip(tree, value):
+        """SoftClipEffect per channel: min(c, knee) + room * (1 - exp(-max(c - knee, 0) / room))."""
+        room = 1.0 - SOFT_CLIP_KNEE
+        over = math(tree, "MAXIMUM", math(tree, "SUBTRACT", value, SOFT_CLIP_KNEE), 0.0)
+        decay = math(tree, "EXPONENT", math(tree, "MULTIPLY", over, -1.0 / room))
+        tail = math(tree, "MULTIPLY", math(tree, "SUBTRACT", 1.0, decay), room)
+        return math(tree, "ADD", math(tree, "MINIMUM", value, SOFT_CLIP_KNEE), tail)
+
+    tree = bpy.data.node_groups.new("Still_SoftClip", "CompositorNodeTree")
+    tree.interface.new_socket("Image", in_out="OUTPUT", socket_type="NodeSocketColor")
+    layers = tree.nodes.new("CompositorNodeRLayers")
+    layers.scene = scene
+    split = tree.nodes.new("CompositorNodeSeparateColor")
+    split.mode = "RGB"
+    join = tree.nodes.new("CompositorNodeCombineColor")
+    join.mode = "RGB"
+    tree.links.new(layers.outputs["Image"], split.inputs["Image"])
+    for channel in ("Red", "Green", "Blue"):
+        tree.links.new(soft_clip(tree, split.outputs[channel]), join.inputs[channel])
+    tree.links.new(split.outputs["Alpha"], join.inputs["Alpha"])
+    tree.links.new(join.outputs["Image"], tree.nodes.new("NodeGroupOutput").inputs["Image"])
+    scene.compositing_node_group = tree
+
+    scene.cycles.samples = STILL_SAMPLES
+    scene.cycles.use_adaptive_sampling = False
+    scene.cycles.use_denoising = False
+    scene.view_settings.exposure = 0.0
+    scene.render.image_settings.quality = STILL_QUALITY
+    for kind, (width, height) in STILL_SIZES.items():
+        scene.render.resolution_x, scene.render.resolution_y = width, height
+        scene.render.filepath = still_paths[kind]
+        bpy.ops.render.render(write_still=True)
+
+    # Where each hotspot is in the wide still: the world box of its object, padded to the
+    # same minimum as the 3D click box, projected corner by corner. Pixels, origin top left.
+    scene.render.resolution_x, scene.render.resolution_y = STILL_SIZES["wide"]
+    areas = {}
+    for view, name in hotspot_names.items():
+        if view == REST_VIEW:
+            continue
+        parts = [o for o in (bpy.data.objects[name], *bpy.data.objects[name].children_recursive) if o.type == "MESH"]
+        if not parts:
+            sys.exit(f"ERROR {name} has no mesh to project for the still")
+        corners = [o.matrix_world @ Vector(c) for o in parts for c in o.bound_box]
+        lo = Vector([min(c[i] for c in corners) for i in range(3)])
+        hi = Vector([max(c[i] for c in corners) for i in range(3)])
+        for i in range(3):
+            pad = (MIN_HIT_SIZE_M - (hi[i] - lo[i])) / 2
+            if pad > 0:
+                lo[i] -= pad
+                hi[i] += pad
+        box = [Vector((x, y, z)) for x in (lo.x, hi.x) for y in (lo.y, hi.y) for z in (lo.z, hi.z)]
+        projected = [world_to_camera_view(scene, still_camera, p) for p in box]
+        xs = [p.x * scene.render.resolution_x for p in projected]
+        ys = [(1 - p.y) * scene.render.resolution_y for p in projected]
+        areas[view] = [round(min(xs)), round(min(ys)), round(max(xs) - min(xs)), round(max(ys) - min(ys))]
+
+    with open(still_json_path, "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "fov": REST_FOV_DEG,
+                **{kind: {"width": w, "height": h} for kind, (w, h) in STILL_SIZES.items()},
+                "areas": areas,
+            },
+            f,
+            indent=2,
+        )
+        f.write("\n")
+    still_seconds = time.time() - t_still
+
 lightmap_note = (
-    "lightmap=skipped"
+    "lightmap=skipped stills=skipped"
     if skip_bake
-    else f"lightmap={lightmap_path} ({os.path.getsize(lightmap_path) // 1024} KB, bake {bake_seconds:.0f}s)"
+    else (
+        f"lightmap={lightmap_path} ({os.path.getsize(lightmap_path) // 1024} KB, bake {bake_seconds:.0f}s) "
+        f"stills={' '.join(f'{p} ({os.path.getsize(p) // 1024} KB)' for p in still_paths.values())} "
+        f"({len(areas)} areas, {still_seconds:.0f}s)"
+    )
 )
 print(
     f"OK glb={glb_path} ({os.path.getsize(glb_path) // 1024} KB, {faces} faces, {culled} culled) "
