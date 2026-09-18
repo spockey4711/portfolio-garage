@@ -101,7 +101,7 @@ Raummitte:
 | Rennrad        | Länge 1,70, Laufräder Ø 0,68 (700c), Radstand 1,00, Lenker 0,42                | Mitte (-0,20, -, 0,90), Reifen 0,20 über dem Boden, Lenkeroberkante 1,05, Sattel 1,15 |
 | Ausrichtung    | Front zeigt nach (0,87, 0, -0,50), also 30° von der Kamera weg                 | Begründung unten                                                                      |
 | Montageständer | Dreibein r 0,45, Säule Ø 0,04 x 1,10, Klemmarm 0,35                            | Säule bei (-0,55, 0, 0,75), auf der kameraabgewandten Seite                           |
-| Radcomputer    | 0,06 x 0,09 x 0,02 (Edge 840), Aero-Halter 0,08 vor dem Lenker, 20° angestellt | (0,30, 1,07, 0,00)                                                                    |
+| Radcomputer    | 0,06 x 0,09 x 0,02 (Edge 540), Aero-Halter 0,08 vor dem Lenker, 20° angestellt | (0,30, 1,07, 0,00)                                                                    |
 
 Atmosphäre (von der Ruhekamera sichtbar nur bei z < 1,35 und etwa |x| < 2,4; kein Möbel
 darf von der Ruhekamera aus einen Hotspot verdecken, deshalb steht der Schrank vorn an der

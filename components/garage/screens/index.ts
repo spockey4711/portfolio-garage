@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import type { ScreenViewId } from "@/lib/garage/hotspots";
-import { BikeComputer } from "./BikeComputer";
+import { BikeComputer, EDGE_DISPLAY } from "./BikeComputer";
 import { Laptop } from "./Laptop";
 
 export interface ScreenSpec {
@@ -21,6 +21,11 @@ export interface ScreenSpec {
 // One entry per view whose ui is "screen" in lib/garage/hotspots.ts; the
 // type makes a new screen view a compile error until it has a component.
 export const screens: Readonly<Record<ScreenViewId, ScreenSpec>> = {
-  radcomputer: { Component: BikeComputer, pxWidth: 400, aspect: 2 / 3 },
+  // Laid out at twice the Edge 540's 246 x 322 px, so 2 CSS px are one device px.
+  radcomputer: {
+    Component: BikeComputer,
+    pxWidth: EDGE_DISPLAY.width * 2,
+    aspect: EDGE_DISPLAY.width / EDGE_DISPLAY.height,
+  },
   laptop: { Component: Laptop, pxWidth: 960, aspect: 16 / 10 },
 };

@@ -14,8 +14,9 @@ nicht zum Einsatz. Aus Woche 1 steht der Code: Store, Kamerafahrten, Hotspot-Kli
 `?view=`-Sync, Tastatur, Hover-Outline, Screens als `<Html transform occlude>` mit
 Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Woche 1 komplett:
 Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Woche 2 bis auf das Go-live komplett.
-Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`), die Screens sind
-noch Platzhalter.
+Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`) und der Radcomputer
+(`BikeComputer.tsx`: Edge-540-Layout, drei Seiten, Pfeiltasten, Daten aus `/api/activity`,
+Logik in `lib/garage/computer.ts`), der Laptop ist noch Platzhalter.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
 `public/models/garage-lightmap-tag.webp` (Licht ohne Farbe, UV-Set 2), `Scene.tsx` tauscht
