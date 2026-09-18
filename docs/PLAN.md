@@ -13,13 +13,13 @@ Einrichtung stammen und nicht aus dem Gedächtnis eines Agenten.
 | Wann    | Setup                                                                         | Womit                                                                                                                                                            |
 | ------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Woche 0 | Next.js-App (App Router, TS strict, Tailwind, ohne `src/`, wie Kuechenzettel) | `pnpm create next-app@latest` mit `--app --ts --tailwind --eslint --no-src-dir --use-pnpm`, in ein Temp-Verzeichnis, dann ins Repo kopiert (Repo ist nicht leer) |
-| Woche 0 | Engineering-Gerüst: CI, Dependabot, Vercel-Deploy                             | von Hand, Vorlage ist Kuechenzettel (`.github/`, `vercel.json`)                                                                                                  |
+| Woche 0 | Engineering-Gerüst: CI, Dependabot                                            | von Hand, Vorlage ist Kuechenzettel (`.github/`)                                                                                                                 |
 | Woche 0 | Toolchain: ESLint, Prettier, Vitest, Playwright, husky + lint-staged          | von Hand, `package.json`-Scripts `lint`, `typecheck`, `test`, `build` als Quality Gate                                                                           |
 | Woche 0 | 3D-Stack                                                                      | `pnpm add three @react-three/fiber @react-three/drei zustand`, `-D @types/three`                                                                                 |
 | Woche 0 | Blender-Exportpfad                                                            | GLB-Export aus `blender/garage-blockout.blend` nach `public/models/`, noch ohne Kompression                                                                      |
-| Woche 1 | Vercel-Projekt, Domain `yannikwuenker.de` (aus Portfolio2)                    | Vercel-Dashboard, Preview-Deploys aus der CI                                                                                                                     |
+| Woche 1 | Server-Deploy auf den VPS, `develop`-Subdomain als Preview (ADR-0002)         | Dockerfile (`standalone`), Image nach GHCR, Deploy-Workflow per SSH, Nginx-Vhost; Muster ist Portfolio2, neu geschrieben                                         |
 | Woche 2 | Kompressionspipeline                                                          | `gltf-transform` (Draco + KTX2) als Script, Ziel < 3 MB                                                                                                          |
-| Woche 3 | Strava-App, Webhook, Vercel KV                                                | Strava-Developer-Portal, `api/cron/sync`, Secrets in Vercel                                                                                                      |
+| Woche 3 | Strava-App, Webhook, Cache auf Volume                                         | Strava-Developer-Portal, Webhook-Route, JSON auf einem Docker-Volume, Host-Cron als Polling-Fallback, Secrets als Actions-Secrets                                |
 | Woche 5 | Spotify "läuft gerade" (Kann)                                                 | Spotify Developer App, Refresh-Token                                                                                                                             |
 
 ## Zeitplan
@@ -45,7 +45,7 @@ Ziel: Klicken funktioniert. Man fährt in den Radcomputer und den Laptop und kom
 - URL-Sync `?view=`, Zurück-Button verlässt den Hotspot.
 - Screens als `<Html transform occlude>` mit Platzhalter-UI (Radcomputer, Laptop).
 - Blender parallel: Raum, Tor, Fenster sauber modellieren, Farbpalette festlegen.
-- Vercel-Projekt anlegen, erster Preview-Deploy.
+- Deploy auf den VPS, erster Preview auf der `develop`-Subdomain.
 
 ### Woche 2: 29.09. bis 05.10. - Phase 1 abschließen, online gehen
 
@@ -58,14 +58,14 @@ Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallba
 - Statisches Fallback (WebP mit klickbaren Bereichen) für `prefers-reduced-motion`, unter
   768 px und schwache GPU. Canvas lädt erst nach dem ersten Paint.
 - 2D-Seiten als Gerüst: Startseite-Inhalt, `/projekte/[slug]`, `/ueber`.
-- Entscheidung Portfolio2: Inhalte und Positionierung übernehmen, ein Repo (KONZEPT §9).
+- Portfolio2 ablösen: Inhalte als Quellmaterial neu schreiben, Rad in die Positionierung (ADR-0001).
 - Go-live auf `yannikwuenker.de`.
 
 ### Woche 3 und 4: 06. bis 19.10. - Phase 2, echte Daten
 
 Ziel: Der Radcomputer zeigt echte Trainingsdaten, der Laptop echte Projekte.
 
-- Strava-App registrieren, OAuth einmalig, Webhook-Route, Aktivitäten als JSON in Vercel KV.
+- Strava-App registrieren, OAuth einmalig, Webhook-Route, Aktivitäten als JSON auf dem Volume.
   Cron-Polling als Fallback.
 - `api/activity/route.ts` liest den Cache.
 - `BikeComputer.tsx`: Edge-Layout, Seite 1 Heute, Seite 2 Woche mit Chart, Seite 3 Über.

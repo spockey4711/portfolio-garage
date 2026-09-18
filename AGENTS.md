@@ -38,3 +38,9 @@ nicht zum Einsatz. Nächster Schritt ist Woche 1 im Plan.
 - Trainingsdaten kommen über Strava (offizielle API, Webhook), nicht über Garmin Connect.
   Begründung in `docs/KONZEPT.md` §5.
 - Licht wird in Blender gebacken, im Web gibt es kein Echtzeitlicht. `docs/KONZEPT.md` §5.
+- Vorgänger ist Portfolio2-public (`../Portfolio2-public`, live auf yannikwuenker.de). Texte,
+  Projektdaten und Integrationen dort sind Quellmaterial zum Neuschreiben, Code und Design
+  werden nicht übernommen. `docs/adr/0001`.
+- Hosting auf dem eigenen VPS (Docker, Nginx, GHCR), nicht Vercel. Strava-Cache ist eine
+  JSON-Datei auf einem Volume. `docs/adr/0002`.
+- Nur Deutsch, aber jeder String in `content/` hinter `get<Thing>(locale)`. `docs/adr/0003`.
