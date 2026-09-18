@@ -15,11 +15,16 @@ services:
       - "127.0.0.1:${HOST_PORT:?set by deploy-remote.sh}:3000"
     environment:
       - NODE_ENV=production
-    # Runtime configuration lives on the server only (mode 600); nothing needs
-    # it yet, so the file is optional until the Strava keys arrive (week 3).
+    # The Strava keys (docs/BETRIEB.md, "Strava") live on the server only,
+    # mode 600. Optional so a stack without them still comes up; the Strava
+    # routes then answer with an error, the rest of the site works.
     env_file:
       - path: .env
         required: false
+    # Strava token and activity cache, the only state the app keeps
+    # (docs/adr/0002). Survives deploys, is never in the image.
+    volumes:
+      - data:/data
     healthcheck:
       test:
         [
@@ -32,3 +37,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+
+volumes:
+  data:

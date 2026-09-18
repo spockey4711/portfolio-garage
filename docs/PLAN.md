@@ -72,9 +72,10 @@ Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallba
 
 Ziel: Der Radcomputer zeigt echte Trainingsdaten, der Laptop echte Projekte.
 
-- Strava-App registrieren, OAuth einmalig, Webhook-Route, Aktivitäten als JSON auf dem Volume.
-  Cron-Polling als Fallback.
-- `api/activity/route.ts` liest den Cache.
+- ~~Strava-App registrieren, OAuth einmalig, Webhook-Route, Aktivitäten als JSON auf dem Volume.
+  Cron-Polling als Fallback.~~ Erledigt 18.09.: `lib/strava/`, Einrichtung in `docs/BETRIEB.md`.
+- ~~`api/activity/route.ts` liest den Cache.~~ Erledigt 18.09., Summary aus letzter Einheit und
+  laufender Woche.
 - `BikeComputer.tsx`: Edge-Layout, Seite 1 Heute, Seite 2 Woche mit Chart, Seite 3 Über.
   Pfeiltasten wie am Gerät.
 - `Laptop.tsx`: Projektliste, Fuelivo-Mini live.

@@ -24,6 +24,10 @@ ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 WORKDIR /app
 RUN addgroup -S garage && adduser -S -G garage garage
+# The Strava token and activity cache (docs/adr/0002); compose mounts a named
+# volume here, which takes the ownership of the image directory on first use.
+RUN mkdir /data && chown garage:garage /data
+ENV DATA_DIR=/data
 COPY --from=build --chown=garage:garage /app/.next/standalone ./
 COPY --from=build --chown=garage:garage /app/.next/static ./.next/static
 COPY --from=build --chown=garage:garage /app/public ./public

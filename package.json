@@ -2,6 +2,7 @@
   "name": "portfolio-garage",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Portfolio as a low-poly bike workshop garage; the bike computer shows real training data.",
   "packageManager": "pnpm@12.4.2",
   "engines": {
