@@ -44,7 +44,7 @@ const meta = {
     slug: "computer",
     ui: "screen",
     mesh: "Radcomputer",
-    display: "Radcomputer",
+    display: "Radcomputer_Display",
   },
   laptop: {
     slug: "laptop",

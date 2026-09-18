@@ -101,11 +101,12 @@ Raummitte:
 
 Atmosphäre (von der Ruhekamera sichtbar nur bei z < 1,35 und etwa |x| < 2,4):
 
-| Objekt                       | Größe                            | Position                                        |
-| ---------------------------- | -------------------------------- | ----------------------------------------------- |
-| Werkstattschrank, linke Wand | 1,00 x 2,00 x 0,50, zwei Türen   | x = -2,75, z = -0,60, direkt neben der Werkbank |
-| Rollentrainer                | 0,50 x 0,70 x 0,50               | (2,50, 0, -0,30)                                |
-| Zwei Kartons                 | je 0,60 x 0,40 x 0,40, gestapelt | (2,60, 0, -1,20), Katze später obendrauf        |
+| Objekt                       | Größe                            | Position                                       |
+| ---------------------------- | -------------------------------- | ---------------------------------------------- |
+| Werkstattschrank, linke Wand | 0,50 x 2,00 x 1,00, zwei Türen   | x = -2,75, z = -0,60, Türen zeigen in den Raum |
+| Schwerlastregal              | 0,80 x 1,75 x 0,40, vier Böden   | x = 2,55, z = -1,78, unter dem Fenster         |
+| Rollentrainer                | 0,50 x 0,70 x 0,50               | (2,50, 0, -0,30)                               |
+| Zwei Kartons                 | je 0,60 x 0,40 x 0,40, gestapelt | (2,60, 0, -1,20), Katze später obendrauf       |
 
 Das Rad steht mit der Front von der Kamera weg, nicht wie ursprünglich gedacht zur Kamera
 hin: ein Radcomputer zeigt zum Fahrer, also nach hinten. Von vor dem Lenker sieht man das
@@ -302,7 +303,7 @@ Material, kein Licht, kein Export. Offen: GLB-Export und der R3F-Test.
 
 ## 9. Offene Entscheidungen
 
-- Rad kaufen oder selbst modellieren (Empfehlung: kaufen, siehe 6).
+- ~~Rad kaufen oder selbst modellieren~~ Entschieden: selbst, prozedural per bpy (ADR-0004).
 - Verhältnis zu Portfolio2 / Portfolio2-public: ersetzt die Garage das Projekt oder wird sie die
   Startseite darin? Portfolio2 hat bereits Positionierung, Scroll-Spine und Boot-Sequenz
   geplant. Vorschlag: Inhalte und Positionierung übernehmen, Boot-Sequenz und Scroll-Spine

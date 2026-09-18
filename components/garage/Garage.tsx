@@ -31,8 +31,9 @@ export function Garage() {
       className="h-full w-full"
     >
       <color attach="background" args={["#1a1a1a"]} />
-      {/* Blockout only: lighting is baked from week 2 on (see Scene.tsx). */}
-      <hemisphereLight args={["#ffffff", "#444444", 2]} />
+      {/* Placeholder until the bake: daylight through the gate (see Scene.tsx). */}
+      <hemisphereLight args={["#dfe6ee", "#3a3632", 1.2]} />
+      <directionalLight position={[-2, 6, 8]} intensity={2.5} />
       <Suspense fallback={null}>
         <Scene />
         <CameraRig />
