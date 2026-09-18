@@ -1,0 +1,38 @@
+# Nginx vhost for the develop preview of the garage (docs/BETRIEB.md).
+# Lives in /etc/nginx/sites-available on the VPS, symlinked into
+# sites-enabled. Certbot appends the TLS listeners and the HTTP redirect
+# on first issue; this file is the part written by hand.
+
+server {
+    server_name garage.yannikwuenker.de;
+
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript
+               text/xml application/xml image/svg+xml model/gltf-binary;
+    gzip_min_length 1024;
+
+    # Next's build assets carry a content hash in the path: cache forever.
+    location /_next/static/ {
+        proxy_pass http://127.0.0.1:3010;
+        proxy_set_header Host $host;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3010;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Connection        "upgrade";
+    }
+
+    listen 80;
+    listen [::]:80;
+}

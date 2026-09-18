@@ -45,7 +45,7 @@ Ziel: Klicken funktioniert. Man fährt in den Radcomputer und den Laptop und kom
 - URL-Sync `?view=`, Zurück-Button verlässt den Hotspot.
 - Screens als `<Html transform occlude>` mit Platzhalter-UI (Radcomputer, Laptop).
 - Blender parallel: Raum, Tor, Fenster sauber modellieren, Farbpalette festlegen.
-- Deploy auf den VPS, erster Preview auf der `develop`-Subdomain.
+- Deploy auf den VPS, erster Preview auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`).
 
 ### Woche 2: 29.09. bis 05.10. - Phase 1 abschließen, online gehen
 

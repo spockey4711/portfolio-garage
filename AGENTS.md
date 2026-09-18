@@ -11,7 +11,8 @@ Stand 2026-09-18: Tag 0 aus `docs/PLAN.md` ist erledigt (Scaffold, Toolchain, CI
 Blockout im Browser mit Parallax). Toolchain-Vorlage ist Kuechenzettel, devblueprint kommt
 nicht zum Einsatz. Aus Woche 1 steht der Code: Store, Kamerafahrten, Hotspot-Klick,
 `?view=`-Sync, Tastatur, Hover-Outline, Screens als `<Html transform occlude>` mit
-Platzhalter-UI. Offen aus Woche 1: Blender-Modellierung, VPS-Deploy.
+Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Offen aus Woche 1:
+Blender-Modellierung.
 
 Interaktion: Die URL ist die Quelle der Wahrheit für den offenen Hotspot. Klick und Tastatur
 schreiben `?view=` per `history.pushState` (`lib/garage/navigate.ts`), `ViewSync.tsx` liest

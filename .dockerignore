@@ -1,0 +1,16 @@
+# Only what the image build needs: sources, lockfile, public assets.
+.git
+.github
+.claude
+.husky
+.next
+node_modules
+coverage
+test-results
+playwright-report
+blender
+docs
+tests
+*.md
+.env*
+!.env.example

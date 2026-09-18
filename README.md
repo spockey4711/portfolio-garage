@@ -19,3 +19,8 @@ pnpm dev
 Quality Gate vor jedem Push: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`.
 GLB und Hotspot-Koordinaten neu aus Blender: `pnpm export:blender` (braucht Blender unter
 `/Applications/Blender.app`).
+
+## Deploy
+
+Jeder Push auf `develop` landet nach grüner Quality Gate auf
+[garage.yannikwuenker.de](https://garage.yannikwuenker.de). Wie: [docs/BETRIEB.md](docs/BETRIEB.md).
