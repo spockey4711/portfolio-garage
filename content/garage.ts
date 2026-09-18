@@ -10,6 +10,13 @@ export interface GarageContent {
   readonly navLabel: string;
   /** The button that leaves a focused hotspot. */
   readonly back: string;
+  /** The line under the hero: what is happening, then what to do (GarageStatus.tsx). */
+  readonly status: {
+    /** While the canvas is still fetching the model behind the still. */
+    readonly loading: string;
+    /** Once the scene is ready to be clicked, until the first hotspot opens. */
+    readonly hint: string;
+  };
   /** The static fallback (KONZEPT §5): the rendered rest view and its 2D stand-in for an open hotspot. */
   readonly still: {
     /** Alt text of the rendered rest view. */
@@ -53,6 +60,10 @@ const de: GarageContent = {
   },
   navLabel: "Hotspots der Garage",
   back: "Zurück",
+  status: {
+    loading: "Werkstatt wird geladen",
+    hint: "Durch die Werkstatt klicken, um mehr zu erfahren.",
+  },
   still: {
     alt: "Blick von vorn in die Garage: ein Rennrad auf dem Montageständer, dahinter die Werkbank mit Laptop, Werkzeugwand, Whiteboard und Pinnwand.",
     comingSoon: "Inhalt folgt in Phase 2.",
