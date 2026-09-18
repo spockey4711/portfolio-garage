@@ -9,7 +9,8 @@ import {
 } from "react";
 import { Mesh, type Object3D } from "three";
 import type { ScreenViewId, View } from "@/lib/garage/hotspots";
-import { hotspotObject, screenPlaneFor } from "@/lib/garage/screen";
+import { hotspotObject } from "@/lib/garage/glb";
+import { screenPlaneFor } from "@/lib/garage/screen";
 import { useGarageStore } from "@/lib/garage/store";
 import { screens } from "./screens";
 

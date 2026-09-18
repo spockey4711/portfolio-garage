@@ -26,7 +26,8 @@ export function Garage() {
       camera={{ position: rest.camera, fov: REST_FOV, near: 0.05, far: 30 }}
       onPointerMissed={onPointerMissed}
       dpr={[1, 2]}
-      gl={{ antialias: true, powerPreference: "high-performance" }}
+      // HoverOutline.tsx renders through a multisampled composer instead.
+      gl={{ antialias: false, powerPreference: "high-performance" }}
       className="h-full w-full"
     >
       <color attach="background" args={["#1a1a1a"]} />

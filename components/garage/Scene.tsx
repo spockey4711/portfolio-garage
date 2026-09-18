@@ -5,6 +5,7 @@ import { useLayoutEffect, useMemo } from "react";
 import { Mesh, MeshLambertMaterial } from "three";
 import { focusViews, screenViews } from "@/lib/garage/hotspots";
 import { Hotspot } from "./Hotspot";
+import { HoverOutline } from "./HoverOutline";
 import { Screen } from "./Screen";
 
 export const GARAGE_MODEL_URL = "/models/garage.glb";
@@ -68,6 +69,7 @@ export function Scene() {
       {screenViews.map((view) => (
         <Screen key={view.id} view={view} scene={scene} occlude={occluders} />
       ))}
+      <HoverOutline scene={scene} />
     </>
   );
 }

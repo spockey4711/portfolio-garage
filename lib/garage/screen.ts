@@ -1,5 +1,5 @@
-import { Matrix4, type Mesh, type Object3D, Quaternion, Vector3 } from "three";
-import type { FocusViewId, Vec3, View } from "./hotspots";
+import { Matrix4, type Mesh, Quaternion, Vector3 } from "three";
+import type { Vec3 } from "./hotspots";
 
 // Where a screen's DOM sits in the room. The display face is derived from
 // the display mesh in the GLB instead of being written down a second time:
@@ -95,17 +95,4 @@ export function screenPlaneFor(mesh: Mesh, camera: Vec3): ScreenPlane {
     width: sizeOf(widthAxis),
     height: sizeOf(upAxis),
   };
-}
-
-/** The GLB object a hotspot is anchored to, by the name the export kept. */
-export function hotspotObject(
-  view: View<FocusViewId>,
-  scene: Object3D,
-): Object3D {
-  const object =
-    view.mesh === null ? undefined : scene.getObjectByName(view.mesh);
-  if (!object) {
-    throw new Error(`Hotspot ${view.id}: mesh ${view.mesh} not in the GLB`);
-  }
-  return object;
 }

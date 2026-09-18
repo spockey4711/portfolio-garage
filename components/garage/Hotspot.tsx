@@ -7,7 +7,7 @@ import { Box3, type Object3D, Vector3 } from "three";
 import { getGarageContent } from "@/content/garage";
 import type { FocusViewId, View } from "@/lib/garage/hotspots";
 import { openView } from "@/lib/garage/navigate";
-import { hotspotObject } from "@/lib/garage/screen";
+import { hotspotObject } from "@/lib/garage/glb";
 import { isDriving, useGarageStore } from "@/lib/garage/store";
 import { defaultLocale } from "@/lib/i18n";
 

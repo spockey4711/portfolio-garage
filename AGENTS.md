@@ -9,15 +9,23 @@ Maße des Blockouts dort in §2. Zeitplan und Setup-Reihenfolge: `docs/PLAN.md`.
 
 Stand 2026-09-18: Tag 0 aus `docs/PLAN.md` ist erledigt (Scaffold, Toolchain, CI, 3D-Stack,
 Blockout im Browser mit Parallax). Toolchain-Vorlage ist Kuechenzettel, devblueprint kommt
-nicht zum Einsatz. Aus Woche 1 steht die Interaktion: Store, Kamerafahrten, Hotspot-Klick,
-`?view=`-Sync, Tastatur. Offen aus Woche 1: Hover-Outline (Postprocessing), Screens als
-`<Html transform occlude>`, Blender-Modellierung, VPS-Deploy.
+nicht zum Einsatz. Aus Woche 1 steht der Code: Store, Kamerafahrten, Hotspot-Klick,
+`?view=`-Sync, Tastatur, Hover-Outline, Screens als `<Html transform occlude>` mit
+Platzhalter-UI. Offen aus Woche 1: Blender-Modellierung, VPS-Deploy.
 
 Interaktion: Die URL ist die Quelle der Wahrheit für den offenen Hotspot. Klick und Tastatur
 schreiben `?view=` per `history.pushState` (`lib/garage/navigate.ts`), `ViewSync.tsx` liest
 sie über `useSearchParams` und ruft den Store; der Store schreibt nie die URL. Jeder Hotspot
 hat eine unsichtbare, auf 35 cm aufgepolsterte Klickbox (`Hotspot.tsx`), der gerade
 fokussierte Hotspot hat keine, sonst fängt sie den "Klick ins Leere" ab.
+
+Screens: `Screen.tsx` legt das DOM auf die Displayfläche, die `lib/garage/screen.ts` aus dem
+Mesh im GLB ableitet (dünnste Achse der Bounding-Box, Seite zur View-Kamera). Fiber hört auf
+dem Canvas-Wrapper, in den drei das DOM portalt, deshalb stoppt der offene Screen alle
+Pointer-Events, sonst zählt ein Klick im Screen als "Klick ins Leere". Geschlossene Screens
+sind `inert` ohne Pointer-Events, der Klick trifft die Klickbox dahinter. `occlude` bekommt
+nur den GLB-Root, nie die Klickboxen. Neue Screen-View: `ui: "screen"` in `hotspots.ts`
+erzwingt einen Eintrag in `components/garage/screens/index.ts`.
 
 # Kommandos
 
