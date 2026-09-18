@@ -43,6 +43,71 @@ def material(name, hexstr, roughness=0.8, metallic=0.0, alpha=1.0, emission=None
     return mat
 
 
+TEXTURE_UV = "Textur"  # UV set 0: world metres, box-projected, tiled by the material's Mapping node
+
+
+def _texture_image(folder, kind, colorspace):
+    """Load blender/textures/<folder>/<kind>.jpg once, stored relative to the .blend."""
+    abs_path = bpy.path.abspath(f"//textures/{folder}/{kind}.jpg")
+    for img in bpy.data.images:
+        if img.filepath and bpy.path.abspath(img.filepath) == abs_path:
+            return img
+    img = bpy.data.images.load(abs_path)
+    img.name = f"{folder}_{kind}"  # the exporter names the GLB texture after it
+    img.filepath = bpy.path.relpath(abs_path)
+    img.colorspace_settings.name = colorspace
+    return img
+
+
+def textured_material(name, folder, tile_m, roughness=0.9, normal_strength=1.0):
+    """A tiling photo texture (blender/textures/<folder>/color.jpg + normal.jpg) on a
+    Principled BSDF. The mesh's TEXTURE_UV set holds world metres, so `tile_m` is the
+    physical size of the image. The node chain UV Map -> Mapping -> Image Texture is
+    the one the glTF exporter turns into KHR_texture_transform; the normal map only
+    feeds the bake, export.py unlinks it before the GLB."""
+    mat = material(name, "#ffffff", roughness=roughness)
+    mat["textured"] = True
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    for n in [n for n in nodes if n.type not in ("BSDF_PRINCIPLED", "OUTPUT_MATERIAL")]:
+        nodes.remove(n)
+    bsdf = nodes["Principled BSDF"]
+    uv = nodes.new("ShaderNodeUVMap")
+    uv.uv_map = TEXTURE_UV
+    mapping = nodes.new("ShaderNodeMapping")
+    mapping.vector_type = "POINT"
+    mapping.inputs["Scale"].default_value = (1 / tile_m, 1 / tile_m, 1.0)
+    links.new(uv.outputs["UV"], mapping.inputs["Vector"])
+    color = nodes.new("ShaderNodeTexImage")
+    color.image = _texture_image(folder, "color", "sRGB")
+    links.new(mapping.outputs["Vector"], color.inputs["Vector"])
+    links.new(color.outputs["Color"], bsdf.inputs["Base Color"])
+    normal = nodes.new("ShaderNodeTexImage")
+    normal.image = _texture_image(folder, "normal", "Non-Color")
+    links.new(mapping.outputs["Vector"], normal.inputs["Vector"])
+    normal_map = nodes.new("ShaderNodeNormalMap")
+    normal_map.uv_map = TEXTURE_UV
+    normal_map.inputs["Strength"].default_value = normal_strength
+    links.new(normal.outputs["Color"], normal_map.inputs["Color"])
+    links.new(normal_map.outputs["Normal"], bsdf.inputs["Normal"])
+    return mat
+
+
+def box_project_uvs(obj):
+    """TEXTURE_UV in world metres: every face takes the two world axes across its
+    dominant normal, so a tiling texture keeps one physical size on every object and
+    runs straight across box edges. Meshes here are built in world space."""
+    me = obj.data
+    layer = me.uv_layers.get(TEXTURE_UV) or me.uv_layers.new(name=TEXTURE_UV)
+    mw = obj.matrix_world
+    for poly in me.polygons:
+        n = (mw.to_3x3() @ poly.normal).normalized()
+        axis = max(range(3), key=lambda i: abs(n[i]))
+        u_axis, v_axis = {0: (1, 2), 1: (0, 2), 2: (0, 1)}[axis]
+        for li in poly.loop_indices:
+            p = mw @ me.vertices[me.loops[li].vertex_index].co
+            layer.data[li].uv = (p[u_axis], p[v_axis])
+
+
 def collection(name=COLL):
     return bpy.data.collections[name]
 
@@ -87,6 +152,8 @@ def mesh_object(name, bm, mat=None, coll=COLL, keep_transform=None):
         me.materials.append(mat)
     for p in me.polygons:
         p.use_smooth = False
+    if mat is not None and mat.get("textured"):
+        box_project_uvs(obj)
     return obj
 
 
@@ -200,6 +267,8 @@ def multi_mesh_object(name, bm, mats, coll=COLL):
     obj = mesh_object(name, bm, None, coll)
     for m in mats:
         obj.data.materials.append(m)
+    if any(m.get("textured") for m in mats):
+        box_project_uvs(obj)
     return obj
 
 

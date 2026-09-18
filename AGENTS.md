@@ -15,8 +15,10 @@ Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Woche 
 Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Aus Woche 2 steht der Tag-Bake.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
-`public/models/garage-lightmap-tag.webp` (Licht ohne Farbe), `Scene.tsx` tauscht jedes
-GLB-Material gegen `MeshBasicMaterial` mit dieser Lightmap (`lib/garage/lightmap.ts`). Die
+`public/models/garage-lightmap-tag.webp` (Licht ohne Farbe, UV-Set 2), `Scene.tsx` tauscht
+jedes GLB-Material gegen `MeshBasicMaterial` mit dieser Lightmap und der Textur des Materials
+(UV-Set 1 in Weltmetern, `lib/garage/lightmap.ts`). Backstein, Asphalt und Holz sind
+Fototexturen aus `blender/textures/` (ADR-0006), alles andere Flächenfarbe. Die
 Belichtung der Datei und `LIGHTMAP_INTENSITY` gehören zusammen (`EXPOSURE_STOPS` in
 `export.py`). Der Composer in `HoverOutline.tsx` umgeht das Tonemapping des Renderers, den
 Highlight-Roll-off macht `SoftClipEffect` (`lib/garage/softclip.ts`): unter 0,8 bleibt das
@@ -85,3 +87,13 @@ Gedankenstriche, Emoji und Whitespace.
 - Hosting auf dem eigenen VPS (Docker, Nginx, GHCR), nicht Vercel. Strava-Cache ist eine
   JSON-Datei auf einem Volume. `docs/adr/0002`.
 - Nur Deutsch, aber jeder String in `content/` hinter `get<Thing>(locale)`. `docs/adr/0003`.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

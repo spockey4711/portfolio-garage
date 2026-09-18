@@ -12,5 +12,7 @@ LIB = "/abs/pfad/zu/blender/build/garage_lib.py"
 exec(open("/abs/pfad/zu/blender/build/build_room.py").read())
 ```
 
-Danach speichern und den Skill `blender-export` laufen lassen. Ein Objekt ändern heißt:
+Die Texturen in `blender/textures/` referenziert die `.blend` relativ, sie muss also aus
+diesem Repo geöffnet sein, wenn die Skripte laufen. Danach speichern und den Skill
+`blender-export` laufen lassen. Ein Objekt ändern heißt:
 Skript ändern, erneut ausführen. Handarbeit am Mesh überlebt den nächsten Lauf nicht.

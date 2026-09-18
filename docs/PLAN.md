@@ -44,15 +44,16 @@ Ziel: Klicken funktioniert. Man fährt in den Radcomputer und den Laptop und kom
 - `Hotspot.tsx`: Hover-Outline (postprocessing), Label, Tab/Enter.
 - URL-Sync `?view=`, Zurück-Button verlässt den Hotspot.
 - Screens als `<Html transform occlude>` mit Platzhalter-UI (Radcomputer, Laptop).
-- Blender parallel: Raum, Tor, Fenster sauber modellieren, Farbpalette festlegen.
+- ~~Blender parallel: Raum, Tor, Fenster sauber modellieren, Farbpalette festlegen.~~
+  Erledigt 18.09. aus bpy-Skripten (ADR-0004), Backstein und Texturen 18.09. (ADR-0006).
 - Deploy auf den VPS, erster Preview auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`).
 
 ### Woche 2: 29.09. bis 05.10. - Phase 1 abschließen, online gehen
 
 Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallback-Bild.
 
-- Blender: Werkbank, Schrank, Regal, Montageständer. Rad kaufen (Sketchfab, low-poly) und die
-  Szene stilistisch daran anpassen.
+- ~~Blender: Werkbank, Schrank, Regal, Montageständer. Rad kaufen (Sketchfab, low-poly) und die
+  Szene stilistisch daran anpassen.~~ Erledigt 18.09., Rad selbst gebaut (ADR-0004).
 - ~~Erster Bake (Tag): AO + Diffuse in einen Atlas, `MeshBasicMaterial` mit Lightmap im Web.~~
   Erledigt 18.09.: Diffuse direkt + indirekt ohne Farbe, WebP, im Export-Skill.
 - ~~`gltf-transform`-Pipeline, GLB unter 3 MB, `PerformanceMonitor` senkt DPR.~~

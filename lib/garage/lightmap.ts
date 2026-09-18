@@ -9,9 +9,10 @@ import {
 } from "three";
 
 // Light is baked in Blender (docs/KONZEPT.md §5): the export bakes diffuse
-// direct + indirect light without colour into one atlas over the GLB's only
-// UV set, and the web multiplies it with the material colour. No real-time
-// lights, so the PBR materials from the GLB become unlit ones here.
+// direct + indirect light without colour into one atlas over the GLB's second
+// UV set, and the web multiplies it with the material colour or its tiling
+// texture (first UV set, world metres). No real-time lights, so the PBR
+// materials from the GLB become unlit ones here.
 
 export const LIGHTMAP_URL = "/models/garage-lightmap-tag.webp";
 
@@ -31,22 +32,33 @@ export const LIGHTMAP_INTENSITY = Math.PI * 2 ** -LIGHTMAP_EXPOSURE_STOPS;
 /** Sky the bake used, what shows through the window and behind the gate. */
 export const SKY_COLOR = "#bcd3ee";
 
+/** The GLB's UV set the atlas is laid over (TEXCOORD_1); TEXCOORD_0 tiles the textures. */
+export const LIGHTMAP_UV_CHANNEL = 1;
+
 /** A lightmap as the export wrote it: sRGB, image rows top-down like glTF UVs. */
 export function prepareLightmap(texture: Texture, anisotropy: number): Texture {
   texture.flipY = false;
   texture.colorSpace = SRGBColorSpace;
-  texture.channel = 0;
+  texture.channel = LIGHTMAP_UV_CHANNEL;
   texture.anisotropy = anisotropy;
   texture.needsUpdate = true;
   return texture;
 }
 
-/** Unlit stand-in for a GLB material: its colour and transparency, lit by the atlas. */
+/**
+ * Unlit stand-in for a GLB material: its colour, its texture and its
+ * transparency, lit by the atlas. The texture keeps what GLTFLoader set on it
+ * (colour space, repeat from KHR_texture_transform) and takes the atlas's
+ * anisotropy, because brick seen along a wall is the grazing case.
+ */
 export function lightmapMaterial(
   source: Material,
   lightMap: Texture,
 ): MeshBasicMaterial {
+  const map = hasMap(source) ? source.map : null;
+  if (map) map.anisotropy = lightMap.anisotropy;
   const material = new MeshBasicMaterial({
+    map,
     lightMap,
     lightMapIntensity: LIGHTMAP_INTENSITY,
     transparent: source.transparent,
@@ -67,6 +79,12 @@ function hasLightmap(material: Material, lightMap: Texture): boolean {
 
 function hasColor(material: Material): material is Material & { color: Color } {
   return "color" in material && material.color instanceof Color;
+}
+
+function hasMap(
+  material: Material,
+): material is Material & { map: Texture | null } {
+  return "map" in material;
 }
 
 /**

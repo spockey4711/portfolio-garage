@@ -2,7 +2,9 @@ import { fileURLToPath } from "node:url";
 import { type Document, NodeIO } from "@gltf-transform/core";
 import {
   EXTMeshoptCompression,
+  EXTTextureWebP,
   KHRMeshQuantization,
+  KHRTextureTransform,
 } from "@gltf-transform/extensions";
 import {
   dedup,
@@ -18,14 +20,20 @@ import { MeshoptDecoder, MeshoptEncoder } from "meshoptimizer";
 // float32 attributes and no compression, this rewrites it in place for the
 // web. What the web relies on stays untouched: the object names (the only
 // link between a view and its geometry, lib/garage/glb.ts), the node tree
-// (Laptop is a group), TEXCOORD_0 (the lightmap UV, lib/garage/lightmap.ts)
-// and the world-space bounds of every mesh (click boxes, screen planes).
-// Nothing here joins or flattens meshes for that reason.
+// (Laptop is a group), TEXCOORD_1 (the lightmap UV, lib/garage/lightmap.ts),
+// the textures Blender already wrote as WebP with their tile transform, and
+// the world-space bounds of every mesh (click boxes, screen planes). Nothing
+// here joins or flattens meshes for that reason.
 
 /** Bits per position coordinate, relative to the mesh's own bounds. */
 const POSITION_BITS = 14;
 /** The lightmap atlas is 2k; 16 bits keep the islands off their neighbours. */
 const TEXCOORD_BITS = 16;
+/**
+ * TEXCOORD_0 holds world metres for the tiling textures, well outside [0, 1];
+ * quantising it would need a texture transform per mesh, so it stays float.
+ */
+const QUANTIZE_PATTERN = /^(POSITION|TEXCOORD_1)$/;
 
 /**
  * Nothing in the web reads normals: every material becomes MeshBasicMaterial
@@ -44,11 +52,12 @@ export async function optimizeGarage(document: Document): Promise<void> {
   await document.transform(
     stripNormals,
     dedup(),
-    // keepAttributes: without it prune drops TEXCOORD_0 because no material
-    // has a texture; the lightmap is applied at runtime, so the UV is needed.
+    // keepAttributes: without it prune drops TEXCOORD_1 because no material
+    // uses it; the lightmap is applied at runtime, so the UV is needed.
     prune({ keepAttributes: true }),
     weld(),
     quantize({
+      pattern: QUANTIZE_PATTERN,
       quantizePosition: POSITION_BITS,
       quantizeTexcoord: TEXCOORD_BITS,
     }),
@@ -61,7 +70,12 @@ export async function optimizeGarage(document: Document): Promise<void> {
 export async function garageIO(): Promise<NodeIO> {
   await Promise.all([MeshoptEncoder.ready, MeshoptDecoder.ready]);
   return new NodeIO()
-    .registerExtensions([EXTMeshoptCompression, KHRMeshQuantization])
+    .registerExtensions([
+      EXTMeshoptCompression,
+      EXTTextureWebP,
+      KHRMeshQuantization,
+      KHRTextureTransform,
+    ])
     .registerDependencies({
       "meshopt.encoder": MeshoptEncoder,
       "meshopt.decoder": MeshoptDecoder,
