@@ -74,30 +74,52 @@ async function centerOf(page: Page, name: string) {
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
 }
 
-test("a click inside the open screen stays in the hotspot, a click beside it leaves", async ({
-  page,
-}) => {
-  await openGarage(page, "/?view=computer");
-  const screen = page.getByRole("img", { name: "Radcomputer-Display" });
-  // pointer-events switch on when the camera has arrived.
-  await expect(screen).toHaveCSS("pointer-events", "auto");
+test.describe("screens in the canvas", () => {
+  // Under 768 px the still stands in by design (tests/e2e/still.spec.ts).
+  test.skip(
+    ({ isMobile }) => !!isMobile,
+    "the mobile project never mounts the canvas",
+  );
 
-  const { x, y } = await centerOf(page, "Radcomputer-Display");
-  await page.mouse.click(x, y);
-  await expect(page).toHaveURL(/\?view=computer$/);
+  // Headless Chromium draws WebGL with SwiftShader, which lib/garage/capability.ts
+  // rightly counts as a weak GPU and answers with the still. These tests need
+  // the canvas, so the browser reports a GPU instead; SwiftShader still draws.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      const UNMASKED_RENDERER_WEBGL = 0x9246;
+      const { getParameter } = WebGL2RenderingContext.prototype;
+      WebGL2RenderingContext.prototype.getParameter = function (name) {
+        if (name === UNMASKED_RENDERER_WEBGL) return "Playwright Test GPU";
+        return getParameter.call(this, name);
+      };
+    });
+  });
 
-  await page.mouse.click(x, 40);
-  await expect(page).toHaveURL(/\/$/);
-});
+  test("a click inside the open screen stays in the hotspot, a click beside it leaves", async ({
+    page,
+  }) => {
+    await openGarage(page, "/?view=computer");
+    const screen = page.getByRole("img", { name: "Radcomputer-Display" });
+    // pointer-events switch on when the camera has arrived.
+    await expect(screen).toHaveCSS("pointer-events", "auto");
 
-test("a click on a closed screen opens its hotspot", async ({ page }) => {
-  await openGarage(page);
-  // The bike computer sits in the middle of the frame on every viewport; the
-  // laptop is outside the narrow portrait frame on the mobile project.
-  const screen = page.getByRole("img", { name: "Radcomputer-Display" });
-  await expect(screen).toHaveCSS("pointer-events", "none");
+    const { x, y } = await centerOf(page, "Radcomputer-Display");
+    await page.mouse.click(x, y);
+    await expect(page).toHaveURL(/\?view=computer$/);
 
-  const { x, y } = await centerOf(page, "Radcomputer-Display");
-  await page.mouse.click(x, y);
-  await expect(page).toHaveURL(/\?view=computer$/);
+    await page.mouse.click(x, 40);
+    await expect(page).toHaveURL(/\/$/);
+  });
+
+  test("a click on a closed screen opens its hotspot", async ({ page }) => {
+    await openGarage(page);
+    // The bike computer sits in the middle of the frame on every viewport; the
+    // laptop is outside the narrow portrait frame on the mobile project.
+    const screen = page.getByRole("img", { name: "Radcomputer-Display" });
+    await expect(screen).toHaveCSS("pointer-events", "none");
+
+    const { x, y } = await centerOf(page, "Radcomputer-Display");
+    await page.mouse.click(x, y);
+    await expect(page).toHaveURL(/\?view=computer$/);
+  });
 });

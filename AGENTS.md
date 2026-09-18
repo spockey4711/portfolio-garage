@@ -36,6 +36,22 @@ sind `inert` ohne Pointer-Events, der Klick trifft die Klickbox dahinter. `occlu
 nur den GLB-Root, nie die Klickboxen. Neue Screen-View: `ui: "screen"` in `hotspots.ts`
 erzwingt einen Eintrag in `components/garage/screens/index.ts`.
 
+Fallback: Das Standbild ist immer der erste Paint. `GarageStill.tsx` zeigt die vom Export
+gerenderte Ruheansicht (`public/models/garage-ruhe-tag-{quer,hoch}.webp`, dieselbe Kamera,
+dasselbe Material, derselbe Soft-Clip) mit Klickflächen in einem SVG mit `slice`-Fit, die
+Rechtecke kommen aus `lib/garage/still.generated.json`. `useGarageMode.ts` entscheidet einen
+Frame nach der Hydration einmal für die Lebensdauer der Seite: `prefers-reduced-motion`,
+unter 768 px, kein WebGL2, Software-Renderer oder ≤ 2 GB (`lib/garage/capability.ts`) heißt
+Standbild, sonst mountet das Canvas darüber, unsichtbar bis zum zweiten gezeichneten Frame.
+Ohne Canvas zeigt `StillView.tsx` den offenen Hotspot als Karte, die URL bleibt dieselbe.
+
+2D-Seiten: `app/page.tsx` ist Hero plus Startseiten-Inhalt, die tiefen Seiten liegen in der
+Route-Gruppe `app/(seiten)/` (Header oben, Footer im Root-Layout). Projekte sind je eine
+Datei in `content/projects/`, die Liste in `index.ts` bestimmt Reihenfolge und Mitgliedschaft,
+der erste Eintrag ist das Leitprojekt; `/projekte/[slug]` baut nur diese Slugs
+(`dynamicParams = false`). `content/content.test.ts` prüft jeden sichtbaren String auf
+Gedankenstriche, Emoji und Whitespace.
+
 # Kommandos
 
 - Quality Gate vor jedem Push: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`.
