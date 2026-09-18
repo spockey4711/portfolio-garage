@@ -4,3 +4,5 @@ verifyDepsBeforeRun: false
 allowBuilds:
   sharp: true
   unrs-resolver: true
+patchedDependencies:
+  three@0.186.0: patches/three@0.186.0.patch
