@@ -24,3 +24,8 @@ GLB und Hotspot-Koordinaten neu aus Blender: `pnpm export:blender` (braucht Blen
 
 Jeder Push auf `develop` landet nach grüner Quality Gate auf
 [garage.yannikwuenker.de](https://garage.yannikwuenker.de). Wie: [docs/BETRIEB.md](docs/BETRIEB.md).
+
+## Lizenz
+
+Code unter [MIT](LICENSE). Texte, Bilder, das Blender-Modell und die gezeigten Daten sind
+davon ausgenommen und bleiben vorbehalten, Details am Ende der `LICENSE`.
