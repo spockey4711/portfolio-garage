@@ -132,10 +132,10 @@ def remove(name):
     o = bpy.data.objects.get(name)
     if o is None:
         return
-    me = o.data if o.type == "MESH" else None
+    data = o.data if o.type in ("MESH", "CURVE") else None
     bpy.data.objects.remove(o)
-    if me is not None and me.users == 0:
-        bpy.data.meshes.remove(me)
+    if data is not None and data.users == 0:
+        (bpy.data.meshes if isinstance(data, bpy.types.Mesh) else bpy.data.curves).remove(data)
 
 
 def mesh_object(name, bm, mat=None, coll=COLL, keep_transform=None):
@@ -305,3 +305,48 @@ def parent_to(obj, parent):
     obj.parent = parent
     obj.matrix_parent_inverse = parent.matrix_world.inverted()
     obj.matrix_world = mw
+
+
+def curve(name, points, radius, mat, segs=6, resolution=8, coll=COLL):
+    """Replace or create the Bezier curve `name` through `points` (world space) as a
+    tube of `radius` (bevel depth, closed ends). Handles are AUTO, so the tube runs
+    smoothly through every point: a hanging cable is start, low point, end. `segs` is
+    the profile's side count (4 + 2 * bevel_resolution), `resolution` the subdivisions
+    per Bezier segment. The tube is shaded smooth: unlike a box it has no edge that
+    should read as one, and the bake turns the facets into a round gradient. The
+    export converts it to a mesh, as it applies every modifier."""
+    old = bpy.data.objects.get(name)
+    if old is not None and old.type != "CURVE":
+        remove(name)
+        old = None
+    cu = bpy.data.curves.new(name, "CURVE")
+    cu.dimensions = "3D"
+    cu.bevel_mode = "ROUND"
+    cu.bevel_depth = radius
+    cu.bevel_resolution = max(0, (segs - 4) // 2)
+    cu.resolution_u = resolution
+    cu.use_fill_caps = True
+    spline = cu.splines.new("BEZIER")
+    spline.bezier_points.add(len(points) - 1)
+    for bp, p in zip(spline.bezier_points, points):
+        bp.co = p
+        bp.handle_left_type = bp.handle_right_type = "AUTO"
+    spline.use_smooth = True
+    cu.materials.append(mat)
+    if old is not None:
+        old_cu = old.data
+        old.data = cu
+        if old_cu.users == 0:
+            bpy.data.curves.remove(old_cu)
+        obj = old
+        obj.parent = None
+        obj.matrix_world = Matrix.Identity(4)
+        for c in list(obj.users_collection):
+            if c.name != coll:
+                c.objects.unlink(obj)
+        if obj.name not in collection(coll).objects:
+            collection(coll).objects.link(obj)
+    else:
+        obj = bpy.data.objects.new(name, cu)
+        collection(coll).objects.link(obj)
+    return obj
