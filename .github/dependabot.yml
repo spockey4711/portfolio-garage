@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      # One PR per week for the whole 3D stack, which moves in lockstep.
+      three:
+        patterns:
+          - "three"
+          - "@types/three"
+          - "@react-three/*"
+      dev:
+        dependency-type: development
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

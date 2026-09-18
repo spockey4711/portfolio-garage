@@ -1,0 +1,27 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# tests
+/coverage
+/test-results/
+/playwright-report/
+
+# env
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+# blender autosaves
+*.blend1
+
+# os
+.DS_Store

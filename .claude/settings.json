@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm dev:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm exec tsc:*)",
+      "Bash(pnpm exec prettier:*)",
+      "Bash(pnpm exec eslint:*)"
+    ],
+    "deny": [
+      "Read(./.next/**)",
+      "Read(./node_modules/**)",
+      "Read(./coverage/**)",
+      "Read(./**/*.blend1)",
+      "Edit(./.env)",
+      "Edit(./.env.local)"
+    ]
+  },
+  "worktree": {
+    "symlinkDirectories": ["node_modules"]
+  }
+}

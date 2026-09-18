@@ -1,0 +1,6 @@
+verifyDepsBeforeRun: false
+# sharp (Next.js image optimisation) and unrs-resolver (ESLint import resolution)
+# build native binaries; pnpm runs their install scripts only when allowed here.
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
