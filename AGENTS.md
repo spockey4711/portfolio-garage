@@ -12,7 +12,9 @@ Blockout im Browser mit Parallax). Toolchain-Vorlage ist Kuechenzettel, devbluep
 nicht zum Einsatz. Aus Woche 1 steht der Code: Store, Kamerafahrten, Hotspot-Klick,
 `?view=`-Sync, Tastatur, Hover-Outline, Screens als `<Html transform occlude>` mit
 Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Woche 1 komplett:
-Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Aus Woche 2 steht der Tag-Bake.
+Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Woche 2 bis auf das Go-live komplett.
+Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`), die Screens sind
+noch Platzhalter.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
 `public/models/garage-lightmap-tag.webp` (Licht ohne Farbe, UV-Set 2), `Scene.tsx` tauscht
@@ -53,6 +55,13 @@ Datei in `content/projects/`, die Liste in `index.ts` bestimmt Reihenfolge und M
 der erste Eintrag ist das Leitprojekt; `/projekte/[slug]` baut nur diese Slugs
 (`dynamicParams = false`). `content/content.test.ts` prüft jeden sichtbaren String auf
 Gedankenstriche, Emoji und Whitespace.
+
+Strava: `lib/strava/` ist die ganze Anbindung, Betrieb und Einrichtung in `docs/BETRIEB.md`.
+Zustand sind zwei JSON-Dateien in `DATA_DIR` (Token, Cache), die nur `lib/strava/sync.ts`
+schreibt; `/api/activity` rechnet die Summary (`summary.ts`) bei jedem Aufruf aus dem Cache und
+lässt Privates weg. Die Module importieren einander mit `.ts`-Endung, weil
+`scripts/strava.mts` sie direkt unter Node ausführt: keine Parameter-Properties, kein
+`enum`, kein `@/`-Alias in `lib/strava/`.
 
 # Kommandos
 

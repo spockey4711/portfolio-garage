@@ -12,6 +12,9 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 
+# strava token and activity cache in dev (DATA_DIR)
+/data
+
 # env
 .env
 .env.*
