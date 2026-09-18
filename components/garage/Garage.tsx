@@ -1,7 +1,7 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Suspense, useRef } from "react";
 import { REST_FOV, REST_VIEW, views } from "@/lib/garage/hotspots";
 import { SKY_COLOR } from "@/lib/garage/lightmap";
 import { closeView } from "@/lib/garage/navigate";
@@ -9,10 +9,17 @@ import { useGarageStore } from "@/lib/garage/store";
 import { CameraRig } from "./CameraRig";
 import { Scene } from "./Scene";
 
+interface GarageProps {
+  /** Called once the scene has been drawn, so the hero can show the canvas. */
+  readonly onReady: () => void;
+}
+
 // The 3D layer on the start page. Everything it shows also exists in 2D below
-// it (docs/KONZEPT.md §5); the canvas is decoration for capable devices and
-// the static fallback of week 2 replaces it elsewhere.
-export function Garage() {
+// it (docs/KONZEPT.md §5); the canvas is decoration for capable devices,
+// elsewhere the still (GarageStill.tsx) is the whole picture. It mounts over
+// the still and clears to the sky before the GLB is in, so the hero keeps it
+// invisible until onReady, or the still would flash to sky and back.
+export function Garage({ onReady }: GarageProps) {
   const rest = views[REST_VIEW];
 
   // A click that hits no hotspot leaves a focused one (KONZEPT §4). At rest
@@ -37,7 +44,20 @@ export function Garage() {
       <Suspense fallback={null}>
         <Scene />
         <CameraRig />
+        <SceneDrawn onDrawn={onReady} />
       </Suspense>
     </Canvas>
   );
+}
+
+// Mounts with the scene, once its GLB and atlas are in. useFrame runs before
+// the frame it belongs to is rendered, so the second call is the first that
+// follows a presented frame with the model in it.
+function SceneDrawn({ onDrawn }: { readonly onDrawn: () => void }) {
+  const frames = useRef(0);
+  useFrame(() => {
+    frames.current += 1;
+    if (frames.current === 2) onDrawn();
+  });
+  return null;
 }

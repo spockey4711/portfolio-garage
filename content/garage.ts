@@ -10,6 +10,13 @@ export interface GarageContent {
   readonly navLabel: string;
   /** The button that leaves a focused hotspot. */
   readonly back: string;
+  /** The static fallback (KONZEPT §5): the rendered rest view and its 2D stand-in for an open hotspot. */
+  readonly still: {
+    /** Alt text of the rendered rest view. */
+    readonly alt: string;
+    /** Body of the stand-in for a hotspot that has no 2D content yet. */
+    readonly comingSoon: string;
+  };
   readonly screens: {
     readonly radcomputer: {
       /** Accessible name of the device screen. */
@@ -46,6 +53,10 @@ const de: GarageContent = {
   },
   navLabel: "Hotspots der Garage",
   back: "Zurück",
+  still: {
+    alt: "Blick von vorn in die Garage: ein Rennrad auf dem Montageständer, dahinter die Werkbank mit Laptop, Werkzeugwand, Whiteboard und Pinnwand.",
+    comingSoon: "Inhalt folgt in Phase 2.",
+  },
   screens: {
     radcomputer: {
       label: "Radcomputer-Display",

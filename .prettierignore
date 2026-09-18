@@ -8,3 +8,4 @@ playwright-report
 CLAUDE.md
 public/models
 lib/garage/hotspots.generated.json
+lib/garage/still.generated.json

@@ -56,8 +56,9 @@ Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallba
 - ~~Erster Bake (Tag): AO + Diffuse in einen Atlas, `MeshBasicMaterial` mit Lightmap im Web.~~
   Erledigt 18.09.: Diffuse direkt + indirekt ohne Farbe, WebP, im Export-Skill.
 - `gltf-transform`-Pipeline, GLB unter 3 MB, `PerformanceMonitor` senkt DPR.
-- Statisches Fallback (WebP mit klickbaren Bereichen) für `prefers-reduced-motion`, unter
-  768 px und schwache GPU. Canvas lädt erst nach dem ersten Paint.
+- ~~Statisches Fallback (WebP mit klickbaren Bereichen) für `prefers-reduced-motion`, unter
+  768 px und schwache GPU. Canvas lädt erst nach dem ersten Paint.~~ Erledigt 18.09.: der
+  Export rendert die Ruheansicht quer und hoch, Klickflächen aus denselben Boxen wie in 3D.
 - 2D-Seiten als Gerüst: Startseite-Inhalt, `/projekte/[slug]`, `/ueber`.
 - Portfolio2 ablösen: Inhalte als Quellmaterial neu schreiben, Rad in die Positionierung (ADR-0001).
 - Go-live auf `yannikwuenker.de`.
