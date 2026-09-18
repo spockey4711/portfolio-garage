@@ -20,8 +20,8 @@ Woche, und es ist das eigene Rad.
 ## Entscheidung
 
 - Das Rad ist ein Cube Agree C:62 Pro 2026 in "blackline" (schwarz auf schwarz), das Rad des
-  Autors. Geometrie nach echten Rahmenmaßen (700c, Radstand 1,00, BB-Drop 0,07, Stack 0,56,
-  Reach 0,39, Sitzwinkel 73,5°, Steuerwinkel 73°), Aero-Details nur angedeutet: tiefe Felgen,
+  Autors. Geometrie nach Cubes Maßtabelle für Größe 56 (700x28c, Radstand 1,007, BB-Drop 0,071, Stack 0,572,
+  Reach 0,391, Sitzwinkel 73,5°, Steuerwinkel 72,5°), Aero-Details nur angedeutet: tiefe Felgen,
   abgesenkte Sitzstreben, Cockpit mit flachem Oberlenker, Scheibenbremsen, Di2 ohne Züge.
 - Weil das Rad schwarz ist, kommt die Akzentfarbe der Szene nicht vom Rad. Sie sitzt in
   kleinen Dosen an Flasche, Leuchtenkopf, Montageständer-Klemme und Pinnnadeln
