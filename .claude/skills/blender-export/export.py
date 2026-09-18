@@ -61,6 +61,26 @@ LIGHTMAP_QUALITY = 90  # lossy WebP: 0.5 MB instead of 3.5 MB as PNG, no visible
 # Sunlit surfaces exceed 1.0; the PNG stores the bake darkened by this many stops and
 # lib/garage/lightmap.ts (LIGHTMAP_EXPOSURE_STOPS) brightens it back in the shader.
 EXPOSURE_STOPS = -1.5
+
+# Daylight rig "Tag" (docs/ATMOSPHAERE.md §2). Colours are linear RGB.
+SUN_COLOR = (1.0, 0.86, 0.68)  # about 4000 K, afternoon
+# The facade faces the sun almost squarely (cos 25° cos 30° = 0.79) and the lightmap clips
+# at 2^1.5 = 2.83 irradiance (EXPOSURE_STOPS), so the sun's red channel may not exceed
+# about 3.2 with the sky on top. The floor streak then gets sin 25° of it, 1.3.
+SUN_ENERGY = 3.0
+SUN_ELEVATION_DEG = 25  # low enough that the streak through the gate reaches the bench
+# From the front right, so the streak runs towards the bench on the left and the right
+# pillar's shadow cuts a diagonal across the floor to the rear wall: light on the bench
+# and the bike, shade on the shelf and the boxes.
+SUN_AZIMUTH_DEG = 35
+SKY_COLOR = (0.62, 0.70, 0.80)  # a hazy sky, barely blue: the fill must not cool the shadows
+# The sky enters over the whole gate and lights the floor from a third of the hemisphere,
+# the low sun only with sin 25°. At strength 1.0 the shade was half as bright as the
+# streak and the streak went flat; the streak needs about four times the shade.
+SKY_STRENGTH = 0.4
+LAMP_COLOR = (1.0, 0.62, 0.30)  # 2700 K
+LAMP_ENERGY = 10.0  # watts: a pool on the bench top 60 cm below the bulb, about the streak's level
+
 # A camera closer than this to a face's plane keeps the face, so parallax and small
 # camera moves never uncover a hole (CameraRig lerps positions, so the endpoints suffice).
 CULL_MARGIN = 0.5
@@ -239,20 +259,47 @@ for mat in bpy.data.materials:
 
 # ---------------------------------------------------------------- lightmap
 if not skip_bake:
-    # Daylight rig "Tag": sky through the gate and the window, sun from the front left
-    # (docs/KONZEPT.md §2 "Dach und Tor"). The night rig comes in phase 3.
+    # The file's own lights (collection Review_Licht: a 6.0 sun and a 150 W area light
+    # for viewport reviews) must not reach the bake. They did until now: every earlier
+    # lightmap was lit by them, the rig below only added a little on top.
+    for o in [o for o in bpy.data.objects if o.type == "LIGHT"]:
+        bpy.data.objects.remove(o)
+
+    # Daylight rig "Tag" (docs/ATMOSPHAERE.md §2): late afternoon, not noon. A warm, low
+    # sun from the front right lays one long streak through the gate across the floor to
+    # the workbench; the sky is a dim fill so the shadows read warm from the brick bounce,
+    # not blue. The night rig comes in phase 3.
     world = bpy.data.worlds.new("Bake_Tag")
     world.use_nodes = True
     background = world.node_tree.nodes["Background"]
-    background.inputs["Color"].default_value = (0.5, 0.65, 0.85, 1.0)
-    background.inputs["Strength"].default_value = 1.3  # brick swallows more than plaster did
+    background.inputs["Color"].default_value = (*SKY_COLOR, 1.0)
+    background.inputs["Strength"].default_value = SKY_STRENGTH
     scene.world = world
     sun_data = bpy.data.lights.new("Sonne", "SUN")
-    sun_data.energy = 2.2  # 3.0 blew the sunlit brick facade out to pink
+    sun_data.energy = SUN_ENERGY
+    sun_data.color = SUN_COLOR
     sun_data.angle = radians(3)
     sun = bpy.data.objects.new("Sonne", sun_data)
     scene.collection.objects.link(sun)
-    sun.rotation_euler = (radians(50), 0.0, radians(-30))
+    # Blender's sun shines down its local -Z; tilting by (90 - elevation) about X sends it
+    # into the room (+Y, away from the gate), the Z turn swings it towards the bench.
+    sun.rotation_euler = (radians(90 - SUN_ELEVATION_DEG), 0.0, radians(SUN_AZIMUTH_DEG))
+
+    # The bench lamp burns in daylight too: a warm pool on the bench top is the sign that
+    # someone works here. The bulb sits just in front of the lamp's diffuser disc (the
+    # largest face in the head's third material slot, see build_furniture.py) so the disc
+    # itself bakes bright and the lamp head shades everything above.
+    lamp = bpy.data.objects["Leuchte"]
+    disc = max(
+        (p for p in lamp.data.polygons if p.material_index == 2 and p.normal.z < 0), key=lambda p: p.area
+    )
+    bulb_data = bpy.data.lights.new("Leuchte_Birne", "POINT")
+    bulb_data.energy = LAMP_ENERGY
+    bulb_data.color = LAMP_COLOR
+    bulb_data.shadow_soft_size = 0.03
+    bulb = bpy.data.objects.new("Leuchte_Birne", bulb_data)
+    scene.collection.objects.link(bulb)
+    bulb.location = lamp.matrix_world @ (disc.center + disc.normal * 0.02)
 
     prefs = bpy.context.preferences.addons["cycles"].preferences
     prefs.compute_device_type = "METAL"
