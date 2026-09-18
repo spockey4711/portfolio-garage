@@ -23,5 +23,8 @@ next-env.d.ts
 # blender autosaves
 *.blend1
 
+# agent worktrees checked out in-tree by the Claude Code tooling
+/.claude/worktrees/
+
 # os
 .DS_Store
