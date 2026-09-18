@@ -54,6 +54,9 @@ BAKE_SAMPLES = 128
 TEXTURE_UV = "Textur"  # the tiling textures' UV set, laid by blender/build/garage_lib.py
 LIGHTMAP_UV = "Lightmap"
 TEXTURE_QUALITY = 90  # WebP inside the GLB
+# Overlapping lightmap islands, as a fraction of the atlas, above which the export fails.
+# The floor patch that motivated the check covered 0.009; bevel slivers stay far below.
+MAX_OVERLAP = 0.001
 LIGHTMAP_QUALITY = 90  # lossy WebP: 0.5 MB instead of 3.5 MB as PNG, no visible difference
 # Sunlit surfaces exceed 1.0; the PNG stores the bake darkened by this many stops and
 # lib/garage/lightmap.ts (LIGHTMAP_EXPOSURE_STOPS) brightens it back in the shader.
@@ -201,7 +204,34 @@ bpy.ops.mesh.select_all(action="SELECT")
 bpy.ops.uv.smart_project(
     angle_limit=radians(66), island_margin=0.0015, margin_method="SCALED", correct_aspect=True, scale_to_bounds=False
 )
+# smart_project's own packing has put long, thin islands (the threshold's sides) on top
+# of the floor's island; the dedicated packer does not overlap.
+bpy.ops.uv.select_all(action="SELECT")
+bpy.ops.uv.pack_islands(
+    udim_source="ORIGINAL_AABB", rotate=True, scale=True, margin_method="SCALED", margin=0.0015, shape_method="AABB"
+)
+# Overlapping islands bake one face's light onto another (a black patch on the floor,
+# once). Blender's own overlap test selects the culprits (UV selection is the mesh
+# selection since 5.0). Bevel slivers inside boxes-in-boxes (cartons, laptop, doors)
+# always trip it over a few texels, so the export refuses only a visible area.
+bpy.ops.mesh.select_all(action="DESELECT")
+bpy.ops.uv.select_overlap()
+overlap_area = {}
+for o in meshes:
+    bm = bmesh.from_edit_mesh(o.data)
+    uv_layer = bm.loops.layers.uv[LIGHTMAP_UV]
+    area = 0.0
+    for f in bm.faces:
+        if f.select:
+            points = [loop[uv_layer].uv for loop in f.loops]
+            area += abs(sum(points[i].cross(points[(i + 1) % len(points)]) for i in range(len(points)))) / 2
+    if area > 0:
+        overlap_area[o.name] = area
 bpy.ops.object.mode_set(mode="OBJECT")
+overlap_total = sum(overlap_area.values())
+if overlap_total > MAX_OVERLAP:
+    worst = sorted(overlap_area, key=overlap_area.get, reverse=True)[:5]
+    sys.exit(f"ERROR overlapping lightmap islands cover {overlap_total:.4f} of the atlas, worst: {worst}")
 
 # Single-sided like three.js renders them; the culling above assumed it. Glass keeps both.
 for mat in bpy.data.materials:
@@ -503,6 +533,7 @@ lightmap_note = (
     )
 )
 print(
-    f"OK glb={glb_path} ({os.path.getsize(glb_path) // 1024} KB, {faces} faces, {culled} culled) "
+    f"OK glb={glb_path} ({os.path.getsize(glb_path) // 1024} KB, {faces} faces, {culled} culled, "
+    f"uv overlap {overlap_total:.5f}) "
     f"{lightmap_note} hotspots={hotspots_path} ({len(hotspots)} views) total {time.time() - t_start:.0f}s"
 )

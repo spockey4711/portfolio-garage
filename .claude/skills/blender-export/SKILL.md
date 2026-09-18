@@ -34,7 +34,7 @@ Standbilder liegen (beides braucht Cycles), die UVs werden trotzdem neu gelegt, 
 Lightmap passt also nur, wenn sich keine Geometrie geändert hat.
 
 Fertig, wenn die letzte Zeile vor `Blender quit` mit `OK glb=... lightmap=... stills=...
-hotspots=...` beginnt, danach `OK optimized glb=... (2626 KB -> 2006 KB)` folgt und die Dateien
+hotspots=...` beginnt, danach `OK optimized glb=... (3360 KB -> 2738 KB)` folgt und die Dateien
 existieren. Beide `OK`-Zeilen in der Antwort zeigen. Jede andere Endung (`ERROR`, Traceback)
 ist ein Fehlschlag: melden, das Skript nicht umgehen. Ein Crash mit `MTLBinaryArchive` im
 Backtrace ist der Metal-Kernel-Cache, einmal wiederholen.
@@ -55,8 +55,12 @@ Backtrace ist der Metal-Kernel-Cache, einmal wiederholen.
   `garage_lib.box_project_uvs` (Weltmeter, Box-Projektion) und bleibt stehen, Objekte ohne
   Textur bekommen ein leeres. `Lightmap` ist ein UV-Atlas für alles: `smart_project` über
   alle Objekte, Texeldichte nach 3D-Fläche, Inselabstand skaliert mit der Inselgröße (die
-  vielen winzigen Fahrradteile sind dunkel, da fällt Bluten nicht auf). Materialien werden
-  einseitig, Glas bleibt zweiseitig.
+  vielen winzigen Fahrradteile sind dunkel, da fällt Bluten nicht auf). Danach packt
+  `uv.pack_islands` noch einmal: die Packung von `smart_project` legte einmal die langen
+  dünnen Seiten der Schwelle über die Bodeninsel, ein schwarzes Rechteck im Boden.
+  `uv.select_overlap` misst danach die überlappende Fläche, über `MAX_OVERLAP` (0,1 % des
+  Atlas) bricht der Export ab; die Zahl steht in der `OK`-Zeile (`uv overlap`).
+  Materialien werden einseitig, Glas bleibt zweiseitig.
 - Texturen (`blender/textures/`, ADR-0006): Farbe und Normal Map hängen am Principled BSDF
   über `UV Map -> Mapping -> Image Texture`, genau die Kette, die der glTF-Exporter als
   `KHR_texture_transform` schreibt. Die Normal Map wirkt nur im Bake (Fugenschatten landen
@@ -80,8 +84,8 @@ Backtrace ist der Metal-Kernel-Cache, einmal wiederholen.
   Normals raus (das Web beleuchtet nichts), `dedup`, `prune` mit `keepAttributes` (sonst
   fliegt das Lightmap-UV, weil kein Material es benutzt), `weld`, Quantisierung (Position
   14 Bit, Lightmap-UV 16 Bit; das Textur-UV bleibt Float, es liegt in Metern weit außerhalb
-  von 0..1), `reorder`, Meshopt. Die Texturen bleiben, wie Blender sie schrieb. 2,6 MB
-  werden 2,0 MB, davon 1,8 MB die drei WebP-Texturen; die Lightmap bleibt bei 0,25 MB
+  von 0..1), `reorder`, Meshopt. Die Texturen bleiben, wie Blender sie schrieb. 3,4 MB
+  werden 2,7 MB, davon 2,5 MB die vier WebP-Texturen; die Lightmap bleibt bei 0,3 MB
   WebP. Kein `join`, kein `flatten`: Objektnamen und Node-Baum sind der Vertrag mit
   `lib/garage/glb.ts`. Die Quantisierung legt einen Maßstab auf die Mesh-Nodes,
   `screenPlaneFor` misst deshalb in Weltmetern. Den Meshopt-Decoder bringt dreis `useGLTF`

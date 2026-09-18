@@ -21,6 +21,10 @@ M["Reifen"] = material("Reifen", "#232324", roughness=0.95)
 M["Felge"] = material("Felge", "#0f0f11", roughness=0.4)
 
 rad = bpy.data.objects["Rad"]
+# 0.9 m in front of the room centre, front 30 deg towards the camera (KONZEPT §2): further
+# back the bike sat deep in the room from the rest camera
+rad.location = (-0.2, -0.9, 0)
+rad.rotation_euler = (0, 0, radians(30))
 for o in list(rad.children):
     if o.name != "Radcomputer":
         remove(o.name)

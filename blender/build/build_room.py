@@ -14,6 +14,7 @@ for stale in ("Putz", "Beton_Boden"):
 P = {
     "Backstein": textured_material("Backstein", "backstein", 1.05, roughness=0.9),
     "Asphalt": textured_material("Asphalt", "asphalt", 2.5, roughness=1.0, normal_strength=0.6),
+    "Steinplatten": textured_material("Steinplatten", "steinplatten", 1.8, roughness=0.5, normal_strength=0.5),
     "Holz": textured_material("Holz", "holz", 0.8, roughness=0.5, normal_strength=0.5),
     "Fuge": material("Fuge", "#3a3835", roughness=1.0),
     "Beton": material("Beton", "#9a968f", roughness=0.95),
@@ -33,14 +34,17 @@ P = {
     "Karton": material("Karton", "#c6a06c", roughness=0.9),
 }
 
+GW_OPENING = 5.0  # between the pillars' inner faces (x = -2.5 .. 2.5)
+
 # ---------------------------------------------------------------- floor
-# one asphalt slab inside and the driveway outside, flush, the same texture in world
-# metres runs across the threshold; the driveway runs under the pillars so there is
-# no gap to the sky, and the rest camera stands on it
+# smooth stone slabs inside, asphalt on the driveway, a concrete threshold on the seam
+# at the gate line (y = -2.0). The driveway runs under the pillars so there is no gap to
+# the sky, and the rest camera stands on it.
 for stale in ("Boden_Fugen", "Sockelleiste"):
     remove(stale)
-box("Boden", (6.0, 4.0, 0.05), (0, 0, -0.025), P["Asphalt"])
+box("Boden", (6.0, 4.0, 0.05), (0, 0, -0.025), P["Steinplatten"])
 box("Vorplatz", (9.0, 4.24, 0.05), (0, -4.12, -0.025), P["Asphalt"])
+box("Schwelle", (GW_OPENING, 0.12, 0.015), (0, -2.0, 0.0075), P["Beton"], bevel=0.003)
 
 # ---------------------------------------------------------------- shell
 box("Decke", (6.48, 4.48, 0.24), (0, 0, 2.92), P["Decke"])
