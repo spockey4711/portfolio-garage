@@ -10,6 +10,29 @@ export interface GarageContent {
   readonly navLabel: string;
   /** The button that leaves a focused hotspot. */
   readonly back: string;
+  readonly screens: {
+    readonly radcomputer: {
+      /** Accessible name of the device screen. */
+      readonly label: string;
+      /** Title of the first data page. */
+      readonly today: string;
+      readonly fields: {
+        readonly duration: string;
+        readonly distance: string;
+        readonly heartRate: string;
+        readonly load: string;
+      };
+      /** Shown in every field until real data arrives (Phase 2). */
+      readonly noData: string;
+    };
+    readonly laptop: {
+      readonly label: string;
+      /** Title of the window on the laptop. */
+      readonly projects: string;
+      /** Placeholder line until the project list arrives (Phase 2). */
+      readonly comingSoon: string;
+    };
+  };
 }
 
 const de: GarageContent = {
@@ -23,6 +46,24 @@ const de: GarageContent = {
   },
   navLabel: "Hotspots der Garage",
   back: "Zurück",
+  screens: {
+    radcomputer: {
+      label: "Radcomputer-Display",
+      today: "Heute",
+      fields: {
+        duration: "Dauer",
+        distance: "Distanz",
+        heartRate: "HF Ø",
+        load: "TSS",
+      },
+      noData: "--",
+    },
+    laptop: {
+      label: "Laptop-Display",
+      projects: "Projekte",
+      comingSoon: "Projektliste folgt in Phase 2.",
+    },
+  },
 };
 
 const content: Readonly<Record<Locale, GarageContent>> = { de };

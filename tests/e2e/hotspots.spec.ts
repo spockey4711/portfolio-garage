@@ -62,3 +62,42 @@ test("unknown views fall back to the rest position", async ({ page }) => {
   await openGarage(page, "/?view=kitchen");
   await expect(page.getByRole("button", { name: "Zurück" })).toBeHidden();
 });
+
+// The screens are DOM on the display meshes (KONZEPT §5). Open, they take
+// the pointer; closed, they are scenery and the click reaches the hotspot
+// box behind them. Both cases click by coordinates: Playwright refuses to
+// click an element that does not receive pointer events, which for the
+// closed screen is the point.
+async function centerOf(page: Page, name: string) {
+  const box = await page.getByRole("img", { name }).boundingBox();
+  if (!box) throw new Error(`${name} has no bounding box`);
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
+test("a click inside the open screen stays in the hotspot, a click beside it leaves", async ({
+  page,
+}) => {
+  await openGarage(page, "/?view=computer");
+  const screen = page.getByRole("img", { name: "Radcomputer-Display" });
+  // pointer-events switch on when the camera has arrived.
+  await expect(screen).toHaveCSS("pointer-events", "auto");
+
+  const { x, y } = await centerOf(page, "Radcomputer-Display");
+  await page.mouse.click(x, y);
+  await expect(page).toHaveURL(/\?view=computer$/);
+
+  await page.mouse.click(x, 40);
+  await expect(page).toHaveURL(/\/$/);
+});
+
+test("a click on a closed screen opens its hotspot", async ({ page }) => {
+  await openGarage(page);
+  // The bike computer sits in the middle of the frame on every viewport; the
+  // laptop is outside the narrow portrait frame on the mobile project.
+  const screen = page.getByRole("img", { name: "Radcomputer-Display" });
+  await expect(screen).toHaveCSS("pointer-events", "none");
+
+  const { x, y } = await centerOf(page, "Radcomputer-Display");
+  await page.mouse.click(x, y);
+  await expect(page).toHaveURL(/\?view=computer$/);
+});

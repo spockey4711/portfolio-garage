@@ -4,9 +4,10 @@ import { defineConfig } from "@playwright/test";
 // quality gate stays a Node-only run, and this suite needs a browser and a GPU
 // that can drive WebGL.
 //
-// The port is fixed so the dev server never collides with a pnpm dev on 3000
-// in the same checkout. E2E_BASE_URL points the suite at a server started by
-// hand instead of the one below.
+// The port is fixed so the suite never fights a pnpm dev on 3000 for the
+// port. Next allows one dev server per checkout, though: with pnpm dev
+// already running, point the suite at it with
+// E2E_BASE_URL=http://localhost:3000 instead of starting the one below.
 const port = 3100;
 const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${port}`;
 

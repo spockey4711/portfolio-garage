@@ -7,6 +7,7 @@ import { Box3, type Object3D, Vector3 } from "three";
 import { getGarageContent } from "@/content/garage";
 import type { FocusViewId, View } from "@/lib/garage/hotspots";
 import { openView } from "@/lib/garage/navigate";
+import { hotspotObject } from "@/lib/garage/screen";
 import { isDriving, useGarageStore } from "@/lib/garage/store";
 import { defaultLocale } from "@/lib/i18n";
 
@@ -39,11 +40,7 @@ export function Hotspot({ view, scene }: HotspotProps) {
   const label = getGarageContent(defaultLocale).hotspots[view.id].label;
 
   const { center, size, labelPosition } = useMemo(() => {
-    const mesh = view.mesh === null ? null : scene.getObjectByName(view.mesh);
-    if (!mesh) {
-      throw new Error(`Hotspot ${view.id}: mesh ${view.mesh} not in the GLB`);
-    }
-    const box = new Box3().setFromObject(mesh);
+    const box = new Box3().setFromObject(hotspotObject(view, scene));
     const center = box.getCenter(new Vector3());
     const size = box.getSize(new Vector3());
     const labelPosition = new Vector3(

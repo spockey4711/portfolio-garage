@@ -32,14 +32,19 @@ export interface View<Id extends ViewId = ViewId> {
   readonly mesh: string | null;
 }
 
-const meta: Record<ViewId, Pick<View, "slug" | "ui" | "mesh">> = {
+const meta = {
   ruhe: { slug: null, ui: "labels", mesh: null },
   radcomputer: { slug: "computer", ui: "screen", mesh: "Radcomputer" },
   laptop: { slug: "laptop", ui: "screen", mesh: "Laptop_Display" },
   pinnwand: { slug: "board", ui: "overlay", mesh: "Pinnwand" },
   whiteboard: { slug: "plan", ui: "overlay", mesh: "Whiteboard" },
   werkzeugwand: { slug: "tools", ui: "hover", mesh: "Werkzeugwand" },
-};
+} as const satisfies Record<ViewId, Pick<View, "slug" | "ui" | "mesh">>;
+
+/** The views that mount a screen component; the screen registry must cover all of them. */
+export type ScreenViewId = {
+  [Id in ViewId]: (typeof meta)[Id]["ui"] extends "screen" ? Id : never;
+}[ViewId];
 
 function toVec3(v: number[]): Vec3 {
   if (v.length !== 3) {
@@ -70,6 +75,13 @@ export function isFocusView(id: ViewId): id is FocusViewId {
 export const focusViews: ReadonlyArray<View<FocusViewId>> = (
   ["werkzeugwand", "laptop", "whiteboard", "radcomputer", "pinnwand"] as const
 ).map((id) => views[id]);
+
+export function isScreenView(view: View): view is View<ScreenViewId> {
+  return view.ui === "screen";
+}
+
+export const screenViews: ReadonlyArray<View<ScreenViewId>> =
+  focusViews.filter(isScreenView);
 
 /** Vertical field of view of the rest camera in degrees (24 mm equivalent). */
 export const REST_FOV = 45;

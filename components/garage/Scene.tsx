@@ -1,10 +1,11 @@
 "use client";
 
 import { useGLTF } from "@react-three/drei";
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useMemo } from "react";
 import { Mesh, MeshLambertMaterial } from "three";
-import { focusViews } from "@/lib/garage/hotspots";
+import { focusViews, screenViews } from "@/lib/garage/hotspots";
 import { Hotspot } from "./Hotspot";
+import { Screen } from "./Screen";
 
 export const GARAGE_MODEL_URL = "/models/garage.glb";
 
@@ -54,11 +55,18 @@ export function Scene() {
     });
   }, [scene]);
 
+  // The screens hide behind the room's geometry only. The hotspot click
+  // boxes are siblings of the GLB, not children, so they never occlude.
+  const occluders = useMemo(() => [{ current: scene }], [scene]);
+
   return (
     <>
       <primitive object={scene} />
       {focusViews.map((view) => (
         <Hotspot key={view.id} view={view} scene={scene} />
+      ))}
+      {screenViews.map((view) => (
+        <Screen key={view.id} view={view} scene={scene} occlude={occluders} />
       ))}
     </>
   );
