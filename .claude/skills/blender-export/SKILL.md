@@ -66,8 +66,15 @@ Backtrace ist der Metal-Kernel-Cache, einmal wiederholen.
   `KHR_texture_transform` schreibt. Die Normal Map wirkt nur im Bake (Fugenschatten landen
   in der Lightmap); vor dem GLB-Export kappt das Skript den Normal-Link, ins GLB geht nur
   die Farbe als WebP (`export_image_format="WEBP"`, Qualität `TEXTURE_QUALITY`).
-- Lichtrig "Tag" steht in `export.py`: Himmel 1,3 durch Tor und Fenster, Sonne 2,2 von vorn
-  links, 40° hoch (3,0 brannte die Backsteinfassade rosa aus). Das Nachtrig kommt in
+- Lichtrig "Tag" steht als Konstanten in `export.py` (`SUN_*`, `SKY_*`, `LAMP_*`):
+  Nachmittag, Sonne warm (4000 K) mit 3,0 von vorn rechts, 25° hoch, 35° Azimut, so dass
+  ein Streifen durchs Tor bis zur Werkbank läuft und der rechte Pfeiler eine Schattenkante
+  bis zur Rückwand wirft; Himmel 0,4 als schwaches, kaum blaues Fülllicht; die
+  Werkbankleuchte brennt mit 10 W bei 2700 K, die Birne sitzt vor der Diffusorscheibe der
+  `Leuchte` (drittes Materialfach). Die Fassade deckelt die Sonne: sie steht fast frontal
+  zu ihr, und über etwa 3,2 clippt die Lightmap dort (`EXPOSURE_STOPS`). Die Lichter der
+  `.blend` (`Review_Licht`, Sonne 6,0 und Fläche 150 W für die Viewport-Ansicht) löscht das
+  Skript vor dem Bake; bis 2026-09-18 haben sie jeden Bake dominiert. Das Nachtrig kommt in
   Phase 3 als zweites Bild.
 - Bake über ein zusammengefügtes Proxy (ein Cycles-Durchlauf statt fünfzig); die Originale
   sind derweil aus dem Render, sonst verschatten deckungsgleiche Flächen den Bake.
