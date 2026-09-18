@@ -71,9 +71,17 @@ export function formatInteger(value: number): string {
   return integer.format(Math.round(value));
 }
 
-/** Time of day for the status bar, 24 h. */
-export function formatClock(date: Date): string {
-  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+/**
+ * Time of day for the status bar, 24 h, in `zone`: the device sits in the
+ * garage, so it shows the garage's time, not the visitor's.
+ */
+export function formatClock(date: Date, zone: string): string {
+  return new Intl.DateTimeFormat("de-DE", {
+    timeZone: zone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
 }
 
 export interface DayWords {

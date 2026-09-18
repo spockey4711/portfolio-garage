@@ -389,7 +389,7 @@ function Battery() {
 function useClock(): string | null {
   const [clock, setClock] = useState<string | null>(null);
   useEffect(() => {
-    const tick = () => setClock(formatClock(new Date()));
+    const tick = () => setClock(formatClock(new Date(), HOME_ZONE));
     tick();
     const timer = setInterval(tick, 10_000);
     return () => clearInterval(timer);

@@ -77,8 +77,10 @@ describe("formatElevation", () => {
 });
 
 describe("formatClock", () => {
-  it("pads hours and minutes", () => {
-    expect(formatClock(new Date(2026, 8, 18, 7, 5))).toBe("07:05");
+  it("shows the garage's time, padded, whatever zone the visitor is in", () => {
+    const zone = "Europe/Berlin";
+    expect(formatClock(new Date("2026-09-18T05:05:00Z"), zone)).toBe("07:05");
+    expect(formatClock(new Date("2026-01-18T23:30:00Z"), zone)).toBe("00:30");
   });
 });
 
