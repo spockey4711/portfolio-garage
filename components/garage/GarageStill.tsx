@@ -1,14 +1,16 @@
 "use client";
 
-import { getImageProps } from "next/image";
+import { getImageProps, type StaticImageData } from "next/image";
 import type { MouseEvent } from "react";
+import portraitStill from "@/public/models/garage-ruhe-tag-hoch.webp";
+import wideStill from "@/public/models/garage-ruhe-tag-quer.webp";
 import { getGarageContent } from "@/content/garage";
 import type { FocusViewId, View } from "@/lib/garage/hotspots";
 import { isPlainClick, openView } from "@/lib/garage/navigate";
 import {
   STILL_PORTRAIT,
   STILL_WIDE,
-  type StillImage,
+  type StillFrame,
   stillAreaOrder,
   stillAreas,
 } from "@/lib/garage/still";
@@ -26,8 +28,14 @@ import { defaultLocale } from "@/lib/i18n";
 // which stays the keyboard and screen-reader way in; these are for pointers.
 export function GarageStill() {
   const content = getGarageContent(defaultLocale);
-  const wide = imageProps(STILL_WIDE, content.still.alt, "max(100vw, 240vh)");
+  const wide = imageProps(
+    wideStill,
+    STILL_WIDE,
+    content.still.alt,
+    "max(100vw, 240vh)",
+  );
   const portrait = imageProps(
+    portraitStill,
     STILL_PORTRAIT,
     content.still.alt,
     "max(100vw, 50vh)",
@@ -65,17 +73,22 @@ export function GarageStill() {
  * The still is fitted by height whenever the viewport is narrower than it, so
  * the width the browser needs is the height times the still's aspect ratio,
  * not the viewport width; without that sizes hint it would pick a source
- * too small and upscale it.
+ * too small and upscale it. The static import carries the file's own size;
+ * the frame from the export is what the click areas are laid out in, and
+ * the two come from the same render, so they agree or the export is stale.
  */
-function imageProps(image: StillImage, alt: string, sizes: string) {
-  return getImageProps({
-    src: image.src,
-    width: image.width,
-    height: image.height,
-    alt,
-    sizes,
-    priority: true,
-  }).props;
+function imageProps(
+  image: StaticImageData,
+  frame: StillFrame,
+  alt: string,
+  sizes: string,
+) {
+  if (image.width !== frame.width || image.height !== frame.height) {
+    throw new Error(
+      `still ${image.src} is ${image.width}x${image.height}, still.generated.json says ${frame.width}x${frame.height}: re-run the blender-export skill`,
+    );
+  }
+  return getImageProps({ src: image, alt, sizes, priority: true }).props;
 }
 
 function StillArea({ view }: { readonly view: View<FocusViewId> }) {
