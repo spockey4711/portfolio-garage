@@ -55,7 +55,9 @@ Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallba
   Szene stilistisch daran anpassen.
 - ~~Erster Bake (Tag): AO + Diffuse in einen Atlas, `MeshBasicMaterial` mit Lightmap im Web.~~
   Erledigt 18.09.: Diffuse direkt + indirekt ohne Farbe, WebP, im Export-Skill.
-- `gltf-transform`-Pipeline, GLB unter 3 MB, `PerformanceMonitor` senkt DPR.
+- ~~`gltf-transform`-Pipeline, GLB unter 3 MB, `PerformanceMonitor` senkt DPR.~~
+  Erledigt 18.09.: `scripts/optimize-glb.mts` im Export-Skill (Meshopt statt Draco, kein
+  KTX2, es gibt keine Texturen), GLB 0,2 MB; DPR-Stufen in `Garage.tsx`.
 - Statisches Fallback (WebP mit klickbaren Bereichen) für `prefers-reduced-motion`, unter
   768 px und schwache GPU. Canvas lädt erst nach dem ersten Paint.
 - 2D-Seiten als Gerüst: Startseite-Inhalt, `/projekte/[slug]`, `/ueber`.

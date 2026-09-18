@@ -8,7 +8,8 @@ description: Use when a fresh GLB, a fresh lightmap or fresh camera/hotspot coor
 Baut `blender/garage-blockout.blend` headless zu drei Dateien:
 
 - `public/models/garage.glb`: Collection `Blockout`, Modifier angewendet, ein UV-Set
-  `Lightmap`, Materialien mit Farbe (das Web macht daraus `MeshBasicMaterial`).
+  `Lightmap`, Materialien mit Farbe (das Web macht daraus `MeshBasicMaterial`). Nach Blender
+  läuft `scripts/optimize-glb.mts` darüber (Normals weg, Quantisierung, Meshopt), siehe unten.
 - `public/models/garage-lightmap-tag.webp`: Tageslicht mit Cycles in dieses UV-Set gebacken
   (Diffuse direkt + indirekt, ohne Farbe), per Compositor entrauscht. Das Web multipliziert
   es mit der Materialfarbe (`lib/garage/lightmap.ts`).
@@ -27,9 +28,10 @@ liegen, die UVs werden trotzdem neu gelegt, die alte Lightmap passt also nur, we
 Geometrie geändert hat.
 
 Fertig, wenn die letzte Zeile vor `Blender quit` mit `OK glb=... lightmap=... hotspots=...`
-beginnt und die Dateien existieren. Die `OK`-Zeile in der Antwort zeigen. Jede andere Endung
-(`ERROR`, Traceback) ist ein Fehlschlag: melden, das Skript nicht umgehen. Ein Crash mit
-`MTLBinaryArchive` im Backtrace ist der Metal-Kernel-Cache, einmal wiederholen.
+beginnt, danach `OK optimized glb=... (614 KB -> 192 KB)` folgt und die Dateien existieren.
+Beide `OK`-Zeilen in der Antwort zeigen. Jede andere Endung (`ERROR`, Traceback) ist ein
+Fehlschlag: melden, das Skript nicht umgehen. Ein Crash mit `MTLBinaryArchive` im Backtrace
+ist der Metal-Kernel-Cache, einmal wiederholen.
 
 ## Was das Skript festlegt
 
@@ -59,6 +61,13 @@ beginnt und die Dateien existieren. Die `OK`-Zeile in der Antwort zeigen. Jede a
   wieder an. Beide Werte gehören zusammen.
 - Achsen: Blender (x, y, z) wird zu three.js (x, z, -y), identisch zum glTF-Export. Die
   Werte in `docs/KONZEPT.md` §3 sind bereits Y-up.
-- Keine Draco/KTX2-Kompression, das GLB liegt bei 0,6 MB, die Lightmap bei 0,2 MB WebP.
+- `scripts/optimize-glb.mts` (gltf-transform) schreibt das GLB nach Blender in place um:
+  Normals raus (das Web beleuchtet nichts), `dedup`, `prune` mit `keepAttributes` (sonst
+  fliegt das Lightmap-UV, weil kein Material eine Textur hat), `weld`, Quantisierung
+  (Position 14 Bit, UV 16 Bit), `reorder`, Meshopt. 0,6 MB werden 0,2 MB, die Lightmap bleibt
+  bei 0,2 MB WebP. Kein `join`, kein `flatten`: Objektnamen und Node-Baum sind der Vertrag
+  mit `lib/garage/glb.ts`. Die Quantisierung legt einen Maßstab auf die Mesh-Nodes,
+  `screenPlaneFor` misst deshalb in Weltmetern. Den Meshopt-Decoder bringt dreis `useGLTF`
+  mit. Test: `scripts/optimize-glb.test.ts`.
 - Neue Ansicht = neues Paar `Cam_<Name>`/`Ziel_<Name>` in Blender; ein halbes Paar bricht
   den Export ab. Eine neue Kamera ändert auch, welche Flächen gelöscht werden.

@@ -43,9 +43,14 @@ export function screenPlaneFor(mesh: Mesh, camera: Vec3): ScreenPlane {
   mesh.updateWorldMatrix(true, false);
   const world = mesh.matrixWorld;
 
-  const size = box.getSize(new Vector3());
+  // The box is in mesh space; the optimised GLB carries the quantisation
+  // scale on the node (scripts/optimize-glb.mts), so extents are measured
+  // in world metres and only the offset to the face stays local.
+  const localSize = box.getSize(new Vector3());
   const centre = box.getCenter(new Vector3());
-  const sizeOf = (axis: Axis) => size.getComponent(axis);
+  const scale = new Vector3().setFromMatrixScale(world);
+  const sizeOf = (axis: Axis) =>
+    localSize.getComponent(axis) * scale.getComponent(axis);
   const thin = AXES.reduce((a, b) => (sizeOf(b) < sizeOf(a) ? b : a));
   const inPlane = AXES.filter((axis) => axis !== thin);
 
@@ -61,7 +66,7 @@ export function screenPlaneFor(mesh: Mesh, camera: Vec3): ScreenPlane {
   }
   const position = centre
     .clone()
-    .addScaledVector(unit(thin, 1), (side * sizeOf(thin)) / 2)
+    .addScaledVector(unit(thin, 1), (side * localSize.getComponent(thin)) / 2)
     .applyMatrix4(world);
 
   // Up is whichever in-plane edge, in either direction, rises the most.

@@ -1,7 +1,9 @@
 "use client";
 
 import { EffectComposer, Outline } from "@react-three/postprocessing";
-import { useMemo } from "react";
+import { useThree } from "@react-three/fiber";
+import type { EffectComposer as EffectComposerImpl } from "postprocessing";
+import { useEffect, useMemo, useRef } from "react";
 import type { Object3D } from "three";
 import { hotspotObject, meshesOf } from "@/lib/garage/glb";
 import { isFocusView, views } from "@/lib/garage/hotspots";
@@ -23,6 +25,17 @@ export function HoverOutline({ scene }: HoverOutlineProps) {
   const hovered = useGarageStore((state) => state.hovered);
   const softClip = useMemo(() => new SoftClipEffect(), []);
 
+  // The composer sizes its buffers from the drawing buffer, but only when
+  // the CSS size changes. The pixel ratio changes without that when
+  // Garage.tsx steps the DPR down, so the buffers follow it here; otherwise
+  // the scene keeps rendering at the old resolution and nothing is saved.
+  const composer = useRef<EffectComposerImpl>(null);
+  const dpr = useThree((state) => state.viewport.dpr);
+  const size = useThree((state) => state.size);
+  useEffect(() => {
+    composer.current?.setSize(size.width, size.height);
+  }, [dpr, size]);
+
   // The outline pass renders by layer, and a layer set on a group does not
   // reach its children, so a grouped hotspot is traced mesh by mesh.
   const selection = useMemo(() => {
@@ -31,7 +44,7 @@ export function HoverOutline({ scene }: HoverOutlineProps) {
   }, [hovered, scene]);
 
   return (
-    <EffectComposer multisampling={4} autoClear={false}>
+    <EffectComposer ref={composer} multisampling={4} autoClear={false}>
       <Outline
         selection={selection}
         visibleEdgeColor="#ffffff"
