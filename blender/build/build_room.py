@@ -7,20 +7,22 @@ exec(open(LIB).read())  # LIB: absolute path to garage_lib.py, set by the caller
 # ---------------------------------------------------------------- palette
 # Red brick garage (docs/adr/0006): walls and floor are tiling photo textures from
 # blender/textures (ambientCG, CC0), tile sizes are the physical size ambientCG lists.
-# Everything else stays a flat colour.
+# Everything else stays a flat colour. Nothing is pure grey or pure white (ATMOSPHAERE
+# §2): the photos get a warm tint via `tint` (multiplied, so #ffffff would be the photo
+# as shipped), the flat colours lean towards cream and ochre.
 for stale in ("Putz", "Beton_Boden"):
     if stale in bpy.data.materials and bpy.data.materials[stale].users == 0:
         bpy.data.materials.remove(bpy.data.materials[stale])
 P = {
     "Backstein": textured_material("Backstein", "backstein", 1.05, roughness=0.9),
-    "Asphalt": textured_material("Asphalt", "asphalt", 2.5, roughness=1.0, normal_strength=0.6),
-    "Steinplatten": textured_material("Steinplatten", "steinplatten", 1.8, roughness=0.5, normal_strength=0.5),
-    "Holz": textured_material("Holz", "holz", 0.8, roughness=0.5, normal_strength=0.5),
+    "Asphalt": textured_material("Asphalt", "asphalt", 2.5, roughness=1.0, normal_strength=0.6, tint="#ffe9d2"),
+    "Steinplatten": textured_material("Steinplatten", "steinplatten", 1.8, roughness=0.5, normal_strength=0.5, tint="#fae9cb"),
+    "Holz": textured_material("Holz", "holz", 0.8, roughness=0.35, normal_strength=0.5, tint="#ad9e94"),  # oiled oak, not pale pine
     "Fuge": material("Fuge", "#3a3835", roughness=1.0),
-    "Beton": material("Beton", "#9a968f", roughness=0.95),
+    "Beton": material("Beton", "#a0988c", roughness=0.95),
     "Sockel": material("Sockel", "#4c4a47", roughness=0.9),
-    "Decke": material("Decke", "#c4c0b9", roughness=0.95),
-    "Tor": material("Tor", "#f0efe9", roughness=0.5),
+    "Decke": material("Decke", "#c9c1b3", roughness=0.95),
+    "Tor": material("Tor", "#e9dfcb", roughness=0.5),
     "Gummi": material("Gummi", "#2a2a2a", roughness=0.9),
     "Metall_Dunkel": material("Metall_Dunkel", "#35373b", roughness=0.5, metallic=0.6),
     "Metall_Hell": material("Metall_Hell", "#cfd0cc", roughness=0.45, metallic=0.5),
