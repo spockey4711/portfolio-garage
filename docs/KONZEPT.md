@@ -143,7 +143,7 @@ die DOM-UI darauf nicht lesbar.
 | ------------ | ----------------------------------------- | --------------------------- | ------------------------------------------------ | ----------------- |
 | Ruhe         | (0, 1.6, 4.2), vertikales FOV 45° (24 mm) | (0, 1.1, 0)                 | Hover-Labels                                     | `/`               |
 | Radcomputer  | (0.23, 1.22, 0.05), 17 cm über dem Lenker | Display (0.3, 1.07, 0.0)    | DOM in `<Html>`, Edge-UI mit echten Daten        | `/?view=computer` |
-| Laptop       | (-1.76, 1.08, -1.24), 40 cm vor dem Lid   | Display (-1.8, 1.01, -1.63) | DOM in `<Html>`, Projektliste, Fuelivo-Mini live | `/?view=laptop`   |
+| Laptop       | (-1.8, 1.08, -1.23), auf der Lid-Normalen | Display (-1.8, 1.01, -1.63) | DOM in `<Html>`, Projektliste, Fuelivo-Mini live | `/?view=laptop`   |
 | Pinnwand     | (1.8, 1.5, 0.3)                           | (1.85, 1.5, -1.9)           | DOM-Overlay, Zettel klickbar                     | `/?view=board`    |
 | Whiteboard   | (0.4, 1.5, 0.2)                           | (0.4, 1.5, -1.9)            | DOM-Overlay, Blogliste in Handschrift-Optik      | `/?view=plan`     |
 | Werkzeugwand | (-2.3, 1.5, 0.2)                          | (-2.4, 1.6, -1.9)           | Hover auf Werkzeug zeigt Tool/Tech               | `/?view=tools`    |
