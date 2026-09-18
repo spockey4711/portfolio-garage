@@ -2,7 +2,7 @@
 
 Writes, relative to <out> (the first argument after "--"):
   public/models/garage.glb              collection "Blockout", object names kept, modifiers
-                                        applied, two UV sets: "Textur" (TEXCOORD_0, world
+                                        applied and curves turned into meshes, two UV sets: "Textur" (TEXCOORD_0, world
                                         metres for the tiling photo textures, which travel
                                         inside the GLB as WebP) and "Lightmap" (TEXCOORD_1)
   public/models/garage-lightmap-tag.webp daylight baked with Cycles into the Lightmap set:
@@ -167,12 +167,15 @@ camera_positions = [
 ]
 
 # ---------------------------------------------------------------- meshes
-meshes = [o for o in bpy.data.collections["Blockout"].all_objects if o.type == "MESH"]
+meshes = [o for o in bpy.data.collections["Blockout"].all_objects if o.type in ("MESH", "CURVE")]
 for o in meshes:
     o.hide_set(False)
     o.hide_viewport = False
 select_only(meshes)
-bpy.ops.object.convert(target="MESH")  # applies the bevel modifiers, as export_apply would
+# applies the bevel modifiers, as export_apply would, and turns the cables and hoses
+# (Bezier curves with a bevel depth, garage_lib.curve) into meshes, because the cull,
+# the atlas and the bake below need real mesh data; from here on every object is a mesh
+bpy.ops.object.convert(target="MESH")
 
 # Faces no camera can ever see from the front are dead weight: walls' outsides, the
 # ceiling's top, undersides of tables. Dropping them halves the atlas the shell needs.
