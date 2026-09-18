@@ -1,8 +1,10 @@
 import { defineConfig } from "@playwright/test";
 
 // Browser tests against next dev. They live outside pnpm test on purpose: the
-// quality gate stays a Node-only run, and this suite needs a browser and a GPU
-// that can drive WebGL.
+// quality gate stays a Node-only run, and this suite needs a browser. No GPU:
+// headless Chromium draws WebGL with SwiftShader, which the garage answers
+// with the still (lib/garage/capability.ts); the canvas tests override the
+// renderer string to get the canvas anyway.
 //
 // The port is fixed so the suite never fights a pnpm dev on 3000 for the
 // port. Next allows one dev server per checkout, though: with pnpm dev

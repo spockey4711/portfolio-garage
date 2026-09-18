@@ -67,6 +67,30 @@ describe("screenPlaneFor", () => {
     expect(plane.position.z).toBeGreaterThan(-1.628);
   });
 
+  it("measures a quantised lid in world metres, not in mesh units", () => {
+    // scripts/optimize-glb.mts normalises the geometry and puts the scale on
+    // the node: the same lid, 0.15 units wide with the node scaled by 0.15.
+    const mesh = deviceMesh(
+      [0.32 / 0.15, 0.21 / 0.15, 0.005 / 0.15],
+      [-1.8, 1.013, -1.628],
+      new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -10 * DEG),
+    );
+    mesh.scale.setScalar(0.15);
+    const plane = screenPlaneFor(mesh, views.laptop.camera);
+
+    expect(plane.width).toBeCloseTo(0.32);
+    expect(plane.height).toBeCloseTo(0.21);
+    const unscaled = screenPlaneFor(
+      deviceMesh(
+        [0.32, 0.21, 0.005],
+        [-1.8, 1.013, -1.628],
+        new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -10 * DEG),
+      ),
+      views.laptop.camera,
+    );
+    expectClose(plane.position, unscaled.position.toArray());
+  });
+
   it("picks the other side when the camera is behind the device", () => {
     const mesh = deviceMesh([0.32, 0.21, 0.005], [0, 1, 0], new Quaternion());
     const front = screenPlaneFor(mesh, [0, 1, 2]);

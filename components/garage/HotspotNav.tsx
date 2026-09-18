@@ -3,21 +3,10 @@
 import type { MouseEvent } from "react";
 import { getGarageContent } from "@/content/garage";
 import { focusViews, type View } from "@/lib/garage/hotspots";
-import { closeView, openView } from "@/lib/garage/navigate";
+import { closeView, isPlainClick, openView } from "@/lib/garage/navigate";
 import { useGarageStore } from "@/lib/garage/store";
 import { hrefForView } from "@/lib/garage/url";
 import { defaultLocale } from "@/lib/i18n";
-
-/** A modified or non-primary click wants a new tab; leave that to the browser. */
-function isPlainClick(event: MouseEvent): boolean {
-  return (
-    event.button === 0 &&
-    !event.metaKey &&
-    !event.ctrlKey &&
-    !event.shiftKey &&
-    !event.altKey
-  );
-}
 
 // The keyboard and screen-reader way into the hotspots (KONZEPT §4: Tab
 // walks through them, Enter focuses). Real links with the ?view= href, so
