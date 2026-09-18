@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import type { Object3D } from "three";
 import { hotspotObject, meshesOf } from "@/lib/garage/glb";
 import { isFocusView, views } from "@/lib/garage/hotspots";
+import { SoftClipEffect } from "@/lib/garage/softclip";
 import { useGarageStore } from "@/lib/garage/store";
 
 interface HoverOutlineProps {
@@ -15,9 +16,12 @@ interface HoverOutlineProps {
 // The outline of docs/KONZEPT.md §4: hovering a hotspot (or reaching it with
 // Tab) traces its geometry so the scene reads as clickable. This is the only
 // postprocessing in the garage, and the composer replaces the default render
-// pass, so the canvas leaves antialiasing to the composer's multisampling.
+// pass, so the canvas leaves antialiasing to the composer's multisampling and
+// the highlight roll-off to SoftClipEffect: the renderer's own tone mapping
+// never reaches the screen through a composer.
 export function HoverOutline({ scene }: HoverOutlineProps) {
   const hovered = useGarageStore((state) => state.hovered);
+  const softClip = useMemo(() => new SoftClipEffect(), []);
 
   // The outline pass renders by layer, and a layer set on a group does not
   // reach its children, so a grouped hotspot is traced mesh by mesh.
@@ -35,6 +39,7 @@ export function HoverOutline({ scene }: HoverOutlineProps) {
         edgeStrength={3}
         blur
       />
+      <primitive object={softClip} />
     </EffectComposer>
   );
 }

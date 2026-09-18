@@ -296,10 +296,8 @@ Blender-Szene grob blocken (nur Boxen an den richtigen Stellen), als GLB exporti
 laden, Kamera-Positionen und Hotspot-Gefühl testen, bevor ein einziges Objekt schön ist. Ein
 Nachmittag. Beantwortet die Frage, ob sich die Garage richtig anfühlt.
 
-Stand 2026-09-18: Blender-Hälfte erledigt, `blender/garage-blockout.blend`. Collection
-`Blockout` mit allen Objekten aus §2, Collection `Hotspots` mit `Cam_*`/`Ziel_*`-Empties für
-alle sechs Ansichten, Kamera in Ruheposition, Workbench-Render mit Objektfarben (F12). Kein
-Material, kein Licht, kein Export. Offen: GLB-Export und der R3F-Test.
+Stand 2026-09-18: Erledigt. Szene aus `blender/build/` (ADR-0004), Export und Tag-Bake über
+den Skill `blender-export`, Ruhe- und Fokuskameras im Browser geprüft.
 
 ## 9. Offene Entscheidungen
 
