@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SiteFooter } from "@/components/site/SiteFooter";
+import { getSiteContent } from "@/content/site";
+import { defaultLocale } from "@/lib/i18n";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,10 +15,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const site = getSiteContent(defaultLocale);
+
 export const metadata: Metadata = {
-  title: "Yannik Wünker",
-  description:
-    "Portfolio als Fahrrad-Werkstatt-Garage. Baut Software für Ausdauersportler.",
+  title: {
+    default: site.name,
+    template: `%s - ${site.name}`,
+  },
+  description: site.description,
 };
 
 export default function RootLayout({
@@ -26,7 +33,10 @@ export default function RootLayout({
       lang="de"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }

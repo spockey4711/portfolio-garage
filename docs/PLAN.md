@@ -61,7 +61,8 @@ Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallba
 - ~~Statisches Fallback (WebP mit klickbaren Bereichen) für `prefers-reduced-motion`, unter
   768 px und schwache GPU. Canvas lädt erst nach dem ersten Paint.~~ Erledigt 18.09.: der
   Export rendert die Ruheansicht quer und hoch, Klickflächen aus denselben Boxen wie in 3D.
-- 2D-Seiten als Gerüst: Startseite-Inhalt, `/projekte/[slug]`, `/ueber`.
+- ~~2D-Seiten als Gerüst: Startseite-Inhalt, `/projekte/[slug]`, `/ueber`.~~ Erledigt 18.09.:
+  Startseite unter dem Hero, drei Projektseiten aus `content/projects/`, `/ueber`.
 - Portfolio2 ablösen: Inhalte als Quellmaterial neu schreiben, Rad in die Positionierung (ADR-0001).
 - Go-live auf `yannikwuenker.de`.
 

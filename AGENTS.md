@@ -45,6 +45,13 @@ unter 768 px, kein WebGL2, Software-Renderer oder ≤ 2 GB (`lib/garage/capabili
 Standbild, sonst mountet das Canvas darüber, unsichtbar bis zum zweiten gezeichneten Frame.
 Ohne Canvas zeigt `StillView.tsx` den offenen Hotspot als Karte, die URL bleibt dieselbe.
 
+2D-Seiten: `app/page.tsx` ist Hero plus Startseiten-Inhalt, die tiefen Seiten liegen in der
+Route-Gruppe `app/(seiten)/` (Header oben, Footer im Root-Layout). Projekte sind je eine
+Datei in `content/projects/`, die Liste in `index.ts` bestimmt Reihenfolge und Mitgliedschaft,
+der erste Eintrag ist das Leitprojekt; `/projekte/[slug]` baut nur diese Slugs
+(`dynamicParams = false`). `content/content.test.ts` prüft jeden sichtbaren String auf
+Gedankenstriche, Emoji und Whitespace.
+
 # Kommandos
 
 - Quality Gate vor jedem Push: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`.
