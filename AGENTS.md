@@ -4,7 +4,8 @@
 
 Portfolio als Fahrrad-Werkstatt-Garage in 3D (R3F), der Radcomputer ist das "OS" und zeigt
 echte Trainingsdaten. Konzept mit Szene, Hotspots, Kamera, Stack und Phasen: `docs/KONZEPT.md`,
-Maße des Blockouts dort in §2. Zeitplan und Setup-Reihenfolge: `docs/PLAN.md`. Blender-Quelle:
+Maße des Blockouts dort in §2. Zeitplan und Setup-Reihenfolge: `docs/PLAN.md`,
+Budget und Hebel für Wärme und Detail: `docs/ATMOSPHAERE.md`. Blender-Quelle:
 `blender/garage-blockout.blend`.
 
 Stand 2026-09-18: Tag 0 aus `docs/PLAN.md` ist erledigt (Scaffold, Toolchain, CI, 3D-Stack,
