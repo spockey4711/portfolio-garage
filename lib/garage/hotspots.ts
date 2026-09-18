@@ -112,8 +112,8 @@ export function isScreenView(view: View): view is View<ScreenViewId> {
 export const screenViews: ReadonlyArray<View<ScreenViewId>> =
   focusViews.filter(isScreenView);
 
-/** Vertical field of view of the rest camera in degrees (24 mm equivalent). */
-export const REST_FOV = 45;
+/** Vertical field of view of the rest camera in degrees (23 mm equivalent). */
+export const REST_FOV = 55;
 
 /** Looks up a view by its ?view= slug; unknown slugs fall back to the rest view. */
 export function viewFromSlug(slug: string | null): View {

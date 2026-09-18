@@ -92,12 +92,19 @@ bpy.ops.object.convert(target="MESH")  # applies the bevel modifiers, as export_
 # Faces no camera can ever see from the front are dead weight: walls' outsides, the
 # ceiling's top, undersides of tables. Dropping them halves the atlas the shell needs.
 # Transparent objects keep everything, their back faces show through the front.
+# The dead faces still have to block light during the bake: without them the walls
+# are open shells, and where an inner face runs into the next wall's volume (the
+# room corners, the ceiling over the wall tops) its texels look straight out into
+# the sky and bleed a bright seam into the corner. So they move into one blocker
+# object per mesh that renders but is never baked or exported.
+blockers = []
 culled = 0
 for o in meshes:
     if is_opaque(o):
         normal_matrix = o.matrix_world.to_3x3().inverted().transposed()
         bm = bmesh.new()
         bm.from_mesh(o.data)
+        bm.faces.ensure_lookup_table()
         dead = []
         for f in bm.faces:
             n = (normal_matrix @ f.normal).normalized()
@@ -106,6 +113,20 @@ for o in meshes:
                 dead.append(f)
         if dead:
             culled += len(dead)
+            dead_index = {f.index for f in dead}
+            blocker_bm = bm.copy()
+            blocker_bm.faces.ensure_lookup_table()
+            live = [f for f in blocker_bm.faces if f.index not in dead_index]
+            bmesh.ops.delete(blocker_bm, geom=live, context="FACES")
+            blocker_me = bpy.data.meshes.new(f"{o.name}.Cull")
+            for mat in o.data.materials:
+                blocker_me.materials.append(mat)
+            blocker_bm.to_mesh(blocker_me)
+            blocker_bm.free()
+            blocker = bpy.data.objects.new(blocker_me.name, blocker_me)
+            blocker.matrix_world = o.matrix_world.copy()
+            scene.collection.objects.link(blocker)
+            blockers.append(blocker)
             bmesh.ops.delete(bm, geom=dead, context="FACES")
             bm.to_mesh(o.data)
         bm.free()
@@ -173,6 +194,10 @@ if not skip_bake:
     # The bake writes into the active image node of every material. Metallic would
     # swallow the diffuse pass, and the web material has no metalness anyway.
     image = bpy.data.images.new("Lightmap", LIGHTMAP_SIZE, LIGHTMAP_SIZE, float_buffer=True)
+    albedo = bpy.data.images.new("Lightmap_Albedo", LIGHTMAP_SIZE, LIGHTMAP_SIZE, float_buffer=True)
+    normal = bpy.data.images.new("Lightmap_Normal", LIGHTMAP_SIZE, LIGHTMAP_SIZE, float_buffer=True)
+    normal.colorspace_settings.name = "Non-Color"
+    target_nodes = []
     for mat in bpy.data.materials:
         if not mat.use_nodes:
             continue
@@ -182,6 +207,7 @@ if not skip_bake:
         node = mat.node_tree.nodes.new("ShaderNodeTexImage")
         node.image = image
         mat.node_tree.nodes.active = node
+        target_nodes.append(node)
 
     # Cycles bakes one object per pass; a joined copy of everything is one pass instead
     # of fifty. Duplicates share the UVs and materials, so the atlas comes out the same.
@@ -197,6 +223,18 @@ if not skip_bake:
     select_only([proxy])
     t_bake = time.time()
     bpy.ops.object.bake(type="DIFFUSE", pass_filter={"DIRECT", "INDIRECT"}, margin=8, use_clear=True)
+    # Albedo and normal guide the denoiser below. Without them Open Image Denoise
+    # judges an island by its atlas neighbours: a dim, indirect-only wall next to a
+    # sunlit exterior face keeps its grain, and every layout change moves the problem.
+    # Neither pass traces light, one sample is exact.
+    scene.cycles.samples = 1
+    scene.cycles.use_adaptive_sampling = False
+    for node in target_nodes:
+        node.image = albedo
+    bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=8, use_clear=True)
+    for node in target_nodes:
+        node.image = normal
+    bpy.ops.object.bake(type="NORMAL", normal_space="OBJECT", margin=8, use_clear=True)
     bake_seconds = time.time() - t_bake
     for o in meshes:
         o.hide_render = False
@@ -209,11 +247,12 @@ if not skip_bake:
     # itself is skipped; the camera only satisfies the pipeline.
     tree = bpy.data.node_groups.new("Lightmap_Denoise", "CompositorNodeTree")
     tree.interface.new_socket("Image", in_out="OUTPUT", socket_type="NodeSocketColor")
-    source = tree.nodes.new("CompositorNodeImage")
-    source.image = image
     denoise = tree.nodes.new("CompositorNodeDenoise")
+    for socket, img in (("Image", image), ("Albedo", albedo), ("Normal", normal)):
+        source = tree.nodes.new("CompositorNodeImage")
+        source.image = img
+        tree.links.new(source.outputs["Image"], denoise.inputs[socket])
     output = tree.nodes.new("NodeGroupOutput")
-    tree.links.new(source.outputs["Image"], denoise.inputs["Image"])
     tree.links.new(denoise.outputs["Image"], output.inputs["Image"])
     scene.compositing_node_group = tree
     scene.render.use_compositing = True

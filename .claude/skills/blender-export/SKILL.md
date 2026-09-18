@@ -39,7 +39,10 @@ beginnt und die Dateien existieren. Die `OK`-Zeile in der Antwort zeigen. Jede a
   `Laptop_Display`, ...). Hotspot-Meshes im Web darüber finden, nie über Indizes.
 - Flächen, die keine Kamera (`Cam_*`) je von vorn sieht (Wandrückseiten, Deckenoberseite,
   Tischunterseiten), werden gelöscht; 0,5 m Sicherheitsabstand für Parallaxe. Kamerafahrten
-  lerpen linear, die Endpunkte reichen. Transparente Objekte behalten alles.
+  lerpen linear, die Endpunkte reichen. Transparente Objekte behalten alles. Die gelöschten
+  Flächen bleiben als `<Name>.Cull`-Objekte außerhalb der Collection im Bake, sonst sind
+  die Wände offene Schalen und die Raumecken bekommen eine helle Naht aus Texeln, die in
+  den Himmel schauen.
 - Ein UV-Atlas für alles: `smart_project` über alle Objekte, Texeldichte nach 3D-Fläche,
   Inselabstand skaliert mit der Inselgröße (die vielen winzigen Fahrradteile sind dunkel,
   da fällt Bluten nicht auf). Materialien werden einseitig, Glas bleibt zweiseitig.
@@ -47,6 +50,10 @@ beginnt und die Dateien existieren. Die `OK`-Zeile in der Antwort zeigen. Jede a
   links, 40° hoch. Das Nachtrig kommt in Phase 3 als zweites Bild.
 - Bake über ein zusammengefügtes Proxy (ein Cycles-Durchlauf statt fünfzig); die Originale
   sind derweil aus dem Render, sonst verschatten deckungsgleiche Flächen den Bake.
+- Der Denoiser bekommt Albedo und Normale aus zwei Zusatz-Bakes mit einem Sample. Ohne
+  Führung beurteilt Open Image Denoise eine Insel nach ihren Atlas-Nachbarn: eine schwach
+  beleuchtete Wandfläche neben einer Sonnenfläche behielt ihr Korn, und jede Änderung am
+  Layout verschob das Problem woandershin.
 - Belichtung -1,5 Blenden in der Datei (`EXPOSURE_STOPS`), damit Sonnenflächen über 1,0
   nicht clippen; `LIGHTMAP_EXPOSURE_STOPS` in `lib/garage/lightmap.ts` hebt sie im Shader
   wieder an. Beide Werte gehören zusammen.
