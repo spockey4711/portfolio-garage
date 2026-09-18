@@ -5,6 +5,7 @@ import { Suspense, useState } from "react";
 import { getGarageContent } from "@/content/garage";
 import { SKY_COLOR } from "@/lib/garage/lightmap";
 import { defaultLocale } from "@/lib/i18n";
+import { GarageStatus } from "./GarageStatus";
 import { GarageStill } from "./GarageStill";
 import { HotspotNav } from "./HotspotNav";
 import { StillView } from "./StillView";
@@ -52,6 +53,10 @@ export function GarageHero() {
         <ViewSync />
       </Suspense>
       <HotspotNav />
+      <GarageStatus
+        loading={mode === "canvas" && !canvasDrawn}
+        ready={mode === "still" || canvasDrawn}
+      />
     </section>
   );
 }

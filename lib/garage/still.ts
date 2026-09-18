@@ -15,23 +15,21 @@ import {
 // canvas uses, so a viewport narrower than a still sees exactly the still's
 // centre with object-fit: cover, and the canvas can take over without a cut.
 
-export interface StillImage {
-  readonly src: string;
+/**
+ * The frame of a still in pixels. The files themselves are imported where
+ * they are shown (GarageStill.tsx), so they ship under a content-hashed URL
+ * and no cache can hold on to an older render; this stays plain data.
+ */
+export interface StillFrame {
   readonly width: number;
   readonly height: number;
 }
 
 /** 12:5, for viewports wider than they are tall. */
-export const STILL_WIDE: StillImage = {
-  src: "/models/garage-ruhe-tag-quer.webp",
-  ...generated.wide,
-};
+export const STILL_WIDE: StillFrame = generated.wide;
 
 /** 1:2, the same centre with more pixels for a phone held upright. */
-export const STILL_PORTRAIT: StillImage = {
-  src: "/models/garage-ruhe-tag-hoch.webp",
-  ...generated.portrait,
-};
+export const STILL_PORTRAIT: StillFrame = generated.portrait;
 
 /** A hotspot's click area in the wide still, in its pixels, origin top left. */
 export interface StillArea {
