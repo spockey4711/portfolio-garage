@@ -28,18 +28,47 @@ export interface View<Id extends ViewId = ViewId> {
   /** Value of the ?view= search param; the rest view has none. */
   readonly slug: string | null;
   readonly ui: ViewUi;
-  /** Name of the mesh in the GLB that opens this view; the rest view has none. */
+  /**
+   * Name of the object in the GLB that opens this view: what the click box
+   * wraps and the hover outline traces. A group (Laptop) when the hotspot is
+   * more than its display; the rest view has none.
+   */
   readonly mesh: string | null;
+  /** Name of the display mesh a screen view renders on; null unless ui is "screen". */
+  readonly display: string | null;
 }
 
 const meta = {
-  ruhe: { slug: null, ui: "labels", mesh: null },
-  radcomputer: { slug: "computer", ui: "screen", mesh: "Radcomputer" },
-  laptop: { slug: "laptop", ui: "screen", mesh: "Laptop_Display" },
-  pinnwand: { slug: "board", ui: "overlay", mesh: "Pinnwand" },
-  whiteboard: { slug: "plan", ui: "overlay", mesh: "Whiteboard" },
-  werkzeugwand: { slug: "tools", ui: "hover", mesh: "Werkzeugwand" },
-} as const satisfies Record<ViewId, Pick<View, "slug" | "ui" | "mesh">>;
+  ruhe: { slug: null, ui: "labels", mesh: null, display: null },
+  radcomputer: {
+    slug: "computer",
+    ui: "screen",
+    mesh: "Radcomputer",
+    display: "Radcomputer",
+  },
+  laptop: {
+    slug: "laptop",
+    ui: "screen",
+    mesh: "Laptop",
+    display: "Laptop_Display",
+  },
+  pinnwand: { slug: "board", ui: "overlay", mesh: "Pinnwand", display: null },
+  whiteboard: {
+    slug: "plan",
+    ui: "overlay",
+    mesh: "Whiteboard",
+    display: null,
+  },
+  werkzeugwand: {
+    slug: "tools",
+    ui: "hover",
+    mesh: "Werkzeugwand",
+    display: null,
+  },
+} as const satisfies Record<
+  ViewId,
+  Pick<View, "slug" | "ui" | "mesh" | "display">
+>;
 
 /** The views that mount a screen component; the screen registry must cover all of them. */
 export type ScreenViewId = {

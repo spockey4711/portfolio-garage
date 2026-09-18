@@ -40,6 +40,16 @@ describe("views", () => {
     }
   });
 
+  it("gives exactly the screen views a display mesh", () => {
+    for (const view of Object.values(views)) {
+      if (view.ui === "screen") {
+        expect(view.display, view.id).toBeTruthy();
+      } else {
+        expect(view.display, view.id).toBeNull();
+      }
+    }
+  });
+
   it("has unique slugs", () => {
     const slugs = Object.values(views)
       .map((v) => v.slug)

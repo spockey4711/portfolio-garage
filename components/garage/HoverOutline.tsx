@@ -3,7 +3,7 @@
 import { EffectComposer, Outline } from "@react-three/postprocessing";
 import { useMemo } from "react";
 import type { Object3D } from "three";
-import { hotspotObject } from "@/lib/garage/glb";
+import { hotspotObject, meshesOf } from "@/lib/garage/glb";
 import { isFocusView, views } from "@/lib/garage/hotspots";
 import { useGarageStore } from "@/lib/garage/store";
 
@@ -19,9 +19,11 @@ interface HoverOutlineProps {
 export function HoverOutline({ scene }: HoverOutlineProps) {
   const hovered = useGarageStore((state) => state.hovered);
 
+  // The outline pass renders by layer, and a layer set on a group does not
+  // reach its children, so a grouped hotspot is traced mesh by mesh.
   const selection = useMemo(() => {
     if (hovered === null || !isFocusView(hovered)) return [];
-    return [hotspotObject(views[hovered], scene)];
+    return meshesOf(hotspotObject(views[hovered], scene));
   }, [hovered, scene]);
 
   return (

@@ -7,9 +7,9 @@ import {
   type RefObject,
   type SyntheticEvent,
 } from "react";
-import { Mesh, type Object3D } from "three";
+import type { Object3D } from "three";
 import type { ScreenViewId, View } from "@/lib/garage/hotspots";
-import { hotspotObject } from "@/lib/garage/glb";
+import { displayMesh } from "@/lib/garage/glb";
 import { screenPlaneFor } from "@/lib/garage/screen";
 import { useGarageStore } from "@/lib/garage/store";
 import { screens } from "./screens";
@@ -36,13 +36,10 @@ export function Screen({ view, scene, occlude }: ScreenProps) {
   );
   const { Component, pxWidth } = screens[view.id];
 
-  const plane = useMemo(() => {
-    const object = hotspotObject(view, scene);
-    if (!(object instanceof Mesh)) {
-      throw new Error(`Screen ${view.id}: ${view.mesh} is not a mesh`);
-    }
-    return screenPlaneFor(object, view.camera);
-  }, [scene, view]);
+  const plane = useMemo(
+    () => screenPlaneFor(displayMesh(view, scene), view.camera),
+    [scene, view],
+  );
 
   const pxHeight = Math.round((pxWidth * plane.height) / plane.width);
   const distanceFactor = (DREI_PX_PER_DISTANCE_FACTOR * plane.width) / pxWidth;
