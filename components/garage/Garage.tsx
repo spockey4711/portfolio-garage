@@ -35,8 +35,8 @@ export function Garage() {
       <hemisphereLight args={["#ffffff", "#444444", 2]} />
       <Suspense fallback={null}>
         <Scene />
+        <CameraRig />
       </Suspense>
-      <CameraRig />
     </Canvas>
   );
 }

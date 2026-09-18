@@ -1,11 +1,14 @@
 "use client";
 
+import { useGLTF } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { MathUtils, Matrix4, Quaternion, Vector3 } from "three";
+import { MathUtils, Quaternion, Vector3 } from "three";
 import { driveDuration, easeInOut } from "@/lib/garage/camera";
-import { REST_VIEW, type Vec3, views } from "@/lib/garage/hotspots";
+import { REST_VIEW, views } from "@/lib/garage/hotspots";
+import { viewQuaternion } from "@/lib/garage/pose";
 import { isDriving, useGarageStore } from "@/lib/garage/store";
+import { GARAGE_MODEL_URL } from "./Scene";
 
 /** How far the idle camera turns towards the pointer, in degrees per axis. */
 const PARALLAX_DEG = 3;
@@ -18,16 +21,6 @@ const MAX_DELTA_S = 0.1;
 
 const X_AXIS = new Vector3(1, 0, 0);
 const Y_AXIS = new Vector3(0, 1, 0);
-
-/** The orientation a camera at `position` has when it looks at `target`. */
-function lookAtQuaternion(position: Vec3, target: Vec3): Quaternion {
-  const matrix = new Matrix4().lookAt(
-    new Vector3(...position),
-    new Vector3(...target),
-    Y_AXIS,
-  );
-  return new Quaternion().setFromRotationMatrix(matrix);
-}
 
 /** One camera drive, from wherever the camera is to a view's position. */
 interface Drive {
@@ -43,8 +36,11 @@ interface Drive {
 // with a few degrees of pointer parallax, and the store's phase starts a drive
 // to whichever view is set: focusing drives in, leaving drives back. A drive
 // always starts from the camera's current pose, so retargeting mid-flight
-// (Escape during a drive, a second hotspot) needs no special case.
+// (Escape during a drive, a second hotspot) needs no special case. The
+// arrival pose of a screen view rolls with its display (lib/garage/pose.ts),
+// which is why the rig reads the GLB and mounts inside the scene's Suspense.
 export function CameraRig() {
+  const { scene } = useGLTF(GARAGE_MODEL_URL);
   const camera = useThree((state) => state.camera);
   const pointer = useThree((state) => state.pointer);
   const phase = useGarageStore((state) => state.phase);
@@ -52,8 +48,8 @@ export function CameraRig() {
 
   const rest = views[REST_VIEW];
   const restQuaternion = useMemo(
-    () => lookAtQuaternion(rest.camera, rest.target),
-    [rest],
+    () => viewQuaternion(rest, scene),
+    [rest, scene],
   );
 
   // Per-frame state, allocated once so the render loop does not churn.
@@ -82,7 +78,7 @@ export function CameraRig() {
       fromPosition: camera.position.clone(),
       fromQuaternion: camera.quaternion.clone(),
       toPosition,
-      toQuaternion: lookAtQuaternion(target.camera, target.target),
+      toQuaternion: viewQuaternion(target, scene),
       duration: reducedMotion
         ? 0
         : driveDuration(camera.position.distanceTo(toPosition)),
@@ -91,7 +87,7 @@ export function CameraRig() {
     // The parallax restarts from straight ahead when the camera is back.
     rig.yaw = 0;
     rig.pitch = 0;
-  }, [camera, phase, view]);
+  }, [camera, phase, scene, view]);
 
   useFrame((_, rawDelta) => {
     const rig = rigRef.current;
