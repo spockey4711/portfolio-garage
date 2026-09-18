@@ -59,13 +59,18 @@ def _texture_image(folder, kind, colorspace):
     return img
 
 
-def textured_material(name, folder, tile_m, roughness=0.9, normal_strength=1.0):
+def textured_material(name, folder, tile_m, roughness=0.9, normal_strength=1.0, tint=None):
     """A tiling photo texture (blender/textures/<folder>/color.jpg + normal.jpg) on a
     Principled BSDF. The mesh's TEXTURE_UV set holds world metres, so `tile_m` is the
     physical size of the image. The node chain UV Map -> Mapping -> Image Texture is
     the one the glTF exporter turns into KHR_texture_transform; the normal map only
-    feeds the bake, export.py unlinks it before the GLB."""
-    mat = material(name, "#ffffff", roughness=roughness)
+    feeds the bake, export.py unlinks it before the GLB.
+
+    `tint` (hex) multiplies the photo before the BSDF, through a Mix node with factor 1,
+    which the exporter folds into `baseColorFactor`; MeshBasicMaterial multiplies its
+    `color` with the map the same way, so bake, GLB and stills agree without touching
+    the source image."""
+    mat = material(name, tint or "#ffffff", roughness=roughness)
     mat["textured"] = True
     nodes, links = mat.node_tree.nodes, mat.node_tree.links
     for n in [n for n in nodes if n.type not in ("BSDF_PRINCIPLED", "OUTPUT_MATERIAL")]:
@@ -80,7 +85,18 @@ def textured_material(name, folder, tile_m, roughness=0.9, normal_strength=1.0):
     color = nodes.new("ShaderNodeTexImage")
     color.image = _texture_image(folder, "color", "sRGB")
     links.new(mapping.outputs["Vector"], color.inputs["Vector"])
-    links.new(color.outputs["Color"], bsdf.inputs["Base Color"])
+    base_color = color.outputs["Color"]
+    if tint:
+        mix = nodes.new("ShaderNodeMix")
+        mix.data_type = "RGBA"
+        mix.blend_type = "MULTIPLY"
+        # The node has one A/B/Result socket per data type, only the identifier is unique.
+        socket = lambda sockets, ident: next(s for s in sockets if s.identifier == ident)
+        socket(mix.inputs, "Factor_Float").default_value = 1.0
+        socket(mix.inputs, "B_Color").default_value = srgb(tint)
+        links.new(base_color, socket(mix.inputs, "A_Color"))
+        base_color = socket(mix.outputs, "Result_Color")
+    links.new(base_color, bsdf.inputs["Base Color"])
     normal = nodes.new("ShaderNodeTexImage")
     normal.image = _texture_image(folder, "normal", "Non-Color")
     links.new(mapping.outputs["Vector"], normal.inputs["Vector"])

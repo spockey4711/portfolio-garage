@@ -63,9 +63,13 @@ Backtrace ist der Metal-Kernel-Cache, einmal wiederholen.
   Materialien werden einseitig, Glas bleibt zweiseitig.
 - Texturen (`blender/textures/`, ADR-0006): Farbe und Normal Map hängen am Principled BSDF
   über `UV Map -> Mapping -> Image Texture`, genau die Kette, die der glTF-Exporter als
-  `KHR_texture_transform` schreibt. Die Normal Map wirkt nur im Bake (Fugenschatten landen
-  in der Lightmap); vor dem GLB-Export kappt das Skript den Normal-Link, ins GLB geht nur
-  die Farbe als WebP (`export_image_format="WEBP"`, Qualität `TEXTURE_QUALITY`).
+  `KHR_texture_transform` schreibt. Ein `tint` (`textured_material`) sitzt als Mix-Multiply
+  mit Faktor 1 zwischen Image Texture und Base Color; der Exporter faltet ihn zu
+  `baseColorFactor`, das Web kopiert ihn in `color` des `MeshBasicMaterial`, die
+  Standbilder nehmen die Kette so, wie sie ist. Die Normal Map wirkt nur im Bake
+  (Fugenschatten landen in der Lightmap); vor dem GLB-Export kappt das Skript den
+  Normal-Link, ins GLB geht nur die Farbe als WebP (`export_image_format="WEBP"`, Qualität
+  `TEXTURE_QUALITY`).
 - Lichtrig "Tag" steht als Konstanten in `export.py` (`SUN_*`, `SKY_*`, `LAMP_*`):
   Nachmittag, Sonne warm (4000 K) mit 3,0 von vorn rechts, 25° hoch, 35° Azimut, so dass
   ein Streifen durchs Tor bis zur Werkbank läuft und der rechte Pfeiler eine Schattenkante

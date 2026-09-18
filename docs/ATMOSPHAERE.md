@@ -44,24 +44,33 @@ Cozyness ist zu 70 % Licht und Farbe, zu 30 % Geometrie. Hebel in Wirkreihenfolg
 
 ### Licht (`export.py`, ein Bake, keine Modellierung)
 
-Das Rig `Bake_Tag` ist Mittagslicht mit blauem Schatten: Sonne weiß (Energie 2,2, keine
-Farbe), 50° Elevation, Himmel `(0.5, 0.65, 0.85)` mit Stärke 1,3 als sehr präsentes
-Fülllicht. Das ist per Definition kühl.
+Erledigt 2026-09-18 (PR #14). Die Diagnose vorher war falsch: das Rig `Bake_Tag` (Sonne
+2,2 weiß bei 50°, Himmel 1,3) war kühl, aber nicht die Ursache. Kalt war das Bild, weil das
+`Review_Licht` der `.blend` (Sonne 6,0 weiß plus 150-W-Fläche) mitgebacken wurde und jeden
+Bake dominiert hat. Seither löscht `export.py` diese Lichter vor dem Bake, das Rig steht
+dort als Konstanten (`SUN_*`, `SKY_*`, `LAMP_*`): Sonne 4000 K mit 3,0, 25° hoch, 35°
+Azimut, Himmel 0,4 kaum blau, Werkbankleuchte 10 W bei 2700 K.
 
-- Sonne warm, etwa `(1.0, 0.86, 0.68)` (~4000 K, Nachmittag), und tiefer, 25 bis 30°
-  Elevation: ein langer Sonnenstreifen durchs Tor über den Boden bis zur Werkbank. Lange
-  Schatten machen mehr Wärme als jede Farbe.
-- Himmel weniger blau und schwächer, damit die Schatten nicht kalt sind. Der Backstein macht
-  dann den Rest, weil das Bounce-Licht rötlich wird.
-- Werkbankleuchte auch tagsüber an, 2700 K, als Lichtpool auf der Platte. KONZEPT sagt
-  "Emissive nachts"; eine brennende Lampe bei Tag ist das Signal "hier arbeitet jemand".
+Was daran wirkt, in Reihenfolge:
+
+- Sonne warm und tief: ein langer Sonnenstreifen durchs Tor über den Boden bis zur
+  Werkbank. Lange Schatten machen mehr Wärme als jede Farbe.
+- Himmel schwach und wenig blau, damit die Schatten nicht kalt sind. Der Backstein macht
+  den Rest, weil das Bounce-Licht rötlich wird.
+- Werkbankleuchte auch tagsüber an, als Lichtpool auf der Platte. KONZEPT sagt "Emissive
+  nachts"; eine brennende Lampe bei Tag ist das Signal "hier arbeitet jemand".
 
 ### Farbe der Flächen
 
-Backstein ist warm, der Rest nicht: Steinplatten und Asphalt sind grau, das Tor weiß. Regel:
-kein reines Grau, kein reines Weiß. Tor in Creme oder gebrochenem Weiß, Holz dunkler und
-geölt (Eiche, nicht helle Kiefer), Steinplatten mit etwas Ocker statt nur entsättigt.
-`Lack_Gruen` bleibt.
+Erledigt 2026-09-18. Backstein war warm, der Rest nicht: Steinplatten und Asphalt grau, das
+Tor weiß. Regel: kein reines Grau, kein reines Weiß. Die Fototexturen bekommen in
+`build_room.py` einen `tint` (Mix-Multiply vor dem BSDF, im GLB `baseColorFactor`, im Web
+`color` des `MeshBasicMaterial`, in den Standbildern dieselbe Kette): Steinplatten
+`#fae9cb` (Sandstein statt Grau), Asphalt `#ffe9d2` (leicht bräunlich), Werkbankplatte
+`#ad9e94` (geölte Eiche statt heller Kiefer). Tor `#e9dfcb` (Creme), Decke und Beton einen
+Hauch warm. Die Bilder in `blender/textures/` bleiben, wie sie sind. `Lack_Gruen` bleibt.
+Nach dem Bake damit ist das Kälteste im Standbild der Himmel hinter der Fassade, ein graues
+Blau (Bake-Welt, `SKY_COLOR` mal `SKY_STRENGTH` in `export.py`), kein Material.
 
 ### Nachbearbeitung
 
@@ -97,10 +106,10 @@ Nicht zu wenig Polygone, sondern perfekt gerade Kanten und Achsparallelität.
 
 ## 4. Reihenfolge
 
-1. Licht: Sonne warm und tief, Himmel runter, Leuchte an, neu backen. Eine Stunde, größter
-   Sprung. Danach zeigt sich erst, wie blockig es wirklich noch ist, weil Streiflicht mit
-   Fasen und Schatten die Hälfte des Problems erledigt.
-2. Farben der Flächenmaterialien.
+1. Erledigt: Licht, Sonne warm und tief, Himmel runter, Leuchte an, `Review_Licht` aus
+   dem Bake, neu gebacken (PR #14, Werte in `export.py`). Größter Sprung; Streiflicht mit
+   Fasen und Schatten erledigt die Hälfte des Blockigen.
+2. Erledigt: Farben der Flächenmaterialien, siehe §2.
 3. Kleinkram und Kurven.
 4. Das Rad.
 
