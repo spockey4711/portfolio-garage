@@ -72,56 +72,67 @@ Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallba
 
 ### Woche 3 und 4: 06. bis 19.10. - Phase 2, echte Daten
 
-Ziel: Der Radcomputer zeigt echte Trainingsdaten, der Laptop echte Projekte.
+Ziel: Der Radcomputer zeigt Fuelivo auf echten Trainingsdaten, der Laptop echte Projekte.
 
 - ~~Strava-App registrieren, OAuth einmalig, Webhook-Route, Aktivitäten als JSON auf dem Volume.
   Cron-Polling als Fallback.~~ Erledigt 18.09.: `lib/strava/`, Einrichtung in `docs/BETRIEB.md`.
 - ~~`api/activity/route.ts` liest den Cache.~~ Erledigt 18.09., Summary aus letzter Einheit und
   laufender Woche.
-- `BikeComputer.tsx`: Edge-Layout, Seite 1 Heute, Seite 2 Woche mit Chart, Seite 3 Über.
-  Pfeiltasten wie am Gerät.
-- `Laptop.tsx`: Projektliste, Fuelivo-Mini live. Das Mini ist ein rein clientseitiger,
-  vereinfachter Rechner wie das `FuelivoProof`-Widget des Vorgängers, kein API-Call.
-  - Umfang festlegen: additives Modell mit Trace (Basis, Intensität, Sport, Hitze, Cap).
-    `../Portfolio2-public/lib/fuelivo/proof.ts` ist Material, wird neu geschrieben (ADR-0001).
-  - Layout skizzieren: 960 px, 16:10, links Projektliste, rechts Fenster "fuelivo". Zwei
-    Fenster auf einem Desktop oder ein Fenster mit zwei Spalten entscheiden.
-  - `lib/fuelivo/model.ts`: Typen, Slider-Grenzen, Default-Eingabe, `computeFueling(input)`
-    als pure Funktion ohne Abhängigkeiten.
-  - `lib/fuelivo/model.test.ts`: deterministisch, Summe der Trace-Schritte gleich Endwert,
-    Cap greift bei hart + heiß + lang, Slider-Grenzen halten.
-  - `content/fuelivo.ts` hinter `getFuelivoMiniContent(locale)`: Regler-Labels, Einheiten,
-    Begründung je `TraceKind`, Link-Text zu fuelivo.de. Läuft durch `content.test.ts`.
-  - `components/site/FuelivoMini.tsx` (`"use client"`): Segmented Controls als `radiogroup`,
-    Dauer als `range`, drei Ergebniszeilen mit Balken und Begründung. Balken nur
-    `motion-safe`, Startzustand ist der Default, damit Server und Client gleich rendern.
-  - Mini auf `/projekte/fuelivo` einbauen, 2D zuerst: Feld `demo` im `Project`-Typ oder die
-    Seite mountet per Slug. Position nach dem Ansatz, vor dem Ergebnis.
+- ~~`BikeComputer.tsx`: Edge-Layout, Seite 1 Heute, Seite 2 Woche mit Chart, Seite 3 Über.
+  Pfeiltasten wie am Gerät.~~ Erledigt 18.09. als Edge 540 mit Strava-Summary. Seit
+  ADR-0008 zeigt er Fuelivo, Umbau unten.
+- ~~`Pinboard.tsx`: Startnummern, Fotos, Zettel klickbar, führt zu `/ueber`.~~ Erledigt 18.09.:
+  DOM auf der Korkfläche, Layout in `lib/garage/pinboard.json`, Attrappen im GLB darunter.
+  Seit ADR-0008 hängt dort der Blog, Umbau unten.
+- Radcomputer auf Fuelivo umbauen (ADR-0008): die letzte Einheit ist die Eingabe, der Plan
+  von fuelivo.de die Anzeige.
+  - `lib/strava/activity.ts`: `average_temp` mit in den Cache, Test in `activity.test.ts`.
+  - `lib/fuelivo/request.ts` (ohne `@/`, `.ts`-Importe wie `lib/strava/`): Abbildung
+    Aktivität auf `CalculationRequest` als pure Funktion. `duration_hours` aus `movingTime`,
+    `sport_type` aus `sport` (Rad-Varianten `bike`, Run `running`, Swim `swimming`, sonst
+    `null`, kein Plan), `intensity` aus HF relativ zur Maximal-HF, ohne HF aus
+    `relativeEffort` pro Stunde, `temperature_c` aus `average_temp` oder 20. Tests mit den
+    Fixtures aus `lib/strava/fixtures.ts`.
+  - `lib/fuelivo/client.ts`: `POST https://fuelivo.de/calculate`, Antwort auf die Felder
+    reduziert, die der Computer zeigt (Stundenwerte, Totale, `during_ride_nutrition.timing`,
+    `rationale`, `warnings`). Timeout, Fehler heißt "kein Plan", nie ein geplatzter Sync.
+  - `lib/strava/sync.ts`: nach einer neuen Aktivität den Plan rechnen und neben ihr im
+    Cache ablegen; `summary.ts` reicht ihn in `latest.plan` durch. Bestehende Aktivitäten
+    ohne Plan bekommen ihn beim nächsten Sync, `scripts/strava.mts` kann ihn nachholen.
+  - `lib/garage/computer.ts`: `COMPUTER_PAGES` wird `["ride", "plan", "why"]`, Über-Seite raus.
+  - `BikeComputer.tsx`: Seite 1 Fahrt (Dauer, km, Höhenmeter, HF, Temperatur), Seite 2 Plan
+    (g KH/h, ml/h, mg Na/h, Totale als Edge-Datenfelder), Seite 3 Warum (Begründungen und
+    Warnungen als Liste, Pfeiltasten wie am Gerät). Ohne Plan zeigt Seite 2 und 3 den
+    Grund ("Kein Plan für Krafttraining"). Strings in `content/garage.ts`.
+  - Standbild-Karte in `StillView.tsx`: Plan zur letzten Fahrt, dieselben Felder.
+  - `/projekte/fuelivo`: denselben Plan als Karte nach dem Ansatz, damit der Inhalt in 2D
+    existiert. Komponente in `components/site/`, von beiden Seiten benutzt.
+  - E2E auf `/?view=computer` mit dem Fixture-Cache: drei Seiten per Pfeiltaste, Werte
+    stimmen mit dem Cache überein. Pixel-Check gegen die Fokus-Kamera.
+- `Laptop.tsx`: Projektliste, Fuelivo inklusive und oben, kein Mini-Rechner (ADR-0008).
   - `content/garage.ts`: `comingSoon` des Laptops raus, Fenstertitel und Beschriftungen rein,
     `GarageContent`-Typ anpassen.
-  - `Laptop.tsx` Projektliste: `getProjects(defaultLocale)`, pro Zeile Name, Tagline,
-    `ProjectFacts`, Leitprojekt oben. Jede Zeile ein `next/link` auf `/projekte/<slug>`.
-  - `Laptop.tsx` Mini einbetten: dieselbe `FuelivoMini`, kompakte Variante über Prop oder
-    Container-Query, rechts bleiben etwa 550 px.
-  - `role="img"` und `aria-label` am Wrapper entfernen, es sind echte Controls. `<section>`
-    mit Überschriften je Bereich.
+  - Layout: 960 px, 16:10, ein Fenster mit der Liste. `getProjects(defaultLocale)`, pro
+    Zeile Name, Tagline, `ProjectFacts`, Leitprojekt oben. Jede Zeile ein `next/link` auf
+    `/projekte/<slug>`.
+  - `role="img"` und `aria-label` am Wrapper entfernen, es sind Links. `<section>` mit
+    Überschrift.
   - Klickverhalten: Link im offenen Screen navigiert (die `stopPropagation`-Handler in
-    `Screen.tsx` dürfen `next/link` nicht bremsen), Slider-Drag ist kein Parallax, Escape im
-    Slider schließt trotzdem die View.
+    `Screen.tsx` dürfen `next/link` nicht bremsen).
   - Lesbarkeit: Schriftgrößen bei `pxWidth: 960` gegen die Fokus-Kamera prüfen (Display etwa
     65 % Viewport-Höhe), notfalls `pxWidth` ändern.
   - Geschlossener Zustand bleibt Kulisse (inert, keine Pointer-Events), sieht aber nicht
     mehr nach Platzhalter aus.
-  - `StillView.tsx`: Laptop-Karte in 32rem prüfen. Zu klein heißt nur Liste plus Link zum
-    Mini auf der 2D-Seite.
+  - `StillView.tsx`: Laptop-Karte in 32rem prüfen.
   - Test für `Laptop.tsx`: genau die Projekte aus `content/projects/index.ts` in der
     Reihenfolge, Links stimmen.
-  - E2E auf `/?view=laptop`: Projektklick navigiert, Mini reagiert, Escape fährt zurück,
-    Klick im Screen ist kein Klick ins Leere, unter 768 px greift die Karte. Pixel-Check.
-  - Quality Gate, dann Punkt hier abhaken und "Screens sind noch Platzhalter" in `CLAUDE.md`
-    anpassen.
-- ~~`Pinboard.tsx`: Startnummern, Fotos, Zettel klickbar, führt zu `/ueber`.~~ Erledigt 18.09.:
-  DOM auf der Korkfläche, Layout in `lib/garage/pinboard.json`, Attrappen im GLB darunter.
+  - E2E auf `/?view=laptop`: Projektklick navigiert, Escape fährt zurück, Klick im Screen
+    ist kein Klick ins Leere, unter 768 px greift die Karte. Pixel-Check.
+- Pinnwand auf Blog umbauen (ADR-0008): Blog-Inhalte in `content/blog/` wie die Projekte
+  (eine Datei je Post, `index.ts` bestimmt Reihenfolge), Route `app/(seiten)/blog/[slug]`.
+  `pinboard.json` bekommt je Post einen Zettel, Startnummern und Fotos bleiben Deko ohne
+  Link, `Pinboard.tsx` verlinkt Zettel auf `/blog/<slug>`. Slug in `hotspots.ts` wird
+  `blog`, E2E anpassen. Möbel-Skript und Export laufen lassen.
 - 2D-Inhalte füllen: Projekte, Über, erste Blogposts.
 
 ### Woche 5 und 6: 20.10. bis 02.11. - Phase 3, Kür
@@ -129,7 +140,9 @@ Ziel: Der Radcomputer zeigt echte Trainingsdaten, der Laptop echte Projekte.
 Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
 
 - Nacht-Bake, zweite Lightmap, Blend nach Kölner Uhrzeit, Werkbankleuchte emissive.
-- Whiteboard (Blogliste in Handschrift-Optik), Werkzeugwand (Hover zeigt Tool/Tech).
+- Whiteboard: Über mich in Handschrift-Optik, wer, wo, was gerade läuft, wohin; Slug
+  `about` (ADR-0008). Werkzeugwand: jedes Werkzeug ein Tool aus einem Projekt, Hover nennt
+  Tool und Projekt.
 - Blender: Helm, Schuhe, Flaschen, Kartons, Katze. Schrank-Inhalt planen (Laufschuhe,
   vielleicht etwas Aufklappbares), noch offen ob eigener Hotspot.
 - Radio mit Spotify, Hover-Sounds mit Toggle.

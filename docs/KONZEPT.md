@@ -128,11 +128,11 @@ Objekte nach Priorität:
 | ---- | ------------------------------------------------------------ | ------------------------------------- |
 | Muss | Raum (Boden, 3 Wände, Tor halb offen, Tageslicht fällt rein) | Bühne                                 |
 | Muss | Rad auf Montageständer, Front leicht zur Kamera gedreht      | Blickfang, trägt den Radcomputer      |
-| Muss | Radcomputer am Lenker                                        | Hotspot 1, das "OS"                   |
+| Muss | Radcomputer am Lenker                                        | Hotspot 1, das "OS": Fuelivo live     |
 | Muss | Werkbank mit Laptop                                          | Hotspot 2, Projekte                   |
-| Muss | Pinnwand mit Startnummern, Fotos, Zettel                     | Hotspot 3, About                      |
-| Soll | Whiteboard mit Trainingsplan                                 | Hotspot 4, Blog                       |
-| Soll | Werkzeugwand (Schattenbrett)                                 | Hotspot 5, Stack/Uses                 |
+| Muss | Pinnwand mit Startnummern, Fotos, Zettel                     | Hotspot 3, Blog (ADR-0008)            |
+| Soll | Whiteboard                                                   | Hotspot 4, Über mich (ADR-0008)       |
+| Soll | Werkzeugwand (Schattenbrett)                                 | Hotspot 5, Stack                      |
 | Soll | Werkbankleuchte                                              | Tag/Nacht-Wechsel                     |
 | Kann | Radio                                                        | Spotify "läuft gerade"                |
 | Kann | Rollentrainer, Helm, Schuhe, Flaschen, Kartons               | Atmosphäre, kein Hotspot              |
@@ -146,22 +146,31 @@ Klick ins Leere fährt zurück. Koordinaten sind Startwerte, Feinabstimmung in B
 Fokus-Kameras stehen so nah, dass das Display etwa 65 % der Viewport-Höhe füllt, sonst ist
 die DOM-UI darauf nicht lesbar.
 
-| Hotspot      | Kamera-Position                           | Blick auf                   | UI-Typ                                           | URL               |
-| ------------ | ----------------------------------------- | --------------------------- | ------------------------------------------------ | ----------------- |
-| Ruhe         | (0, 1.6, 5.2), vertikales FOV 55° (23 mm) | (0, 1.1, 0)                 | Hover-Labels                                     | `/`               |
-| Radcomputer  | (0.18, 1.25, 0.68), 14,5 cm vor dem Glas  | Display (0.3, 1.07, 0.0)    | DOM in `<Html>`, Edge-UI mit echten Daten        | `/?view=computer` |
-| Laptop       | (-1.8, 1.08, -1.23), auf der Lid-Normalen | Display (-1.8, 1.01, -1.63) | DOM in `<Html>`, Projektliste, Fuelivo-Mini live | `/?view=laptop`   |
-| Pinnwand     | (1.7, 1.5, 0.3)                           | (1.75, 1.5, -1.9)           | DOM-Overlay, Zettel klickbar                     | `/?view=board`    |
-| Whiteboard   | (0.4, 1.5, 0.2)                           | (0.4, 1.5, -1.9)            | DOM-Overlay, Blogliste in Handschrift-Optik      | `/?view=plan`     |
-| Werkzeugwand | (-2.3, 1.5, 0.2)                          | (-2.4, 1.6, -1.9)           | Hover auf Werkzeug zeigt Tool/Tech               | `/?view=tools`    |
+| Hotspot      | Kamera-Position                           | Blick auf                   | UI-Typ                                                  | URL               |
+| ------------ | ----------------------------------------- | --------------------------- | ------------------------------------------------------- | ----------------- |
+| Ruhe         | (0, 1.6, 5.2), vertikales FOV 55° (23 mm) | (0, 1.1, 0)                 | Hover-Labels                                            | `/`               |
+| Radcomputer  | (0.18, 1.25, 0.68), 14,5 cm vor dem Glas  | Display (0.3, 1.07, 0.0)    | DOM in `<Html>`, Edge-UI, Fuelivo auf der letzten Fahrt | `/?view=computer` |
+| Laptop       | (-1.8, 1.08, -1.23), auf der Lid-Normalen | Display (-1.8, 1.01, -1.63) | DOM in `<Html>`, Projektliste inklusive Fuelivo         | `/?view=laptop`   |
+| Pinnwand     | (1.7, 1.5, 0.3)                           | (1.75, 1.5, -1.9)           | DOM-Overlay, Blog, jeder Post ein Zettel                | `/?view=blog`     |
+| Whiteboard   | (0.4, 1.5, 0.2)                           | (0.4, 1.5, -1.9)            | DOM-Overlay, Über mich in Handschrift-Optik             | `/?view=about`    |
+| Werkzeugwand | (-2.3, 1.5, 0.2)                          | (-2.4, 1.6, -1.9)           | Hover auf Werkzeug zeigt Tool und Projekt               | `/?view=tools`    |
+
+Zuordnung seit ADR-0008: der Computer ist die Produkt-Seite, der Laptop die Code-Seite,
+Pinnwand und Whiteboard haben Blog und Über mich getauscht.
 
 ### Der Radcomputer (wichtigster Screen)
 
-Datenfelder wie auf einem Garmin Edge, Seitenwechsel per Pfeiltasten wie am Gerät:
+Datenfelder wie auf einem Garmin Edge, Seitenwechsel per Pfeiltasten wie am Gerät. Der
+Computer zeigt Fuelivo, das Leitprojekt, gerechnet auf der letzten echten Einheit aus Strava.
+Die Einheit ist die Demo-Eingabe, nicht das Thema (ADR-0008):
 
-- Seite 1 "Heute": letzte Einheit, Dauer, km, HF avg, TSS.
-- Seite 2 "Woche": Volumen, Chart.
-- Seite 3 "Über": ein Feld zeigt "Yannik, Köln, baut Software für Ausdauersportler".
+- Seite 1 "Fahrt": letzte Einheit, Dauer, km, Höhenmeter, HF, Temperatur.
+- Seite 2 "Plan": was Fuelivo dazu sagt, g KH/h, ml/h, mg Na/h, Totale.
+- Seite 3 "Warum": die Begründung je Rechenschritt, Warnungen.
+
+Die Rechnung macht `POST fuelivo.de/calculate` serverseitig beim Sync, das Ergebnis liegt im
+Cache neben der Aktivität. Weitere Seiten pro Projekt mit Sportdaten (GarminDB,
+trainingbuilder) sind der Erweiterungspfad des Computers.
 
 Die UI ist ein normaler React-Baum, keine Textur, damit sie scharf, klickbar und barrierefrei ist.
 
@@ -220,11 +229,11 @@ components/garage/
   Hotspot.tsx              Mesh + Hover-Outline + Klick -> setView
   CameraRig.tsx            Fahrten, liest view aus URL
   screens/
-    BikeComputer.tsx       Edge-UI
-    Laptop.tsx             Projekte + Fuelivo-Mini
-    Pinboard.tsx
-    Whiteboard.tsx
-    ToolWall.tsx
+    BikeComputer.tsx       Edge-UI, Fuelivo auf der letzten Fahrt
+    Laptop.tsx             Projektliste
+    Pinboard.tsx           Blog
+    Whiteboard.tsx         Über mich
+    ToolWall.tsx           Stack
 lib/garage/
   store.ts                 zustand: idle | focusing | focused | leaving
   hotspots.ts              Positionen, Kamera-Ziele, Routen an einem Ort
@@ -288,11 +297,11 @@ neben dem Studium.
 Kamera-Ruheposition mit Parallax, zwei Hotspots (Radcomputer, Laptop) mit Kamerafahrt und
 Platzhalter-UI. Statisches Fallback-Bild. Damit online gehen, die 2D-Seite trägt den Inhalt.
 
-**Phase 2:** Radcomputer mit echten Strava-Daten, Laptop mit Projektliste und Fuelivo-Mini,
-Pinnwand. URL-Sync und Deep-Links.
+**Phase 2:** Radcomputer mit Fuelivo auf der letzten Strava-Einheit, Laptop mit
+Projektliste, Pinnwand mit Blog (ADR-0008). URL-Sync und Deep-Links.
 
-**Phase 3:** Nacht-Bake und Tag/Nacht-Blend, Whiteboard, Werkzeugwand, Radio mit Spotify,
-Hover-Sounds mit Toggle, Katze.
+**Phase 3:** Nacht-Bake und Tag/Nacht-Blend, Whiteboard mit Über mich, Werkzeugwand, Radio
+mit Spotify, Hover-Sounds mit Toggle, Katze.
 
 Nach Phase 1 könnte man aufhören und hätte trotzdem ein besseres Portfolio als die meisten.
 Alles danach ist Kür.
