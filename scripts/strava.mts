@@ -24,7 +24,8 @@ import {
 //   node scripts/strava.mts auth                  authorize once, write the token file
 //   node scripts/strava.mts subscribe <url>       create the webhook subscription
 //   node scripts/strava.mts unsubscribe           delete every subscription of the app
-//   node scripts/strava.mts sync                  pull recent activities into the cache
+//   node scripts/strava.mts sync                  pull recent activities into the cache and
+//                                                 the Fuelivo plan for the newest one
 //   node scripts/strava.mts summary               print what /api/activity would serve
 
 const AUTH_PORT = 8721;
@@ -101,8 +102,14 @@ async function unsubscribe() {
 
 async function sync() {
   const report = await syncRecent({ dataDir: dataDir(), app: stravaApp() });
+  const cache = await readCache(dataDir());
+  const latest = cache.activities.find((a) => !a.isPrivate);
+  const plan = latest ? cache.plans[latest.id] : undefined;
   console.log(
-    `${report.fetched} Aktivitäten von Strava geholt, ${report.total} im Cache.`,
+    `${report.fetched} Aktivitäten von Strava geholt, ${report.total} im Cache, ` +
+      (plan
+        ? `Plan von fuelivo.de für "${latest?.name}": ${plan.carbsPerHour} g KH/h.`
+        : "kein Plan für die letzte Einheit."),
   );
 }
 

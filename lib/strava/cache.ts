@@ -1,11 +1,13 @@
 import { join } from "node:path";
+import type { FuelPlan } from "../fuelivo/client.ts";
 import type { Activity } from "./activity.ts";
 import { readJsonFile, writeJsonFile } from "./json-file.ts";
 
 // The activity cache is one JSON file on the data volume (docs/adr/0002),
-// newest activity first. Everything that reads training data reads this
-// file; only the sync writes it. Keeping a year plus margin bounds the file
-// and still covers the "last twelve months" views planned for later.
+// newest activity first, with the Fuelivo plan of an activity next to it
+// under its id (docs/adr/0008). Everything that reads training data reads
+// this file; only the sync writes it. Keeping a year plus margin bounds the
+// file and still covers the "last twelve months" views planned for later.
 
 export const CACHE_FILE = "activities.json";
 export const KEEP_DAYS = 400;
@@ -18,6 +20,8 @@ export interface ActivityCache {
   readonly ftp: number | null;
   /** Newest start first. */
   readonly activities: readonly Activity[];
+  /** Fuelivo plans by activity id; an activity without one has no entry. */
+  readonly plans: Readonly<Record<string, FuelPlan>>;
 }
 
 export const emptyCache: ActivityCache = {
@@ -25,6 +29,7 @@ export const emptyCache: ActivityCache = {
   syncedAt: null,
   ftp: null,
   activities: [],
+  plans: {},
 };
 
 function byStartDesc(a: Activity, b: Activity): number {
@@ -41,16 +46,40 @@ export function upsertActivity(
 }
 
 export function removeActivity(cache: ActivityCache, id: number) {
-  return { ...cache, activities: cache.activities.filter((a) => a.id !== id) };
+  return withActivities(
+    cache,
+    cache.activities.filter((a) => a.id !== id),
+  );
+}
+
+/** The cache with `plan` stored for the activity `id`. */
+export function setPlan(
+  cache: ActivityCache,
+  id: number,
+  plan: FuelPlan,
+): ActivityCache {
+  return { ...cache, plans: { ...cache.plans, [id]: plan } };
 }
 
 /** Drops everything that started more than KEEP_DAYS before `now`. */
 export function pruneCache(cache: ActivityCache, now: Date): ActivityCache {
   const cutoff = new Date(now.getTime() - KEEP_DAYS * 86_400_000).toISOString();
-  return {
-    ...cache,
-    activities: cache.activities.filter((a) => a.startedAt >= cutoff),
-  };
+  return withActivities(
+    cache,
+    cache.activities.filter((a) => a.startedAt >= cutoff),
+  );
+}
+
+/** The cache with these activities, keeping only the plans of activities still in it. */
+function withActivities(
+  cache: ActivityCache,
+  activities: readonly Activity[],
+): ActivityCache {
+  const ids = new Set(activities.map((a) => String(a.id)));
+  const plans = Object.fromEntries(
+    Object.entries(cache.plans).filter(([id]) => ids.has(id)),
+  );
+  return { ...cache, activities, plans };
 }
 
 export function cachePath(dataDir: string): string {
@@ -70,7 +99,12 @@ export async function readCache(dataDir: string): Promise<ActivityCache> {
     syncedAt: typeof value.syncedAt === "string" ? value.syncedAt : null,
     ftp: typeof value.ftp === "number" ? value.ftp : null,
     activities: value.activities,
+    plans: isRecord(value.plans) ? value.plans : {},
   };
+}
+
+function isRecord(value: unknown): value is Record<string, FuelPlan> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export async function writeCache(dataDir: string, cache: ActivityCache) {

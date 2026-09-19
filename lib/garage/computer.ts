@@ -1,10 +1,11 @@
-// The device logic of the bike computer screen (docs/KONZEPT.md §3), modelled
+// The device logic of the bike computer screen (docs/adr/0008), modelled
 // on a Garmin Edge 540: three data pages in a loop that the Up and Down keys
 // on the left edge of the device scroll through, and values formatted the
-// way the Edge shows them. The React tree in components/garage/screens/
+// way the Edge shows them. Page 1 is the last ride, page 2 what Fuelivo
+// says for it, page 3 why. The React tree in components/garage/screens/
 // BikeComputer.tsx only lays this out.
 
-export const COMPUTER_PAGES = ["today", "week", "about"] as const;
+export const COMPUTER_PAGES = ["ride", "plan", "why"] as const;
 
 export type ComputerPage = (typeof COMPUTER_PAGES)[number];
 
@@ -110,9 +111,14 @@ export function formatDay(
   return `${weekday}. ${pad(date.getUTCDate())}.${pad(date.getUTCMonth() + 1)}.`;
 }
 
-/** Index of a YYYY-MM-DD day in a Monday-first week, 0 to 6. */
-export function weekdayIndex(day: string): number {
-  return (new Date(`${day}T00:00:00Z`).getUTCDay() + 6) % 7;
+/** Whole degrees with the sign the Edge shows, e.g. "17" or "-3". */
+export function formatTemperature(celsius: number): string {
+  return integer.format(Math.round(celsius));
+}
+
+/** Hours with one decimal, the way Fuelivo takes the duration: "3,1". */
+export function formatHours(hours: number): string {
+  return oneDecimal.format(hours);
 }
 
 function pad(value: number): string {

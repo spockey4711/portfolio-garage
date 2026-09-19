@@ -9,7 +9,10 @@ import { defineConfig } from "@playwright/test";
 // The port is fixed so the suite never fights a pnpm dev on 3000 for the
 // port. Next allows one dev server per checkout, though: with pnpm dev
 // already running, point the suite at it with
-// E2E_BASE_URL=http://localhost:3000 instead of starting the one below.
+// E2E_BASE_URL=http://localhost:3000 instead of starting the one below. The
+// server below reads the fixture cache in tests/e2e/data (one ride with its
+// Fuelivo plan); against your own server the computer tests take whatever
+// /api/activity serves.
 const port = 3100;
 const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${port}`;
 
@@ -49,6 +52,7 @@ export default defineConfig({
     ? undefined
     : {
         command: `pnpm dev --port ${port}`,
+        env: { DATA_DIR: "tests/e2e/data" },
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

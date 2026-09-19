@@ -1,10 +1,11 @@
+import type { FuelPlan } from "../fuelivo/client.ts";
 import type { Activity } from "./activity.ts";
 import type { ActivityCache } from "./cache.ts";
 
-// What the bike computer and the 2D page get to see (docs/KONZEPT.md §3):
-// the last session and the running week. Computed from the cache on every
-// request, private activities never leave the server, and nothing here
-// says where a ride went.
+// What the bike computer and the 2D page get to see (docs/KONZEPT.md §3,
+// docs/adr/0008): the last session with its Fuelivo plan and the running
+// week. Computed from the cache on every request, private activities never
+// leave the server, and nothing here says where a ride went.
 
 /** The zone the week is counted in: the garage stands in Cologne. */
 export const HOME_ZONE = "Europe/Berlin";
@@ -27,7 +28,14 @@ export interface PublicActivity {
   /** Training Stress Score from normalized power and the FTP on Strava. */
   readonly tss: number | null;
   readonly relativeEffort: number | null;
+  /** Mean temperature in °C, null without a sensor. */
+  readonly averageTemp: number | null;
   readonly trainer: boolean;
+}
+
+export interface LatestActivity extends PublicActivity {
+  /** What fuelivo.de says for this session; null while there is none. */
+  readonly plan: FuelPlan | null;
 }
 
 export interface WeekDay {
@@ -53,7 +61,7 @@ export interface Week {
 
 export interface TrainingSummary {
   readonly syncedAt: string | null;
-  readonly latest: PublicActivity | null;
+  readonly latest: LatestActivity | null;
   readonly week: Week;
 }
 
@@ -87,7 +95,18 @@ export function toPublic(
     normalizedWatts: activity.normalizedWatts,
     tss: trainingStress(activity, ftp),
     relativeEffort: activity.relativeEffort,
+    averageTemp: activity.averageTemp ?? null,
     trainer: activity.trainer,
+  };
+}
+
+export function toLatest(
+  activity: Activity,
+  cache: Pick<ActivityCache, "ftp" | "plans">,
+): LatestActivity {
+  return {
+    ...toPublic(activity, cache.ftp),
+    plan: cache.plans[activity.id] ?? null,
   };
 }
 
@@ -151,7 +170,7 @@ export function summarize(
 
   return {
     syncedAt: cache.syncedAt,
-    latest: visible[0] ? toPublic(visible[0], cache.ftp) : null,
+    latest: visible[0] ? toLatest(visible[0], cache) : null,
     week: {
       start: monday,
       movingTime: sum(week, (a) => a.movingTime),

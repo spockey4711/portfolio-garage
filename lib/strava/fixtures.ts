@@ -38,6 +38,7 @@ export const rawRide = {
   average_heartrate: 142.7,
   max_heartrate: 176,
   suffer_score: 118,
+  average_temp: 17,
 };
 
 export const ride: Activity = {
@@ -59,6 +60,7 @@ export const ride: Activity = {
   powerFromMeter: true,
   kilojoules: 2178.4,
   relativeEffort: 118,
+  averageTemp: 17,
   trainer: false,
   commute: false,
   isPrivate: false,

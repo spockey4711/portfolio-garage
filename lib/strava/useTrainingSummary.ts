@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { TrainingSummary } from "@/lib/strava/summary";
+import type { TrainingSummary } from "./summary.ts";
 
-// The training data behind the bike computer, from /api/activity (the cache
-// on the server, nothing private). Null until it arrives and when the request
-// fails: the screen then keeps its empty fields, a device without a sensor
-// does the same. One request per mount; the route's max-age lets the browser
-// answer a remount from its cache.
+// The training data behind the bike computer and the plan card on the
+// project page, from /api/activity (the cache on the server, nothing
+// private). Null until it arrives and when the request fails: the screen
+// then keeps its empty fields, a device without a sensor does the same. One
+// request per mount; the route's max-age lets the browser answer a remount
+// from its cache.
 export function useTrainingSummary(): TrainingSummary | null {
   const [summary, setSummary] = useState<TrainingSummary | null>(null);
 

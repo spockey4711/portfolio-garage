@@ -44,4 +44,5 @@ export const fuelivo: Project = {
     "Beim nächsten Mal ein Deployment-Pfad statt Docker und Vercel parallel, und gemeinsame Typen zwischen Backend und iOS früher.",
   ],
   links: [{ kind: "live", href: "https://fuelivo.de" }],
+  demo: "fuelplan",
 };

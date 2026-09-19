@@ -1,3 +1,5 @@
+import { calculatePlan } from "../fuelivo/client.ts";
+import { maxHeartRateOf, requestFor, sameRequest } from "../fuelivo/request.ts";
 import type { Activity } from "./activity.ts";
 import {
   getActivity,
@@ -11,6 +13,7 @@ import {
   pruneCache,
   readCache,
   removeActivity,
+  setPlan,
   upsertActivity,
   writeCache,
 } from "./cache.ts";
@@ -20,7 +23,9 @@ import { type StravaApp, validTokens } from "./token.ts";
 // delivers one activity id at a time, the host cron and the CLI pull
 // everything recent as a fallback. Both end in the same read-modify-write of
 // the cache file, serialized per process so two webhook events arriving
-// together cannot overwrite each other's change.
+// together cannot overwrite each other's change. Both end with the Fuelivo
+// plan for the newest visible activity (docs/adr/0008): one request per new
+// activity, none per visitor, and no plan is not an error.
 
 export interface SyncContext {
   readonly dataDir: string;
@@ -82,7 +87,7 @@ export async function syncActivity(
     if (activity.athleteId !== tokens.athleteId) stored = false;
     else
       await updateCache(ctx.dataDir, (cache) =>
-        upsertActivity(cache, activity),
+        withLatestPlan(upsertActivity(cache, activity), ctx),
       );
   } catch (error) {
     if (!(error instanceof StravaApiError) || error.status !== 404) throw error;
@@ -134,7 +139,31 @@ export async function syncRecent(ctx: SyncContext): Promise<SyncReport> {
     const merged = fetched
       .filter((a) => a.athleteId === tokens.athleteId)
       .reduce(upsertActivity, current);
-    return { ...pruneCache(merged, now), ftp, syncedAt: now.toISOString() };
+    return withLatestPlan(
+      { ...pruneCache(merged, now), ftp, syncedAt: now.toISOString() },
+      ctx,
+    );
   });
   return { fetched: fetched.length, total: cache.activities.length };
+}
+
+/**
+ * The cache with a current Fuelivo plan for its newest visible activity,
+ * the one the bike computer shows. A plan whose input still matches stays,
+ * so a polling run that re-reads the same rides asks Fuelivo nothing; an
+ * activity Fuelivo has no plan for, or one Fuelivo does not answer for,
+ * stays without and is asked again on the next sync.
+ */
+async function withLatestPlan(
+  cache: ActivityCache,
+  ctx: SyncContext,
+): Promise<ActivityCache> {
+  const latest = cache.activities.find((a) => !a.isPrivate);
+  if (!latest) return cache;
+  const request = requestFor(latest, maxHeartRateOf(cache.activities));
+  if (!request) return cache;
+  const existing = cache.plans[latest.id];
+  if (existing && sameRequest(existing.input, request)) return cache;
+  const plan = await calculatePlan(request, ctx.fetchFn, ctx.now);
+  return plan ? setPlan(cache, latest.id, plan) : cache;
 }

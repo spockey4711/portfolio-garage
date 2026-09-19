@@ -1,3 +1,4 @@
+import type { Intensity, NoPlanReason } from "@/lib/fuelivo/request";
 import type { Locale } from "@/lib/i18n";
 
 // The strings around the content: header, footer, the start page below the
@@ -46,6 +47,28 @@ export interface SiteContent {
       readonly stack: string;
       readonly learnings: string;
     };
+    /** The live demo on /projekte/fuelivo (docs/adr/0008): the plan for the last ride. */
+    readonly plan: {
+      readonly title: string;
+      /** Where the numbers come from, one sentence. */
+      readonly intro: string;
+      readonly loading: string;
+      readonly noActivity: string;
+      /** Why there is no plan for the ride, by reason. */
+      readonly noPlan: Readonly<Record<NoPlanReason | "pending", string>>;
+      /** The input line: intensity words as Fuelivo grades them. */
+      readonly intensity: Readonly<Record<Intensity, string>>;
+      readonly sports: Readonly<Record<string, string>>;
+      readonly perHour: string;
+      readonly total: string;
+      readonly carbs: string;
+      readonly fluid: string;
+      readonly sodium: string;
+      readonly rationale: string;
+      readonly warnings: string;
+      /** Link to the calculator, after the card. */
+      readonly more: NavLink;
+    };
   };
 }
 
@@ -91,6 +114,46 @@ const de: SiteContent = {
       result: "Ergebnis",
       stack: "Stack",
       learnings: "Gelernt",
+    },
+    plan: {
+      title: "Live",
+      intro:
+        "Der Plan zu meiner letzten Einheit auf Strava, gerechnet von fuelivo.de aus Dauer, Intensität, Sportart und Temperatur. Derselbe Plan steht in der Werkstatt auf dem Radcomputer.",
+      loading: "Plan wird geladen",
+      noActivity: "Noch keine Einheit im Cache.",
+      noPlan: {
+        sport: "Für diese Sportart rechnet fuelivo keinen Plan.",
+        duration: "Unter 30 Minuten rechnet fuelivo keinen Plan.",
+        pending: "Der Plan folgt nach dem nächsten Sync.",
+      },
+      intensity: { easy: "locker", moderate: "moderat", hard: "hart" },
+      sports: {
+        Ride: "Rad",
+        VirtualRide: "Rolle",
+        GravelRide: "Gravel",
+        MountainBikeRide: "MTB",
+        EBikeRide: "E-Bike",
+        Run: "Laufen",
+        TrailRun: "Trail",
+        VirtualRun: "Laufband",
+        Walk: "Gehen",
+        Hike: "Wandern",
+        Swim: "Schwimmen",
+        WeightTraining: "Kraft",
+        Workout: "Workout",
+        Yoga: "Yoga",
+      },
+      perHour: "pro Stunde",
+      total: "gesamt",
+      carbs: "Kohlenhydrate",
+      fluid: "Flüssigkeit",
+      sodium: "Natrium",
+      rationale: "Begründung",
+      warnings: "Warnungen",
+      more: {
+        label: "Selbst rechnen auf fuelivo.de",
+        href: "https://fuelivo.de/calculate",
+      },
     },
   },
 };

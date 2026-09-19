@@ -1,8 +1,10 @@
+import type { Intensity, NoPlanReason } from "@/lib/fuelivo/request";
 import type { ComputerPage } from "@/lib/garage/computer";
 import type { FocusViewId } from "@/lib/garage/hotspots";
 import type { PinboardItemId } from "@/lib/garage/pinboard";
 import type { Locale } from "@/lib/i18n";
 import { getAboutContent } from "./about";
+import { getSiteContent } from "./site";
 
 /** What is printed on one item of the cork board and where a click on it leads. */
 export type PinboardItemContent = { readonly href: string } & (
@@ -54,7 +56,7 @@ export interface GarageContent {
       readonly label: string;
       /** How to switch pages; announced to assistive tech. */
       readonly keys: string;
-      /** Titles of the three data pages (docs/KONZEPT.md §3), in device order. */
+      /** Titles of the three data pages (docs/adr/0008), in device order. */
       readonly pages: Readonly<Record<ComputerPage, string>>;
       /** Label of the wide field on page 1. */
       readonly latest: string;
@@ -65,20 +67,30 @@ export interface GarageContent {
       readonly fields: {
         readonly duration: string;
         readonly distance: string;
-        readonly heartRate: string;
-        readonly load: string;
         readonly elevation: string;
-        /** Activities in the week, singular and plural. */
-        readonly count: { readonly one: string; readonly other: string };
+        readonly heartRate: string;
+        readonly temperature: string;
+        /** Strava's relative effort. */
+        readonly effort: string;
+        readonly carbs: string;
+        readonly fluid: string;
+        readonly sodium: string;
       };
       readonly units: {
         readonly km: string;
-        readonly bpm: string;
         readonly m: string;
+        readonly bpm: string;
+        readonly celsius: string;
+        readonly hours: string;
+        readonly g: string;
+        readonly ml: string;
+        readonly mg: string;
+        /** Suffix that turns a unit into a rate, "g" to "g/h". */
+        readonly perHour: string;
       };
       /** German names for Strava's sport types; an unknown type shows as is. */
       readonly sports: Readonly<Record<string, string>>;
-      /** Monday first, like the week on the device. */
+      /** Monday first, for the date on page 1. */
       readonly weekdays: readonly [
         string,
         string,
@@ -88,15 +100,25 @@ export interface GarageContent {
         string,
         string,
       ];
-      /** Page 3: the one field about the rider (KONZEPT §3). */
-      readonly about: {
+      /** Page 2: the plan fuelivo.de calculated for the ride on page 1. */
+      readonly plan: {
+        /** Label of the wide field that names the input. */
         readonly field: string;
-        readonly name: string;
-        readonly place: string;
-        readonly claim: string;
-        /** Link text to the 2D page, which is the source of truth. */
+        /** The intensity the plan was calculated with, as the input line says it. */
+        readonly intensity: Readonly<Record<Intensity, string>>;
+        /** Left column: per hour. Right column: for the whole ride. */
+        readonly perHour: string;
+        readonly total: string;
+        /** Link text to the project page, which is the source of truth. */
         readonly more: string;
       };
+      /** Page 3: Fuelivo's rationale and warnings. */
+      readonly why: {
+        readonly rationale: string;
+        readonly warnings: string;
+      };
+      /** Why page 2 and 3 are empty: no plan for this activity, or none yet. */
+      readonly noPlan: Readonly<Record<NoPlanReason | "pending", string>>;
       /** Shown in a field whose value is missing or still loading. */
       readonly noData: string;
     };
@@ -141,42 +163,49 @@ const de: GarageContent = {
     radcomputer: {
       label: "Radcomputer-Display",
       keys: "Pfeiltasten wechseln die Seite",
-      pages: { today: "Heute", week: "Woche", about: "Über" },
+      pages: { ride: "Fahrt", plan: "Plan", why: "Warum" },
       latest: "Letzte Einheit",
       noActivity: "Keine Einheit",
       day: { today: "Heute", yesterday: "Gestern" },
       fields: {
         duration: "Zeit",
         distance: "Distanz",
-        heartRate: "HF Ø",
-        load: "TSS",
         elevation: "Anstieg",
-        count: { one: "Einheit", other: "Einheiten" },
+        heartRate: "HF Ø",
+        temperature: "Temp.",
+        effort: "Belastung",
+        carbs: "KH",
+        fluid: "Flüssigkeit",
+        sodium: "Natrium",
       },
-      units: { km: "km", bpm: "bpm", m: "m" },
-      sports: {
-        Ride: "Rad",
-        VirtualRide: "Rolle",
-        GravelRide: "Gravel",
-        MountainBikeRide: "MTB",
-        EBikeRide: "E-Bike",
-        Run: "Laufen",
-        TrailRun: "Trail",
-        VirtualRun: "Laufband",
-        Walk: "Gehen",
-        Hike: "Wandern",
-        Swim: "Schwimmen",
-        WeightTraining: "Kraft",
-        Workout: "Workout",
-        Yoga: "Yoga",
+      units: {
+        km: "km",
+        m: "m",
+        bpm: "bpm",
+        celsius: "°C",
+        hours: "h",
+        g: "g",
+        ml: "ml",
+        mg: "mg",
+        perHour: "/h",
       },
+      sports: getSiteContent("de").project.plan.sports,
       weekdays: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
-      about: {
-        field: "Fahrer",
-        name: "Yannik",
-        place: "Köln",
-        claim: "Baut Software für Ausdauersportler.",
-        more: "Mehr über mich",
+      plan: {
+        field: "Plan von fuelivo",
+        intensity: getSiteContent("de").project.plan.intensity,
+        perHour: "pro Stunde",
+        total: "gesamt",
+        more: "Mehr zu fuelivo",
+      },
+      why: {
+        rationale: "Begründung",
+        warnings: "Warnungen",
+      },
+      noPlan: {
+        sport: "Kein Plan für diese Sportart",
+        duration: "Kein Plan unter 30 Minuten",
+        pending: "Plan folgt nach dem nächsten Sync",
       },
       noData: "--",
     },

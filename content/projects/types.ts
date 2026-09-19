@@ -39,6 +39,12 @@ export interface Project {
   /** Honest takeaways, first person. */
   readonly learnings: readonly string[];
   readonly links: readonly ProjectLink[];
+  /**
+   * A live block on the page after the approach: "fuelplan" is the plan
+   * fuelivo.de calculates for the last ride (docs/adr/0008,
+   * components/site/FuelPlanCard.tsx). Omitted for a project without one.
+   */
+  readonly demo?: "fuelplan";
 }
 
 export interface ProjectLabels {

@@ -84,31 +84,14 @@ Ziel: Der Radcomputer zeigt Fuelivo auf echten Trainingsdaten, der Laptop echte 
 - ~~`Pinboard.tsx`: Startnummern, Fotos, Zettel klickbar, führt zu `/ueber`.~~ Erledigt 18.09.:
   DOM auf der Korkfläche, Layout in `lib/garage/pinboard.json`, Attrappen im GLB darunter.
   Seit ADR-0008 hängt dort der Blog, Umbau unten.
-- Radcomputer auf Fuelivo umbauen (ADR-0008): die letzte Einheit ist die Eingabe, der Plan
-  von fuelivo.de die Anzeige.
-  - `lib/strava/activity.ts`: `average_temp` mit in den Cache, Test in `activity.test.ts`.
-  - `lib/fuelivo/request.ts` (ohne `@/`, `.ts`-Importe wie `lib/strava/`): Abbildung
-    Aktivität auf `CalculationRequest` als pure Funktion. `duration_hours` aus `movingTime`,
-    `sport_type` aus `sport` (Rad-Varianten `bike`, Run `running`, Swim `swimming`, sonst
-    `null`, kein Plan), `intensity` aus HF relativ zur Maximal-HF, ohne HF aus
-    `relativeEffort` pro Stunde, `temperature_c` aus `average_temp` oder 20. Tests mit den
-    Fixtures aus `lib/strava/fixtures.ts`.
-  - `lib/fuelivo/client.ts`: `POST https://fuelivo.de/calculate`, Antwort auf die Felder
-    reduziert, die der Computer zeigt (Stundenwerte, Totale, `during_ride_nutrition.timing`,
-    `rationale`, `warnings`). Timeout, Fehler heißt "kein Plan", nie ein geplatzter Sync.
-  - `lib/strava/sync.ts`: nach einer neuen Aktivität den Plan rechnen und neben ihr im
-    Cache ablegen; `summary.ts` reicht ihn in `latest.plan` durch. Bestehende Aktivitäten
-    ohne Plan bekommen ihn beim nächsten Sync, `scripts/strava.mts` kann ihn nachholen.
-  - `lib/garage/computer.ts`: `COMPUTER_PAGES` wird `["ride", "plan", "why"]`, Über-Seite raus.
-  - `BikeComputer.tsx`: Seite 1 Fahrt (Dauer, km, Höhenmeter, HF, Temperatur), Seite 2 Plan
-    (g KH/h, ml/h, mg Na/h, Totale als Edge-Datenfelder), Seite 3 Warum (Begründungen und
-    Warnungen als Liste, Pfeiltasten wie am Gerät). Ohne Plan zeigt Seite 2 und 3 den
-    Grund ("Kein Plan für Krafttraining"). Strings in `content/garage.ts`.
-  - Standbild-Karte in `StillView.tsx`: Plan zur letzten Fahrt, dieselben Felder.
-  - `/projekte/fuelivo`: denselben Plan als Karte nach dem Ansatz, damit der Inhalt in 2D
-    existiert. Komponente in `components/site/`, von beiden Seiten benutzt.
-  - E2E auf `/?view=computer` mit dem Fixture-Cache: drei Seiten per Pfeiltaste, Werte
-    stimmen mit dem Cache überein. Pixel-Check gegen die Fokus-Kamera.
+- ~~Radcomputer auf Fuelivo umbauen (ADR-0008): die letzte Einheit ist die Eingabe, der Plan
+  von fuelivo.de die Anzeige.~~ Erledigt 19.09.: `lib/fuelivo/` (Abbildung in `request.ts`,
+  Aufruf in `client.ts`), der Sync rechnet den Plan für die neueste sichtbare Einheit und legt
+  ihn unter `plans` im Cache ab, `/api/activity` reicht ihn als `latest.plan` durch. Seiten
+  Fahrt, Plan, Warum; die Karte auf `/projekte/fuelivo` (`FuelPlanCard.tsx`) zeigt denselben
+  Plan. Maximal-HF ist die höchste im Cache beobachtete. E2E mit Fixture-Cache in
+  `tests/e2e/data`. Die Begründungen kommen englisch von fuelivo.de, das ist Daten, nicht
+  Content.
 - `Laptop.tsx`: Projektliste, Fuelivo inklusive und oben, kein Mini-Rechner (ADR-0008).
   - `content/garage.ts`: `comingSoon` des Laptops raus, Fenstertitel und Beschriftungen rein,
     `GarageContent`-Typ anpassen.
