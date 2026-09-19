@@ -278,6 +278,62 @@ def bm_torus(bm, major, minor, center, axis="z", segs_major=24, segs_minor=6, ma
     return faces
 
 
+def bm_ring(bm, r_in, r_out, width, center, axis="z", segs=24, mat_index=0):
+    """Ring with a rectangular cross-section (a rim, a lid), axis along x, y or z."""
+    from math import cos, sin, pi
+    rot = {"z": Matrix.Identity(4), "x": Matrix.Rotation(radians(90), 4, "Y"), "y": Matrix.Rotation(radians(-90), 4, "X")}[axis]
+    m = Matrix.Translation(center) @ rot
+    rings = []
+    for r, z in ((r_in, -width / 2), (r_out, -width / 2), (r_out, width / 2), (r_in, width / 2)):
+        rings.append([bm.verts.new(m @ Vector((r * cos(2 * pi * i / segs), r * sin(2 * pi * i / segs), z))) for i in range(segs)])
+    faces = []
+    for k in range(4):
+        a, b = rings[k], rings[(k + 1) % 4]
+        for i in range(segs):
+            f = bm.faces.new((a[i], a[(i + 1) % segs], b[(i + 1) % segs], b[i]))
+            f.material_index = mat_index
+            faces.append(f)
+    bmesh.ops.recalc_face_normals(bm, faces=faces)
+    return faces
+
+
+def bm_dome(bm, center, size, cut, mat_index=0, inner_index=None, subdivisions=3):
+    """An icosphere scaled to `size` (full diameters) and cut by the plane through
+    `center + cut` with normal `cut`, keeping the half the normal points away from;
+    the cut is closed with a flat face in `inner_index`. A helmet, a bowl, a cap."""
+    m = Matrix.Translation(center) @ Matrix.Diagonal((size[0] / 2, size[1] / 2, size[2] / 2, 1))
+    geom = bmesh.ops.create_icosphere(bm, subdivisions=subdivisions, radius=1.0, matrix=m)
+    verts = geom["verts"]
+    faces = {f for v in verts for f in v.link_faces}
+    edges = {e for v in verts for e in v.link_edges}
+    cut = Vector(cut)
+    res = bmesh.ops.bisect_plane(bm, geom=list(verts) + list(edges) + list(faces), plane_co=Vector(center) + cut, plane_no=cut, clear_outer=True)
+    cut_edges = [e for e in res["geom_cut"] if isinstance(e, bmesh.types.BMEdge)]
+    fill = bmesh.ops.holes_fill(bm, edges=cut_edges, sides=0)
+    for f in fill["faces"]:
+        f.material_index = mat_index if inner_index is None else inner_index
+    shell = [f for f in res["geom"] if isinstance(f, bmesh.types.BMFace) and f not in fill["faces"]]
+    for f in shell:
+        f.material_index = mat_index
+    return shell
+
+
+def bm_placed(bm, matrix, build):
+    """build(bm) draws in its own frame, everything it adds is then moved by `matrix`:
+    a turned box keeps its tape and latch where they belong."""
+    before = set(bm.verts)
+    build(bm)
+    bmesh.ops.transform(bm, matrix=matrix, verts=[v for v in bm.verts if v not in before])
+
+
+def shade_smooth(obj, mat_indices):
+    """Smooth shading for every face in the given material slots: domes and tyres
+    should bake as a gradient, not as facets. Everything else stays flat."""
+    for p in obj.data.polygons:
+        if p.material_index in mat_indices:
+            p.use_smooth = True
+
+
 def multi_mesh_object(name, bm, mats, coll=COLL):
     """Like mesh_object but with a material slot list; faces keep their material_index."""
     obj = mesh_object(name, bm, None, coll)

@@ -68,7 +68,9 @@ Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallba
   (ADR-0001).~~ Erledigt 18.09. mit dem 2D-Gerüst.
 - Go-live auf `yannikwuenker.de`. Vertagt 18.09., kommt nach Phase 2.
 - Atmosphäre: Licht warm und tief, Farben, Kleinkram, Fasen. Befund, Budget und Reihenfolge in
-  `docs/ATMOSPHAERE.md`.
+  `docs/ATMOSPHAERE.md`. Licht und Farben erledigt 18.09., Kleinkram aus Skripten erledigt
+  19.09. (Werkbank, Regal, rechte Wand, Fasen auf allem); offen Stoff-Assets, Staub im
+  Sonnenstrahl und das Rad (§4 dort).
 
 ### Woche 3 und 4: 06. bis 19.10. - Phase 2, echte Daten
 
