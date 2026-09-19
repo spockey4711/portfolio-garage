@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getPosts } from "@/content/blog";
 import { getGarageContent } from "@/content/garage";
 import { itemStyle, PINBOARD_PX_PER_M, pinboard } from "./pinboard";
 
@@ -53,11 +54,16 @@ describe("pinboard layout", () => {
     }
   });
 
-  it("leads to /ueber from every item", () => {
-    const content = getGarageContent("de").screens.pinnwand.items;
-    for (const item of pinboard.items) {
-      expect(content[item.id].href, item.id).toMatch(/^\/ueber(#[a-z]+)?$/);
-    }
+  // docs/adr/0008: every post is a note on the board, so a new post needs a
+  // note in the layout (and the furniture script run), and a note never
+  // points at a post that is gone.
+  it("has exactly one note per blog post", () => {
+    const notes = pinboard.items.filter((item) => item.kind === "zettel");
+    const named = notes.map((note) => note.post).sort();
+    const slugs = getPosts("de")
+      .map((post) => post.slug)
+      .sort();
+    expect(named).toEqual(slugs);
   });
 });
 
@@ -66,6 +72,7 @@ describe("itemStyle", () => {
     const style = itemStyle({
       id: "zettel-1",
       kind: "zettel",
+      post: "licht-aus-dem-ofen",
       x: 0,
       y: 0,
       width: 0.1,

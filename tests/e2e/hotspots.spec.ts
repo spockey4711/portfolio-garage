@@ -214,14 +214,17 @@ test.describe("screens in the canvas", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(/fuelivo/);
   });
 
-  test("the items on the open board are links that leave for /ueber", async ({
+  test("the notes on the open board are links that leave for the post", async ({
     page,
   }) => {
-    await openGarage(page, "/?view=board");
+    await openGarage(page, "/?view=blog");
     const board = page.getByRole("navigation", { name: "Pinnwand" });
     await expect(board).toHaveCSS("pointer-events", "auto");
 
-    await board.getByRole("link", { name: /Über mich/ }).click();
-    await expect(page).toHaveURL(/\/ueber#werdegang$/);
+    await board.getByRole("link", { name: /Licht aus dem Ofen/ }).click();
+    await expect(page).toHaveURL(/\/blog\/licht-aus-dem-ofen$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      /Licht aus dem Ofen/,
+    );
   });
 });

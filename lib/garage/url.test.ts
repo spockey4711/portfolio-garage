@@ -22,7 +22,7 @@ describe("viewFromSearch", () => {
 describe("hrefForView", () => {
   it("writes the concept URLs", () => {
     expect(hrefForView(views.radcomputer)).toBe("/?view=computer");
-    expect(hrefForView(views.pinnwand)).toBe("/?view=board");
+    expect(hrefForView(views.pinnwand)).toBe("/?view=blog");
     expect(hrefForView(views[REST_VIEW])).toBe("/");
   });
 

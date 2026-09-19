@@ -18,11 +18,12 @@ Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`) und der 
 (`BikeComputer.tsx`: die ganze Glasfront eines Edge 540 als DOM, Garmin-Farben, drei Seiten
 Fahrt, Plan, Warum, Pfeiltasten, Daten aus `/api/activity`, Logik in `lib/garage/computer.ts`;
 Gehäuse, Tasten und Glas kommen aus `build_bike.py`, Glas und DOM teilen sich das Pixelmaß),
-die Pinnwand (`Pinboard.tsx`, alles darauf verlinkt nach `/ueber`) und der Laptop
+die Pinnwand (`Pinboard.tsx`, jeder Zettel ein Post aus `content/blog/`, Startnummern und
+Fotos Deko, Standbild-Karte über `ScreenSpec.Card`) und der Laptop
 (`Laptop.tsx`, Projektliste, Standbild-Karte über `ScreenSpec.Card`). Seit ADR-0008 (2026-09-19) gilt eine neue Zuordnung, der Umbau steht in
 `docs/PLAN.md`: Radcomputer zeigt Fuelivo, gerechnet von `fuelivo.de/calculate` auf der
-letzten Strava-Einheit (erledigt), Laptop die Projektliste, Pinnwand den Blog, Whiteboard
-Über mich, Werkzeugwand den Stack.
+letzten Strava-Einheit (erledigt), Laptop die Projektliste (erledigt), Pinnwand den Blog
+(erledigt), Whiteboard Über mich, Werkzeugwand den Stack.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
 `public/models/garage-lightmap-tag.webp` (Licht ohne Farbe, UV-Set 2), `Scene.tsx` tauscht
@@ -48,10 +49,12 @@ sind `inert` ohne Pointer-Events, der Klick trifft die Klickbox dahinter. `occlu
 nur den GLB-Root, nie die Klickboxen. Neue Screen-View: `ui: "screen"` in `hotspots.ts`
 erzwingt einen Eintrag in `components/garage/screens/index.ts`. Die Pinnwand ist ein Screen
 auf der Korkfläche (`Pinnwand_Kork`): das DOM ist transparent, Kork und Rahmen kommen aus
-dem GLB, `ScreenSpec.shade` dunkelt es im Raum ab, `backdrop` malt der Standbild-Karte den
-Kork. Was wo hängt, steht in `lib/garage/pinboard.json`, das `build_furniture.py` für die
-Papier-Attrappen im GLB und `Pinboard.tsx` für das DOM lesen; Layout ändern heißt JSON
-ändern, Möbel-Skript laufen lassen, exportieren.
+dem GLB, `ScreenSpec.shade` dunkelt es im Raum ab. Was wo hängt, steht in
+`lib/garage/pinboard.json`, das `build_furniture.py` für die Papier-Attrappen im GLB und
+`Pinboard.tsx` für das DOM lesen; Layout ändern heißt JSON ändern, Möbel-Skript laufen
+lassen, exportieren. Jeder Zettel nennt dort per `post` seinen Blogpost, Startnummern und
+Fotos haben ihren Text in `content/garage.ts` und keinen Link; `pinboard.test.ts` erzwingt
+genau einen Zettel je Post, ein neuer Post braucht also einen neuen Zettel und einen Export.
 
 Fallback: Das Standbild ist immer der erste Paint. `GarageStill.tsx` zeigt die vom Export
 gerenderte Ruheansicht (`public/models/garage-ruhe-tag-{quer,hoch}.webp`, dieselbe Kamera,
@@ -66,7 +69,9 @@ Ohne Canvas zeigt `StillView.tsx` den offenen Hotspot als Karte, die URL bleibt 
 Route-Gruppe `app/(seiten)/` (Header oben, Footer im Root-Layout). Projekte sind je eine
 Datei in `content/projects/`, die Liste in `index.ts` bestimmt Reihenfolge und Mitgliedschaft,
 der erste Eintrag ist das Leitprojekt; `/projekte/[slug]` baut nur diese Slugs
-(`dynamicParams = false`). `content/content.test.ts` prüft jeden sichtbaren String auf
+(`dynamicParams = false`). Blogposts genauso in `content/blog/` (`index.ts` neueste zuerst,
+Body als Blöcke `p`/`h2`/`ul`/`quote`, kein MDX), Route `/blog/[slug]`, Liste auf der
+Startseite unter `/#blog`. `content/content.test.ts` prüft jeden sichtbaren String auf
 Gedankenstriche, Emoji und Whitespace.
 
 Strava: `lib/strava/` ist die ganze Anbindung, Betrieb und Einrichtung in `docs/BETRIEB.md`.

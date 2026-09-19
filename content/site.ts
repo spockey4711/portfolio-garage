@@ -37,6 +37,14 @@ export interface SiteContent {
       readonly teaser: string;
       readonly more: NavLink;
     };
+    readonly blog: {
+      readonly title: string;
+      readonly intro: string;
+    };
+  };
+  /** The chrome of a /blog/<slug> page. */
+  readonly post: {
+    readonly back: NavLink;
   };
   readonly project: {
     readonly back: NavLink;
@@ -80,6 +88,7 @@ const de: SiteContent = {
     label: "Seitennavigation",
     links: [
       { label: "Projekte", href: "/#projekte" },
+      { label: "Blog", href: "/#blog" },
       { label: "Über mich", href: "/ueber" },
     ],
   },
@@ -105,6 +114,14 @@ const de: SiteContent = {
         "Neben dem Studium mache ich viel Sport: Rad, Hockey, Laufen, Gym. Deshalb steht oben eine Werkstatt und kein Hero-Bild.",
       more: { label: "Mehr über mich", href: "/ueber" },
     },
+    blog: {
+      title: "Blog",
+      intro:
+        "Notizen aus der Werkstatt: was ich gebaut habe und warum, wenn es eine Erklärung wert ist.",
+    },
+  },
+  post: {
+    back: { label: "Alle Beiträge", href: "/#blog" },
   },
   project: {
     back: { label: "Alle Projekte", href: "/#projekte" },

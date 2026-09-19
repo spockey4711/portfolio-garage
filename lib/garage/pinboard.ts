@@ -7,7 +7,8 @@ import layout from "./pinboard.json";
 // over exactly those stand-ins once the camera is close. Board space: metres
 // from the centre of the cork, x to the right, y up; rotation clockwise in
 // degrees as seen from the room, which is CSS rotate() and Blender's
-// rotation about +Y alike.
+// rotation about +Y alike. A note names the blog post it shows (docs/adr/0008:
+// every post is a note); race numbers and photos are scenery.
 
 export const PINBOARD_ITEM_KINDS = ["startnummer", "foto", "zettel"] as const;
 
@@ -15,15 +16,27 @@ export type PinboardItemKind = (typeof PINBOARD_ITEM_KINDS)[number];
 
 export type PinboardItemId = keyof typeof layout.items;
 
-export interface PinboardItem {
+interface PinboardItemBase {
   readonly id: PinboardItemId;
-  readonly kind: PinboardItemKind;
   readonly x: number;
   readonly y: number;
   readonly width: number;
   readonly height: number;
   readonly rotation: number;
 }
+
+/** A race number or a photo: printed from content/garage.ts, no link. */
+export interface PinboardDecoItem extends PinboardItemBase {
+  readonly kind: Exclude<PinboardItemKind, "zettel">;
+}
+
+/** A note: the blog post with this slug (content/blog), a link to it. */
+export interface PinboardNoteItem extends PinboardItemBase {
+  readonly kind: "zettel";
+  readonly post: string;
+}
+
+export type PinboardItem = PinboardDecoItem | PinboardNoteItem;
 
 export interface PinboardLayout {
   /** Size of the cork face inside the frame: the face the DOM covers. */
@@ -42,6 +55,17 @@ function toItem(id: PinboardItemId): PinboardItem {
   const { kind, ...rest } = layout.items[id];
   if (!isKind(kind)) {
     throw new Error(`pinboard.json: ${id} has unknown kind ${kind}`);
+  }
+  if (kind === "zettel") {
+    if (!("post" in rest) || typeof rest.post !== "string") {
+      throw new Error(`pinboard.json: note ${id} names no post`);
+    }
+    return { id, kind, ...rest, post: rest.post };
+  }
+  if ("post" in rest) {
+    throw new Error(
+      `pinboard.json: ${id} is a ${kind}, only a note has a post`,
+    );
   }
   return { id, kind, ...rest };
 }

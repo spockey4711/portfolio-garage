@@ -78,7 +78,7 @@ export function StillView() {
 // (screens/index.ts), so the card scales them down as a whole instead of
 // letting their text wrap.
 function ScaledScreen({ viewId }: { readonly viewId: ScreenViewId }) {
-  const { Component, pxWidth, aspect, backdrop } = screens[viewId];
+  const { Component, pxWidth, aspect } = screens[viewId];
   const pxHeight = Math.round(pxWidth / aspect);
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -98,7 +98,7 @@ function ScaledScreen({ viewId }: { readonly viewId: ScreenViewId }) {
   return (
     <div
       ref={ref}
-      className={["w-full overflow-hidden", backdrop ?? ""].join(" ").trim()}
+      className="w-full overflow-hidden"
       style={{ aspectRatio: aspect }}
     >
       <div
