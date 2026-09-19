@@ -84,7 +84,9 @@ Startseite unter `/#blog`. Impressum und Datenschutz stehen in `content/legal.ts
 beschreibt, was die Seite tatsächlich tut (keine Cookies, kein Speicher, keine Analyse,
 keine Drittdienste im Browser, eigene Strava-Daten), wer die Verarbeitung ändert, ändert
 sie mit. `content/content.test.ts` prüft jeden sichtbaren String auf Gedankenstriche,
-Emoji und Whitespace.
+Emoji und Whitespace. `curl /` bekommt die Textkarte: `proxy.ts` (nur Matcher `/`) schreibt
+Terminal-Clients per `lib/terminal/detect.ts` auf `app/ascii/route.ts` um, die Karte rendert
+`lib/terminal/card.ts` aus demselben Content mit absoluten Links vom Host der Anfrage.
 
 Strava: `lib/strava/` ist die ganze Anbindung, Betrieb und Einrichtung in `docs/BETRIEB.md`.
 Zustand sind zwei JSON-Dateien in `DATA_DIR` (Token, Cache), die nur `lib/strava/sync.ts`

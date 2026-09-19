@@ -145,8 +145,14 @@ Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
 
 ### Ab Woche 7: November - Craft und Politur
 
-- cmd+K Command Palette, `curl yannikwuenker.de` als ASCII, Transparenz-Footer, `j`/`k`,
-  Seite "Wie diese Seite gebaut ist" (KONZEPT §10).
+- cmd+K Command Palette, Transparenz-Footer, `j`/`k`, Seite "Wie diese Seite gebaut ist"
+  (KONZEPT §10).
+- ~~`curl yannikwuenker.de` als ASCII.~~ Erledigt 19.09.: `proxy.ts` schreibt `/` für
+  Terminal-Clients (`lib/terminal/detect.ts`: curl, wget, HTTPie, xh oder ein Accept, das
+  `text/plain` vor `text/html` stellt) auf `app/ascii/route.ts` um, die URL bleibt. Die Karte
+  (`lib/terminal/card.ts`, 72 Spalten, absolute Links vom Host der Anfrage) zeigt dieselben
+  Inhalte wie die Startseite: Name, Positionierung, Intro, Projekte, Blog, Kontakt. `/ascii`
+  geht auch im Browser. `npx yannikwuenker` ist ein eigenes npm-Paket und steht noch aus.
 - Lighthouse 100 auf dem Fallback, Performance-Feinschliff, Mobile-Fallback nachziehen.
 - Nach Feedback: Kamera-Positionen und Fahrten nachjustieren.
 

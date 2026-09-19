@@ -44,6 +44,11 @@ export interface SiteContent {
       readonly intro: string;
     };
   };
+  /** The text version of / that curl and friends get (lib/terminal/card.ts). */
+  readonly terminal: {
+    /** The closing line; the site's address follows on the same line. */
+    readonly browser: string;
+  };
   /** The chrome of a /blog/<slug> page. */
   readonly post: {
     readonly back: NavLink;
@@ -125,6 +130,9 @@ const de: SiteContent = {
       intro:
         "Notizen aus der Werkstatt: was ich gebaut habe und warum, wenn es eine Erklärung wert ist.",
     },
+  },
+  terminal: {
+    browser: "Die Werkstatt in 3D gibt es im Browser:",
   },
   post: {
     back: { label: "Alle Beiträge", href: "/#blog" },
