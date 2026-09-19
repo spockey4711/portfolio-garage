@@ -91,6 +91,16 @@ Entscheidung eine `Section` mit Blöcken, aus den ADRs geschrieben, keine Zahlen
 Beleg); wer eine Entscheidung in `docs/adr/` ändert, ändert den Abschnitt mit. Der Link
 dorthin ist `footer.colophon` in `content/site.ts`, vor Impressum und Datenschutz;
 Footer, Palette und Terminal-Karte lesen dieses eine Feld.
+Transparenz-Footer (`SiteFooter.tsx`, Zeile links neben diesen Links, Strings unter
+`footer.stats`): Commit und JS-Größe der Seite, nur was der Build belegt, sonst nichts.
+Den Commit backt `next.config.ts` als `COMMIT_SHA` ein (`GITHUB_SHA`, sonst
+`git rev-parse HEAD`; das Image bekommt ihn als Build-Arg aus `ci.yml`, `docs/BETRIEB.md`).
+Die Größe liest `lib/build/read.ts` beim Prerendern aus `.next` (`build-manifest.json`
+plus `page_client-reference-manifest.js` je Seite, geparst in `lib/build/info.ts`), die
+Summe ist genau das, was die Skript-Tags der Route laden, unkomprimiert; `JsSize.tsx`
+wählt per `usePathname` die Route. In `next dev` gibt es keine Größe, im Build wirft ein
+unlesbares Manifest (Next-Update: `info.test.ts` und diesen Parser anpassen).
+`REPOSITORY_URL` in `lib/build/info.ts` ist die eine Stelle für die Repo-Adresse.
 `content/content.test.ts` prüft jeden sichtbaren String auf Gedankenstriche,
 Emoji und Whitespace. `curl /` bekommt die Textkarte: `proxy.ts` (nur Matcher `/`) schreibt
 Terminal-Clients per `lib/terminal/detect.ts` auf `app/ascii/route.ts` um, die Karte rendert

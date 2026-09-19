@@ -38,6 +38,17 @@ export interface SiteContent {
     readonly colophon: NavLink;
     /** Impressum and Datenschutz, after the colophon in that row. */
     readonly legal: readonly NavLink[];
+    /** The transparency row (docs/KONZEPT.md §10): what this build is made of. */
+    readonly stats: {
+      /** Accessible name of the row. */
+      readonly label: string;
+      /** Precedes the short SHA, which links to the commit on GitHub. */
+      readonly commit: string;
+      /** Precedes the size of the JavaScript this page loads. */
+      readonly js: string;
+      /** Tooltip on the size: what exactly was counted. */
+      readonly jsHint: string;
+    };
   };
   readonly home: {
     /** Under the name: what, where, current role, current build. */
@@ -152,6 +163,13 @@ const de: SiteContent = {
       { label: "Impressum", href: "/impressum" },
       { label: "Datenschutz", href: "/datenschutz" },
     ],
+    stats: {
+      label: "Zahlen zu dieser Seite",
+      commit: "Commit",
+      js: "JS",
+      jsHint:
+        "JavaScript, das diese Seite beim ersten Aufruf lädt, unkomprimiert, aus dem Build gelesen",
+    },
   },
   home: {
     positioning: "Baut Software für Ausdauersportler. Köln.",

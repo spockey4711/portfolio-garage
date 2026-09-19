@@ -1,3 +1,4 @@
+import { REPOSITORY_URL } from "@/lib/build/info";
 import type { Locale } from "@/lib/i18n";
 import type { ContentBlock } from "./blocks";
 import type { NavLink } from "./site";
@@ -145,7 +146,7 @@ const de: ColophonContent = {
     lead: "Der Code ist öffentlich, inklusive der Entscheidungen als ADRs unter docs/adr.",
     link: {
       label: "spockey4711/portfolio-garage auf GitHub",
-      href: "https://github.com/spockey4711/portfolio-garage",
+      href: REPOSITORY_URL,
     },
   },
 };

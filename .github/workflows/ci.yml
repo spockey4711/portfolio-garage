@@ -71,9 +71,13 @@ jobs:
       - id: tag
         run: echo "tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
+      # The footer names the commit it was built from (docs/KONZEPT.md §10);
+      # the image build has no .git, so the SHA goes in as a build arg.
       - uses: docker/build-push-action@v7
         with:
           context: .
+          build-args: |
+            GITHUB_SHA=${{ github.sha }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
           tags: |
             ghcr.io/${{ github.repository }}:${{ steps.tag.outputs.tag }}

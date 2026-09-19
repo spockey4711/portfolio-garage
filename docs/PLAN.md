@@ -155,7 +155,17 @@ Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
   Dialog ist `defaultPrevented`, damit `ViewSync` den offenen Hotspot nicht mitschließt.
   Der Knopf im Header erscheint ab 640 px, das Kürzel gilt überall. Der CV liegt als PDF
   unter `public/cv/`, aus Portfolio2 übernommen, nicht neu geschrieben.
-- Transparenz-Footer (KONZEPT §10).
+- ~~Transparenz-Footer (KONZEPT §10).~~ Erledigt 19.09.: eine Zeile im Footer mit Commit
+  (kurzer SHA, Link auf den Commit im öffentlichen Repo) und der JS-Größe der Seite. Nur
+  belegte Werte: den Commit backt `next.config.ts` beim Build ein (lokal `git rev-parse`,
+  im Image `GITHUB_SHA` als Build-Arg aus `ci.yml`, ohne beides entfällt er); die JS-Größe
+  liest `lib/build/read.ts` während des Prerenderings aus dem Build-Output desselben Laufs
+  (`build-manifest.json` plus die Client-Reference-Manifeste der Seiten, also genau die
+  Skripte, die das HTML der Route lädt, unkomprimiert, ohne Polyfill), der Client wählt
+  per `usePathname` seine Route. In `next dev` gibt es keine Größe statt einer veralteten,
+  im Build wirft ein unlesbares Manifest, damit ein Next-Update den Wert nicht still
+  verschluckt. Render-Zeit und Lighthouse entfallen: kein Messwert ohne neues Paket oder
+  Laufzeitmessung, und ein Platzhalter wäre keiner.
 - ~~`j`/`k` durch die Sections, `?` als Shortcut-Overlay (KONZEPT §10).~~ Erledigt 19.09.:
   `components/site/Shortcuts.tsx` im Root-Layout ist der eine Ort für Kürzel, die auf jeder
   Seite gelten; die Entscheidung (`shortcutFor`, `sectionAfter`, `isEditable`) liegt in
