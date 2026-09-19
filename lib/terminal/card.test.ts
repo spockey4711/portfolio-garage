@@ -72,10 +72,11 @@ describe("renderTerminalCard", () => {
     expect(line).toBe(`  ${long}/projekte/${slug}`);
   });
 
-  it("lists the contact links and the legal pages", () => {
+  it("lists the contact links, the colophon and the legal pages", () => {
     expect(card).toContain("mail@yannikwuenker.de");
     expect(card).not.toContain("mailto:");
     expect(card).toContain("https://github.com/spockey4711");
+    expect(card).toContain(`${origin}/bauweise`);
     expect(card).toContain(`${origin}/impressum`);
     expect(card).toContain(`${origin}/datenschutz`);
   });

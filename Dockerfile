@@ -17,6 +17,9 @@ RUN pnpm install --frozen-lockfile
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# The commit the footer names (next.config.ts): .git is not in the context,
+# so CI passes it in; without it the footer simply shows no commit.
+ARG GITHUB_SHA
 # next/font fetches Google Fonts at build time, so the build needs network.
 RUN pnpm build
 

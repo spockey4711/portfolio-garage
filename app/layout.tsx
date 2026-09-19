@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Shortcuts } from "@/components/site/Shortcuts";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { getSiteContent } from "@/content/site";
 import { defaultLocale } from "@/lib/i18n";
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col">
         {children}
         <SiteFooter />
+        <Shortcuts content={site.shortcuts} />
       </body>
     </html>
   );

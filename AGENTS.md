@@ -80,12 +80,28 @@ Route-Gruppe `app/(seiten)/` (Header oben, Footer im Root-Layout). Projekte sind
 Datei in `content/projects/`, die Liste in `index.ts` bestimmt Reihenfolge und Mitgliedschaft,
 der erste Eintrag ist das Leitprojekt; `/projekte/[slug]` baut nur diese Slugs
 (`dynamicParams = false`). Blogposts genauso in `content/blog/` (`index.ts` neueste zuerst,
-Body als Blöcke `p`/`h2`/`ul`/`quote`, kein MDX), Route `/blog/[slug]`, Liste auf der
+Body als Blöcke `p`/`h2`/`ul`/`quote` aus `content/blocks.ts`, gerendert von
+`components/site/Blocks.tsx`, kein MDX), Route `/blog/[slug]`, Liste auf der
 Startseite unter `/#blog`. Impressum und Datenschutz stehen in `content/legal.ts`
 (`/impressum`, `/datenschutz`, `LegalPage.tsx`, Footer-Links); die Datenschutzerklärung
 beschreibt, was die Seite tatsächlich tut (keine Cookies, kein Speicher, keine Analyse,
 keine Drittdienste im Browser, eigene Strava-Daten), wer die Verarbeitung ändert, ändert
-sie mit. `content/content.test.ts` prüft jeden sichtbaren String auf Gedankenstriche,
+sie mit. "Wie diese Seite gebaut ist" ist `/bauweise` (`content/bauweise.ts`, je
+Entscheidung eine `Section` mit Blöcken, aus den ADRs geschrieben, keine Zahlen ohne
+Beleg); wer eine Entscheidung in `docs/adr/` ändert, ändert den Abschnitt mit. Der Link
+dorthin ist `footer.colophon` in `content/site.ts`, vor Impressum und Datenschutz;
+Footer, Palette und Terminal-Karte lesen dieses eine Feld.
+Transparenz-Footer (`SiteFooter.tsx`, Zeile links neben diesen Links, Strings unter
+`footer.stats`): Commit und JS-Größe der Seite, nur was der Build belegt, sonst nichts.
+Den Commit backt `next.config.ts` als `COMMIT_SHA` ein (`GITHUB_SHA`, sonst
+`git rev-parse HEAD`; das Image bekommt ihn als Build-Arg aus `ci.yml`, `docs/BETRIEB.md`).
+Die Größe liest `lib/build/read.ts` beim Prerendern aus `.next` (`build-manifest.json`
+plus `page_client-reference-manifest.js` je Seite, geparst in `lib/build/info.ts`), die
+Summe ist genau das, was die Skript-Tags der Route laden, unkomprimiert; `JsSize.tsx`
+wählt per `usePathname` die Route. In `next dev` gibt es keine Größe, im Build wirft ein
+unlesbares Manifest (Next-Update: `info.test.ts` und diesen Parser anpassen).
+`REPOSITORY_URL` in `lib/build/info.ts` ist die eine Stelle für die Repo-Adresse.
+`content/content.test.ts` prüft jeden sichtbaren String auf Gedankenstriche,
 Emoji und Whitespace. `curl /` bekommt die Textkarte: `proxy.ts` (nur Matcher `/`) schreibt
 Terminal-Clients per `lib/terminal/detect.ts` auf `app/ascii/route.ts` um, die Karte rendert
 `lib/terminal/card.ts` aus demselben Content mit absoluten Links vom Host der Anfrage.
@@ -95,6 +111,18 @@ Befehle (Seiten, Projekte, Posts, Hotspots, Mail kopieren, CV laden aus `public/
 gebauten Liste mountet; Escape darin ist `defaultPrevented`, sonst schlösse `ViewSync` den
 Hotspot mit. Eine neue Seite, ein neues Projekt oder ein neuer Post taucht ohne Zutun in der
 Liste auf.
+Tastatur auf jeder Seite (`j`/`k`, `?`): `components/site/Shortcuts.tsx` im Root-Layout ist
+der eine Ort für globale Kürzel, die Entscheidung steht ohne DOM in `lib/shortcuts.ts`.
+`j`/`k` springen durch alle Elemente mit `data-section` (`Section.tsx`, der Hero in
+`GarageHero.tsx`, die Abschnitte in `LegalPage.tsx`) und fokussieren die Überschrift aus
+`aria-labelledby` (tabIndex -1); ein neuer Abschnittstyp braucht genau diese drei Dinge.
+Maßstab ist die Scrollposition, nur während ein Scroll läuft zählt das Ziel des letzten
+Drucks weiter. Die Kürzel schweigen in Eingabefeldern, bei offenem `<dialog>` und wenn die
+Store-Phase der Garage nicht `idle` ist (Radcomputer hat die Pfeiltasten). Das `?`-Overlay
+ist ein `<dialog>` wie die Palette, Escape darin `defaultPrevented`, die Zeilen stehen in
+`content/site.ts` unter `shortcuts.items` (`scope: "garage"` nur auf `/`); ein neues Kürzel
+bekommt dort eine Zeile. Der Modifier-Hinweis (⌘/Strg) kommt aus `useModifierKey.ts`, den
+Palette und Overlay teilen. E2E in `tests/e2e/shortcuts.spec.ts`.
 
 Strava: `lib/strava/` ist die ganze Anbindung, Betrieb und Einrichtung in `docs/BETRIEB.md`.
 Zustand sind zwei JSON-Dateien in `DATA_DIR` (Token, Cache), die nur `lib/strava/sync.ts`

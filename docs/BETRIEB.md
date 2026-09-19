@@ -71,9 +71,15 @@ fragt `GET /` alle 30 s ab.
 Lokal das Image bauen und starten, so wie es auf dem Server läuft:
 
 ```
-docker build -t portfolio-garage:local .
+docker build --build-arg GITHUB_SHA=$(git rev-parse HEAD) -t portfolio-garage:local .
 docker run --rm -p 127.0.0.1:3777:3000 portfolio-garage:local
 ```
+
+Der Footer nennt den Commit, aus dem der Stand gebaut ist (`docs/KONZEPT.md` §10). Im
+Build-Kontext liegt kein `.git`, deshalb gibt `ci.yml` `GITHUB_SHA` als Build-Arg mit und
+`next.config.ts` backt ihn beim Build ein; fehlt das Arg, zeigt der Footer keinen Commit.
+Die JS-Größe je Seite liest der Footer im selben Build aus `.next` (`lib/build/read.ts`),
+ein Server braucht dafür nichts.
 
 ## Strava
 

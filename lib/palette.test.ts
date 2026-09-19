@@ -18,7 +18,11 @@ describe("buildCommands", () => {
     const site = getSiteContent("de");
     const hrefs = commands.flatMap((c) => (c.kind === "copy" ? [] : [c.href]));
 
-    for (const link of [...site.nav.links, ...site.footer.legal]) {
+    for (const link of [
+      ...site.nav.links,
+      site.footer.colophon,
+      ...site.footer.legal,
+    ]) {
       expect(hrefs).toContain(link.href);
     }
     for (const project of getProjects("de")) {

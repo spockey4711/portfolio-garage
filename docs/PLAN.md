@@ -155,7 +155,36 @@ Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
   Dialog ist `defaultPrevented`, damit `ViewSync` den offenen Hotspot nicht mitschließt.
   Der Knopf im Header erscheint ab 640 px, das Kürzel gilt überall. Der CV liegt als PDF
   unter `public/cv/`, aus Portfolio2 übernommen, nicht neu geschrieben.
-- Transparenz-Footer, `j`/`k`, Seite "Wie diese Seite gebaut ist" (KONZEPT §10).
+- ~~Transparenz-Footer (KONZEPT §10).~~ Erledigt 19.09.: eine Zeile im Footer mit Commit
+  (kurzer SHA, Link auf den Commit im öffentlichen Repo) und der JS-Größe der Seite. Nur
+  belegte Werte: den Commit backt `next.config.ts` beim Build ein (lokal `git rev-parse`,
+  im Image `GITHUB_SHA` als Build-Arg aus `ci.yml`, ohne beides entfällt er); die JS-Größe
+  liest `lib/build/read.ts` während des Prerenderings aus dem Build-Output desselben Laufs
+  (`build-manifest.json` plus die Client-Reference-Manifeste der Seiten, also genau die
+  Skripte, die das HTML der Route lädt, unkomprimiert, ohne Polyfill), der Client wählt
+  per `usePathname` seine Route. In `next dev` gibt es keine Größe statt einer veralteten,
+  im Build wirft ein unlesbares Manifest, damit ein Next-Update den Wert nicht still
+  verschluckt. Render-Zeit und Lighthouse entfallen: kein Messwert ohne neues Paket oder
+  Laufzeitmessung, und ein Platzhalter wäre keiner.
+- ~~`j`/`k` durch die Sections, `?` als Shortcut-Overlay (KONZEPT §10).~~ Erledigt 19.09.:
+  `components/site/Shortcuts.tsx` im Root-Layout ist der eine Ort für Kürzel, die auf jeder
+  Seite gelten; die Entscheidung (`shortcutFor`, `sectionAfter`, `isEditable`) liegt in
+  `lib/shortcuts.ts` und ist ohne DOM getestet. Haltepunkte sind alle Elemente mit
+  `data-section` (`Section.tsx`, der Hero auf `/`, die Abschnitte der Rechtsseiten), der
+  Fokus geht auf die Überschrift aus `aria-labelledby` (tabIndex -1), gescrollt wird sanft,
+  bei `prefers-reduced-motion` sofort. Maßstab ist die Scrollposition, nicht ein gemerkter
+  Index; nur während ein Scroll noch läuft, zählt das Ziel des letzten Drucks weiter, sonst
+  träfen zwei schnelle `j` dieselbe Section. Ruhe in Eingabefeldern, bei offenem `<dialog>`
+  (Palette) und bei offenem Hotspot (Store-Phase nicht `idle`). Das Overlay ist ein natives
+  `<dialog>` wie die Palette, Escape darin `defaultPrevented`; die Zeilen stehen in
+  `content/site.ts` unter `shortcuts.items`, die Garage-Zeilen (Tab, Pfeile) nur auf `/`.
+  E2E in `tests/e2e/shortcuts.spec.ts`.
+- ~~Seite "Wie diese Seite gebaut ist" (KONZEPT §10).~~ Erledigt 19.09.: `/bauweise`, Inhalt
+  in `content/bauweise.ts` als Sections mit Blöcken, aus den ADRs geschrieben (Schichten,
+  Blender, Licht, Standbild, Radcomputer, Betrieb, Privatsphäre, Link aufs Repo). Der
+  Block-Typ liegt jetzt in `content/blocks.ts`, `components/site/Blocks.tsx` rendert ihn für
+  Blog und Bauweise. Link im Footer als `footer.colophon` vor Impressum und Datenschutz;
+  Palette und Terminal-Karte lesen dasselbe Feld.
 - ~~`curl yannikwuenker.de` als ASCII.~~ Erledigt 19.09.: `proxy.ts` schreibt `/` für
   Terminal-Clients (`lib/terminal/detect.ts`: curl, wget, HTTPie, xh oder ein Accept, das
   `text/plain` vor `text/html` stellt) auf `app/ascii/route.ts` um, die URL bleibt. Die Karte

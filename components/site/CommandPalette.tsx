@@ -8,7 +8,6 @@ import {
   useId,
   useRef,
   useState,
-  useSyncExternalStore,
 } from "react";
 import type { SiteContent } from "@/content/site";
 import { viewFromSlug } from "@/lib/garage/hotspots";
@@ -20,6 +19,7 @@ import {
   filterCommands,
   isPaletteShortcut,
 } from "@/lib/palette";
+import { useModifierKey } from "./useModifierKey";
 
 // cmd+K from anywhere, or the button in the header: a native <dialog> with
 // a search field over the list lib/palette.ts builds. The list is a listbox
@@ -36,17 +36,6 @@ interface CommandPaletteProps {
 /** How long the "copied" state shows before the palette closes. */
 const COPIED_MS = 900;
 
-// The key hint on the button: the server does not know the platform, so it
-// prints the Mac one and the client corrects it on hydration.
-const modifierStore = {
-  subscribe: () => () => {},
-  get: () =>
-    /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
-      ? "⌘"
-      : "Strg",
-  getServer: () => "⌘",
-};
-
 export function CommandPalette({ content, commands }: CommandPaletteProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -56,11 +45,7 @@ export function CommandPalette({ content, commands }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const modifier = useSyncExternalStore(
-    modifierStore.subscribe,
-    modifierStore.get,
-    modifierStore.getServer,
-  );
+  const modifier = useModifierKey();
 
   const results = filterCommands(query, commands);
   const selected = results[Math.min(active, results.length - 1)];
