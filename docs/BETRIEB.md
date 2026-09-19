@@ -100,10 +100,16 @@ Garmin -> Strava -> POST /api/strava/webhook  (Event mit id, Antwort sofort, Abr
 2. Lokal autorisieren: `node scripts/strava.mts auth` öffnet die Freigabe im Browser und
    schreibt `data/strava-token.json`. Dann `node scripts/strava.mts sync` und
    `node scripts/strava.mts summary`, um zu sehen, was die API liefern wird.
-3. Auf dem Server dieselbe `.env` nach `/opt/containers/garage/.env` (Mode 600), Deploy
-   abwarten, dann die beiden Dateien ins Volume:
-   `docker compose cp data/strava-token.json web:/data/` und ebenso `activities.json`.
-   Der Container läuft als `garage`, das Volume gehört ihm.
+3. Auf dem Server dieselbe `.env` ohne die Zeile `DATA_DIR` nach
+   `/opt/containers/garage/.env` (Mode 600); `env_file` überschreibt sonst das `/data` aus
+   dem Image: `grep -v '^DATA_DIR' .env | ssh contabo 'umask 077 && cat > /opt/containers/garage/.env'`.
+   Der laufende Container liest die Datei erst nach dem Neuanlegen, `restart` reicht nicht:
+   im Stack-Verzeichnis `IMAGE_TAG=<laufender Tag> HOST_PORT=3010 docker compose up -d`
+   (den Tag zeigt `docker ps`; jedes `docker compose`-Kommando dort braucht beide Variablen).
+   Dann die beiden Dateien ins Volume, per `scp` nach `/tmp` und
+   `docker compose cp /tmp/strava-token.json web:/data/`, ebenso `activities.json`.
+   `cp` behält die Host-UID, der Container läuft aber als `garage`, deshalb danach
+   `docker compose exec -u root web chown garage:garage /data/strava-token.json /data/activities.json`.
 4. Webhook anmelden, sobald die Route online ist:
    `node scripts/strava.mts subscribe https://garage.yannikwuenker.de/api/strava/webhook`.
    Strava ruft dabei `GET` mit `hub.challenge` auf und erwartet den Verify-Token aus der

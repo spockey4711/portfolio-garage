@@ -9,6 +9,7 @@ M["Kunststoff"] = material("Kunststoff", "#1a1b1d", roughness=0.5)
 M["Alu_Dunkel"] = material("Alu_Dunkel", "#5c6066", roughness=0.35, metallic=0.7)
 M["Papier"] = material("Papier", "#f2efe8", roughness=0.9)
 M["Klebeband"] = material("Klebeband", "#d8c38f", roughness=0.6)
+M["Kunststoff_Hell"] = material("Kunststoff_Hell", "#e9e5dc", roughness=0.55)
 
 
 def multi(name, build, mats, bevel=None):
@@ -257,7 +258,7 @@ def radio(bm):
     bm_box(bm, (0.08, 0.006, 0.03), (RXc + 0.06, RYc - 0.06, BZ + 0.105), 2)  # display
     bm_cyl(bm, 0.012, 0.012, (RXc + 0.04, RYc - 0.064, BZ + 0.05), "y", 8, mat_index=3)  # knobs
     bm_cyl(bm, 0.012, 0.012, (RXc + 0.085, RYc - 0.064, BZ + 0.05), "y", 8, mat_index=3)
-    bm_tube(bm, (RXc + 0.10, RYc + 0.04, BZ + 0.15), (RXc + 0.18, RYc + 0.06, BZ + 0.40), 0.004, 6, 3)  # antenna
+    bm_tube(bm, (RXc - 0.10, RYc + 0.04, BZ + 0.15), (RXc - 0.20, RYc + 0.06, BZ + 0.37), 0.004, 6, 3)  # antenna, left: the lamp cable hangs on the right
     bm_box(bm, (0.14, 0.03, 0.02), (RXc, RYc, BZ + 0.16), 0)  # handle
 
 
@@ -307,5 +308,105 @@ def laptop_deckel(bm):
 
 dk = multi("Laptop_Deckel", laptop_deckel, [M["Alu_Dunkel"], M["Kunststoff"]], bevel=0.003)
 parent_to(dk, lap)
+
+# ---------------------------------------------------------------- Steckdosenleiste
+# on the back wall over the right end of the bench, between the pegboard and the lamp;
+# the lamp plugs in on the right, the laptop's power brick on the left. Cables are
+# curves (ATMOSPHAERE §3): one sagging loop says "used" more than any box.
+LSX, LSZ, LSW, LSD = -1.48, 1.30, 0.28, 0.04
+LS_FRONT = 2.0 - LSD
+SOCKETS = [LSX + dx for dx in (-0.09, -0.03, 0.03, 0.09)]
+PLUGGED = (SOCKETS[3], SOCKETS[0])  # lamp, power brick
+
+
+def steckdosenleiste(bm):
+    bm_box(bm, (LSW, LSD, 0.055), (LSX, 2.0 - LSD / 2, LSZ), 0)
+    for x in SOCKETS:
+        bm_cyl(bm, 0.0175, 0.004, (x, LS_FRONT + 0.001, LSZ), "y", 12, mat_index=1)  # socket well
+    bm_box(bm, (0.02, 0.008, 0.012), (LSX + LSW / 2 - 0.025, LS_FRONT - 0.004, LSZ), 2)  # switch
+    for x in PLUGGED:
+        bm_cyl(bm, 0.017, 0.022, (x, LS_FRONT - 0.011, LSZ), "y", 12, mat_index=3)  # Schuko plug
+
+
+multi("Steckdosenleiste", steckdosenleiste, [M["Kunststoff_Hell"], M["Fuge"], M["Akzent"], M["Kunststoff"]], bevel=0.003)
+
+
+def plug_end(x, dz=0.0):
+    """Two points that bring a cable into the plug at socket x from the front."""
+    return [(x + 0.02, LS_FRONT - 0.06, LSZ - 0.015 + dz), (x, LS_FRONT - 0.024, LSZ)]
+
+
+# lamp cable: out of the elbow joint, one loop down the wall, into the right plug
+curve(
+    "Leuchte_Kabel",
+    [(j1.x, j1.y + 0.012, j1.z - 0.005), (-1.12, 1.90, 1.24), (-1.22, 1.93, 1.12), (-1.32, 1.92, 1.16), *plug_end(PLUGGED[0])],
+    0.003,
+    M["Kunststoff"],
+)
+# the strip's own cord: down the wall and out of sight behind the radio
+curve(
+    "Steckdosenleiste_Kabel",
+    [(LSX + LSW / 2 + 0.004, 1.98, LSZ - 0.01), (-1.32, 1.987, 1.20), (-1.30, 1.987, 1.05), (-1.28, 1.987, 0.91), (-1.25, 1.95, 0.906), (-1.25, 1.88, 0.906)],
+    0.003,
+    M["Kunststoff"],
+)
+
+# ---------------------------------------------------------------- Netzteil
+# power brick at the back of the bench, USB-C lead in a lazy S to the laptop's left
+# side, mains cord along the wall and up into the strip's left socket
+NX, NY, NROT = -2.36, 1.82, radians(12)
+
+
+def netzteil(bm):
+    rot = Matrix.Rotation(NROT, 4, "Z")
+    cube_at(bm, (NX, NY, BZ + 0.014), (0.11, 0.05, 0.028), rot, 0)
+    cube_at(bm, (NX + 0.03, NY + 0.006 - 0.025, BZ + 0.024), (0.006, 0.002, 0.003), rot, 1)  # LED
+
+
+multi("Netzteil", netzteil, [M["Kunststoff"], M["Akzent"]], bevel=0.003)
+n_axis = Vector((cos(NROT), sin(NROT), 0))
+n_in = Vector((NX, NY, BZ + 0.012)) + n_axis * 0.055
+n_out = Vector((NX, NY, BZ + 0.012)) - n_axis * 0.055
+curve(
+    "Laptop_Kabel",
+    [(LXc - 0.155, LYc + 0.02, BZ + 0.008), (-2.00, 1.52, 0.906), (-2.12, 1.49, 0.903), (-2.24, 1.56, 0.902), (-2.28, 1.70, 0.902), n_in],
+    0.002,
+    M["Kunststoff"],
+)
+curve(
+    "Netzteil_Kabel",
+    [n_out, (-2.48, 1.88, 0.906), (-2.40, 1.975, 0.905), (-2.00, 1.985, 0.905), (-1.70, 1.985, 0.92), (-1.62, 1.97, 1.12), *plug_end(PLUGGED[1], dz=0.01)],
+    0.003,
+    M["Kunststoff"],
+)
+
+# ---------------------------------------------------------------- Standpumpe
+# floor pump against the left wall on the gate side of the cabinet, hose in a loop on
+# the floor with the chuck at its end
+SPX, SPY = -2.84, -1.10
+
+
+def standpumpe(bm):
+    bm_box(bm, (0.26, 0.07, 0.018), (SPX, SPY, 0.009), 0)  # foot
+    bm_cyl(bm, 0.019, 0.60, (SPX, SPY, 0.018 + 0.30), "z", 12, mat_index=0)  # barrel
+    bm_cyl(bm, 0.008, 0.10, (SPX, SPY, 0.618 + 0.05), "z", 8, mat_index=1)  # piston rod
+    bm_box(bm, (0.30, 0.03, 0.028), (SPX, SPY, 0.71), 2)  # handle
+    bm_cyl(bm, 0.032, 0.014, (SPX, SPY - 0.03, 0.14), "y", 16, mat_index=0)  # gauge housing
+    bm_cyl(bm, 0.026, 0.004, (SPX, SPY - 0.038, 0.14), "y", 16, mat_index=3)  # gauge face
+    bm_cyl(bm, 0.008, 0.03, (SPX + 0.01, SPY - 0.025, 0.05), "y", 8, mat_index=1)  # hose fitting
+    # chuck on the hose end, its long side along the hose's last tangent (0.6, 0.8)
+    chuck = Matrix.Rotation(radians(53 - 90), 4, "Z")
+    cube_at(bm, (-2.685, -1.380, 0.011), (0.022, 0.05, 0.022), chuck, 2)
+    cube_at(bm, (-2.676, -1.368, 0.028), (0.008, 0.02, 0.014), chuck, 1)  # its lever
+
+
+multi("Standpumpe", standpumpe, [M["Metall_Dunkel"], M["Metall_Hell"], M["Kunststoff"], M["Whiteboard"]], bevel=0.003)
+curve(
+    "Luftschlauch",
+    [(SPX + 0.01, SPY - 0.04, 0.05), (-2.72, -1.22, 0.015), (-2.58, -1.36, 0.005), (-2.56, -1.52, 0.005), (-2.68, -1.58, 0.005), (-2.76, -1.48, 0.005), (-2.70, -1.40, 0.005)],
+    0.004,
+    M["Kunststoff"],
+    segs=8,
+)
 
 result = {"objects": sorted(o.name for o in collection().objects)}
