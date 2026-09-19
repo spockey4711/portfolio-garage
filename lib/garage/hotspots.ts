@@ -55,7 +55,7 @@ const meta = {
   // The board's DOM lies on the cork inside the frame, over the paper
   // stand-ins the GLB carries (lib/garage/pinboard.ts).
   pinnwand: {
-    slug: "board",
+    slug: "blog",
     ui: "screen",
     mesh: "Pinnwand",
     display: "Pinnwand_Kork",

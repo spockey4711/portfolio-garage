@@ -3,11 +3,13 @@ import type { ComputerPage } from "@/lib/garage/computer";
 import type { FocusViewId } from "@/lib/garage/hotspots";
 import type { PinboardItemId } from "@/lib/garage/pinboard";
 import type { Locale } from "@/lib/i18n";
-import { getAboutContent } from "./about";
 import { getSiteContent } from "./site";
 
-/** What is printed on one item of the cork board and where a click on it leads. */
-export type PinboardItemContent = { readonly href: string } & (
+/**
+ * What is printed on one item of the cork board. A note has no content here:
+ * it prints the blog post lib/garage/pinboard.json names for it (content/blog).
+ */
+export type PinboardItemContent =
   | {
       readonly kind: "startnummer";
       readonly event: string;
@@ -20,12 +22,7 @@ export type PinboardItemContent = { readonly href: string } & (
       /** Path under public/; without one the print shows a drawn stand-in. */
       readonly src?: string;
     }
-  | {
-      readonly kind: "zettel";
-      readonly title: string;
-      readonly lines: readonly string[];
-    }
-);
+  | { readonly kind: "zettel" };
 
 export interface GarageContent {
   /** Accessible name of the hero section that holds the canvas. */
@@ -134,7 +131,7 @@ export interface GarageContent {
     readonly pinnwand: {
       /** Accessible name of the board. */
       readonly label: string;
-      /** Read out before the items: where they all lead. */
+      /** Read out before the notes: what they are and where they lead. */
       readonly hint: string;
       /** One entry per item of lib/garage/pinboard.json, same kind as there. */
       readonly items: Readonly<Record<PinboardItemId, PinboardItemContent>>;
@@ -218,46 +215,27 @@ const de: GarageContent = {
     },
     pinnwand: {
       label: "Pinnwand",
-      hint: "Alles an der Pinnwand führt zur Seite Über mich.",
+      hint: "Die Zettel sind Blogbeiträge, jeder führt zum Beitrag.",
       items: {
         "startnummer-1": {
           kind: "startnummer",
           event: "Radmarathon",
           number: "1247",
-          href: "/ueber",
         },
         "foto-1": {
           kind: "foto",
           caption: "Ausfahrt",
-          href: "/ueber",
         },
-        "zettel-1": {
-          kind: "zettel",
-          title: "Über mich",
-          lines: [
-            "Wirtschaftsinformatik",
-            "Universität zu Köln",
-            "Werkstudent am IW",
-            "baut fuelivo",
-          ],
-          href: "/ueber#werdegang",
-        },
-        "zettel-2": {
-          kind: "zettel",
-          title: "Kontakt",
-          lines: [getAboutContent("de").contact.email],
-          href: "/ueber#kontakt",
-        },
+        "zettel-1": { kind: "zettel" },
+        "zettel-2": { kind: "zettel" },
         "foto-2": {
           kind: "foto",
           caption: "Hockey",
-          href: "/ueber",
         },
         "startnummer-2": {
           kind: "startnummer",
           event: "Halbmarathon",
           number: "2306",
-          href: "/ueber",
         },
       },
     },

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getAboutContent } from "./about";
+import { getPosts } from "./blog";
 import { getGarageContent } from "./garage";
 import { getProjects } from "./projects";
 import { getSiteContent } from "./site";
@@ -26,6 +27,7 @@ const all = [
   ...strings(getAboutContent("de"), "about"),
   ...strings(getGarageContent("de"), "garage"),
   ...strings(getProjects("de"), "projects"),
+  ...strings(getPosts("de"), "blog"),
 ];
 
 describe("every content string", () => {
@@ -71,6 +73,34 @@ describe("projects", () => {
       for (const link of project.links) {
         expect(link.href, project.slug).toMatch(/^https:\/\//);
       }
+    }
+  });
+});
+
+describe("blog posts", () => {
+  const posts = getPosts("de");
+
+  it("have unique, URL-safe slugs", () => {
+    const slugs = posts.map((post) => post.slug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+    for (const slug of slugs) expect(slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+  });
+
+  it("carry a valid ISO date and are listed newest first", () => {
+    for (const post of posts) {
+      expect(post.date, post.slug).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(Number.isNaN(Date.parse(post.date)), post.slug).toBe(false);
+    }
+    const dates = posts.map((post) => post.date);
+    expect(dates).toEqual([...dates].sort().reverse());
+  });
+
+  it("have a body with at least one paragraph", () => {
+    for (const post of posts) {
+      expect(
+        post.body.some((block) => block.kind === "p"),
+        post.slug,
+      ).toBe(true);
     }
   });
 });

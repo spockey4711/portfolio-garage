@@ -1,21 +1,28 @@
 import Image from "next/image";
+import { PostList } from "@/components/site/PostList";
+import { getPost, getPostLabels, type Post } from "@/content/blog";
 import { getGarageContent, type PinboardItemContent } from "@/content/garage";
 import {
   itemStyle,
   PINBOARD_PX_PER_M,
+  type PinboardDecoItem,
   type PinboardItem,
+  type PinboardNoteItem,
   pinboard,
 } from "@/lib/garage/pinboard";
 import { defaultLocale } from "@/lib/i18n";
 
-// The cork board of docs/KONZEPT.md §3: race numbers, photos and notes, every
-// one of them a link to /ueber. The board itself is not drawn; the DOM is
-// transparent and lies on the GLB's board face, so the baked cork and frame
-// show through, and each item sits exactly on the paper stand-in the GLB
-// carries for it (lib/garage/pinboard.ts). Plain anchors, like HotspotNav:
-// leaving the garage is a page load, and they work without JavaScript.
+// The cork board of docs/KONZEPT.md §3, since docs/adr/0008 the blog: every
+// note is a post and a link to it, race numbers and photos are scenery. The
+// board itself is not drawn; the DOM is transparent and lies on the GLB's
+// board face, so the baked cork and frame show through, and each item sits
+// exactly on the paper stand-in the GLB carries for it
+// (lib/garage/pinboard.ts). Plain anchors, like HotspotNav: leaving the
+// garage is a page load, and they work without JavaScript.
 export function Pinboard() {
   const content = getGarageContent(defaultLocale).screens.pinnwand;
+  const notes = pinboard.items.filter(isNote);
+  const deco = pinboard.items.filter(isDeco);
 
   return (
     <nav
@@ -24,30 +31,105 @@ export function Pinboard() {
     >
       <p className="sr-only">{content.hint}</p>
       <ul>
-        {pinboard.items.map((item) => (
+        {notes.map((item) => (
           <li key={item.id} className="absolute" style={itemStyle(item)}>
             <a
-              href={content.items[item.id].href}
+              href={`/blog/${item.post}`}
               className="block h-full w-full shadow-[0_1px_3px_rgba(0,0,0,0.4)] transition-[transform,box-shadow] outline-none hover:scale-[1.04] hover:shadow-[0_4px_10px_rgba(0,0,0,0.55)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
-              <Face item={item} content={content.items[item.id]} />
+              <Note item={item} post={postOf(item)} />
             </a>
             <Pin />
           </li>
         ))}
       </ul>
+      {deco.map((item) => (
+        <div
+          key={item.id}
+          aria-hidden="true"
+          className="absolute shadow-[0_1px_3px_rgba(0,0,0,0.4)]"
+          style={itemStyle(item)}
+        >
+          <Deco item={item} content={content.items[item.id]} />
+          <Pin />
+        </div>
+      ))}
     </nav>
   );
 }
 
-interface FaceProps {
-  readonly item: PinboardItem;
-  readonly content: PinboardItemContent;
+// The still's card (StillView.tsx): the notes scaled to a phone would be
+// unreadable, so the card shows the same posts as the start page, page-sized.
+export function PinboardCard() {
+  return (
+    <div className="px-5 pb-5">
+      <PostList tone="dark" />
+    </div>
+  );
 }
 
-// What is printed on the item. Sizes are CSS pixels at PINBOARD_PX_PER_M,
-// so a 19 cm race number is 190 px wide and its type is set for that.
-function Face({ item, content }: FaceProps) {
+function isNote(item: PinboardItem): item is PinboardNoteItem {
+  return item.kind === "zettel";
+}
+
+function isDeco(item: PinboardItem): item is PinboardDecoItem {
+  return item.kind !== "zettel";
+}
+
+// A missing post is a layout error, and lib/garage/pinboard.test.ts catches
+// it before the board renders; this keeps the render free of undefined.
+function postOf(item: PinboardNoteItem): Post {
+  const post = getPost(item.post, defaultLocale);
+  if (!post) {
+    throw new Error(
+      `pinboard.json: ${item.id} names unknown post ${item.post}`,
+    );
+  }
+  return post;
+}
+
+// A post on a note. Sizes are CSS pixels at PINBOARD_PX_PER_M, so a 13 cm
+// note is 130 px wide and its type is set for that. An upright note has room
+// for the summary, which takes what height is left and fades out at the
+// bottom instead of being cut mid-line; a landscape note shows title and date.
+function Note({
+  item,
+  post,
+}: {
+  readonly item: PinboardNoteItem;
+  readonly post: Post;
+}) {
+  const labels = getPostLabels(defaultLocale);
+  const upright = item.height > item.width;
+
+  return (
+    <span className="flex h-full w-full flex-col gap-[3px] overflow-hidden bg-[#f6f1df] px-[9px] pt-[22px] pb-[8px] break-words text-zinc-800">
+      <span className="line-clamp-3 text-[13px] leading-tight font-semibold">
+        {post.title}
+      </span>
+      <time
+        dateTime={post.date}
+        className="font-mono text-[9px] tracking-wide text-zinc-500"
+      >
+        {labels.date(post.date)}
+      </time>
+      {upright && (
+        <span className="min-h-0 flex-1 overflow-hidden mask-b-from-40% mask-b-to-100% text-[10.5px] leading-snug">
+          {post.summary}
+        </span>
+      )}
+    </span>
+  );
+}
+
+// What is printed on a race number or a photo.
+function Deco({
+  item,
+  content,
+}: {
+  readonly item: PinboardDecoItem;
+  readonly content: PinboardItemContent;
+}) {
   switch (content.kind) {
     case "startnummer":
       return (
@@ -91,18 +173,8 @@ function Face({ item, content }: FaceProps) {
         </span>
       );
     case "zettel":
-      return (
-        <span className="flex h-full w-full flex-col gap-[3px] overflow-hidden bg-[#f6f1df] px-[9px] pt-[22px] pb-[8px] break-words text-zinc-800">
-          <span className="text-[13px] leading-tight font-semibold">
-            {content.title}
-          </span>
-          {content.lines.map((line) => (
-            <span key={line} className="text-[10.5px] leading-snug">
-              {line}
-            </span>
-          ))}
-        </span>
-      );
+      // content.items carries no print for a note; the layout names its post
+      return null;
   }
 }
 

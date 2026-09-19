@@ -2,7 +2,7 @@
 
 Portfolio von Yannik Wünker als Fahrrad-Werkstatt-Garage: eine Low-Poly-3D-Szene, in der man
 in den Radcomputer, den Laptop und die Pinnwand zoomt. Der Radcomputer zeigt echte
-Trainingsdaten, der Laptop die Projekte.
+Trainingsdaten, der Laptop die Projekte, die Pinnwand den Blog.
 
 Konzept, Szene, Hotspots und Aufwand: [docs/KONZEPT.md](docs/KONZEPT.md).
 

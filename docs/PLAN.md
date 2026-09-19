@@ -99,11 +99,17 @@ Ziel: Der Radcomputer zeigt Fuelivo auf echten Trainingsdaten, der Laptop echte 
   `pxWidth` 720 statt 960, weil die Fokus-Kamera das Display bei etwa 600 px zeigt. Die
   Standbild-Karte zeigt nicht den skalierten Screen (auf dem Handy 7-px-Schrift), sondern
   über `ScreenSpec.Card` dieselbe `ProjectList` wie die Startseite in Seitengröße.
-- Pinnwand auf Blog umbauen (ADR-0008): Blog-Inhalte in `content/blog/` wie die Projekte
+- ~~Pinnwand auf Blog umbauen (ADR-0008): Blog-Inhalte in `content/blog/` wie die Projekte
   (eine Datei je Post, `index.ts` bestimmt Reihenfolge), Route `app/(seiten)/blog/[slug]`.
   `pinboard.json` bekommt je Post einen Zettel, Startnummern und Fotos bleiben Deko ohne
   Link, `Pinboard.tsx` verlinkt Zettel auf `/blog/<slug>`. Slug in `hotspots.ts` wird
-  `blog`, E2E anpassen. Möbel-Skript und Export laufen lassen.
+  `blog`, E2E anpassen. Möbel-Skript und Export laufen lassen.~~ Erledigt 19.09.: Posts sind
+  strukturierter Content (Blöcke `p`, `h2`, `ul`, `quote`, kein MDX), Liste auf der
+  Startseite unter `/#blog` (`PostList.tsx`), Nav-Link Blog. Jeder Zettel in
+  `pinboard.json` nennt seinen Post (`post`), `pinboard.test.ts` erzwingt genau einen
+  Zettel je Post. Geometrie der Zettel unverändert, deshalb kein neuer Export nötig. Die
+  Standbild-Karte zeigt die `PostList` statt der skalierten Wand. Zwei erste Posts liegen
+  als Entwurf in `content/blog/`.
 - 2D-Inhalte füllen: Projekte, Über, erste Blogposts.
 
 ### Woche 5 und 6: 20.10. bis 02.11. - Phase 3, Kür

@@ -1,4 +1,5 @@
 import { GarageHero } from "@/components/garage/GarageHero";
+import { PostList } from "@/components/site/PostList";
 import { ProjectList } from "@/components/site/ProjectList";
 import { Section } from "@/components/site/Section";
 import { SiteHeader } from "@/components/site/SiteHeader";
@@ -30,6 +31,12 @@ export default function Home() {
             {site.home.projects.intro}
           </p>
           <ProjectList />
+        </Section>
+        <Section id="blog" title={site.home.blog.title}>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            {site.home.blog.intro}
+          </p>
+          <PostList />
         </Section>
         <Section id="ueber" title={site.home.about.title}>
           <p>{site.home.about.teaser}</p>

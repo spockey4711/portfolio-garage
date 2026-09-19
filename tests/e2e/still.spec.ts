@@ -72,22 +72,23 @@ test("a hotspot without a screen gets the note, and a click beside the card leav
   await expect(dialog).toBeHidden();
 });
 
-test("the board's stand-in carries the same links to /ueber as in 3D", async ({
+test("the board's stand-in lists the same posts as the notes in 3D", async ({
   page,
 }) => {
-  await openStill(page, "/?view=board");
-  const board = page
-    .getByRole("dialog", { name: "Pinnwand" })
-    .getByRole("navigation", { name: "Pinnwand" });
-  await expect(board).toBeVisible();
-  for (const href of await board
-    .getByRole("link")
-    .evaluateAll((links) => links.map((link) => link.getAttribute("href")))) {
-    expect(href).toMatch(/^\/ueber(#[a-z]+)?$/);
+  await openStill(page, "/?view=blog");
+  const dialog = page.getByRole("dialog", { name: "Pinnwand" });
+  await expect(dialog).toBeVisible();
+  const links = dialog.getByRole("link");
+  expect(await links.count()).toBeGreaterThan(0);
+  for (const href of await links.evaluateAll((links) =>
+    links.map((link) => link.getAttribute("href")),
+  )) {
+    expect(href).toMatch(/^\/blog\/[a-z0-9-]+$/);
   }
 
-  await board.getByRole("link", { name: /Kontakt/ }).click();
-  await expect(page).toHaveURL(/\/ueber#kontakt$/);
+  await links.first().click();
+  await expect(page).toHaveURL(/\/blog\/[a-z0-9-]+$/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 
 test("the browser back button closes the stand-in", async ({ page }) => {
