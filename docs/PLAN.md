@@ -68,7 +68,9 @@ Ziel: Zeigbar. Raum, Rad, Werkbank, gebackenes Tageslicht, zwei Hotspots, Fallba
   (ADR-0001).~~ Erledigt 18.09. mit dem 2D-Gerüst.
 - Go-live auf `yannikwuenker.de`. Vertagt 18.09., kommt nach Phase 2.
 - Atmosphäre: Licht warm und tief, Farben, Kleinkram, Fasen. Befund, Budget und Reihenfolge in
-  `docs/ATMOSPHAERE.md`.
+  `docs/ATMOSPHAERE.md`. Licht und Farben erledigt 18.09., Kleinkram aus Skripten erledigt
+  19.09. (Werkbank, Regal, rechte Wand, Fasen auf allem); offen Stoff-Assets, Staub im
+  Sonnenstrahl und das Rad (§4 dort).
 
 ### Woche 3 und 4: 06. bis 19.10. - Phase 2, echte Daten
 
@@ -145,8 +147,21 @@ Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
 
 ### Ab Woche 7: November - Craft und Politur
 
-- cmd+K Command Palette, `curl yannikwuenker.de` als ASCII, Transparenz-Footer, `j`/`k`,
-  Seite "Wie diese Seite gebaut ist" (KONZEPT §10).
+- ~~cmd+K Command Palette.~~ Erledigt 19.09.: `lib/palette.ts` baut die Liste (Seiten,
+  Projekte, Posts, Hotspots, Mail kopieren, CV laden) und filtert sie ohne Umlaute und
+  Groß/Klein, `CommandPalette.tsx` ist ein natives `<dialog>` im Header mit Listbox und
+  Pfeiltasten, kein Paket. Ein Hotspot-Befehl auf `/` nimmt den flachen `pushState`-Weg
+  wie ein Klick in der Szene, von einer tiefen Seite `router.push("/?view=")`. Escape im
+  Dialog ist `defaultPrevented`, damit `ViewSync` den offenen Hotspot nicht mitschließt.
+  Der Knopf im Header erscheint ab 640 px, das Kürzel gilt überall. Der CV liegt als PDF
+  unter `public/cv/`, aus Portfolio2 übernommen, nicht neu geschrieben.
+- Transparenz-Footer, `j`/`k`, Seite "Wie diese Seite gebaut ist" (KONZEPT §10).
+- ~~`curl yannikwuenker.de` als ASCII.~~ Erledigt 19.09.: `proxy.ts` schreibt `/` für
+  Terminal-Clients (`lib/terminal/detect.ts`: curl, wget, HTTPie, xh oder ein Accept, das
+  `text/plain` vor `text/html` stellt) auf `app/ascii/route.ts` um, die URL bleibt. Die Karte
+  (`lib/terminal/card.ts`, 72 Spalten, absolute Links vom Host der Anfrage) zeigt dieselben
+  Inhalte wie die Startseite: Name, Positionierung, Intro, Projekte, Blog, Kontakt. `/ascii`
+  geht auch im Browser. `npx yannikwuenker` ist ein eigenes npm-Paket und steht noch aus.
 - Lighthouse 100 auf dem Fallback, Performance-Feinschliff, Mobile-Fallback nachziehen.
 - Nach Feedback: Kamera-Positionen und Fahrten nachjustieren.
 
