@@ -19,11 +19,14 @@ Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`) und der 
 Fahrt, Plan, Warum, Pfeiltasten, Daten aus `/api/activity`, Logik in `lib/garage/computer.ts`;
 Gehäuse, Tasten und Glas kommen aus `build_bike.py`, Glas und DOM teilen sich das Pixelmaß),
 die Pinnwand (`Pinboard.tsx`, jeder Zettel ein Post aus `content/blog/`, Startnummern und
-Fotos Deko, Standbild-Karte über `ScreenSpec.Card`) und der Laptop
-(`Laptop.tsx`, Projektliste, Standbild-Karte über `ScreenSpec.Card`). Seit ADR-0008 (2026-09-19) gilt eine neue Zuordnung, der Umbau steht in
+Fotos Deko, Standbild-Karte über `ScreenSpec.Card`), der Laptop
+(`Laptop.tsx`, Projektliste, Standbild-Karte über `ScreenSpec.Card`) und das Whiteboard
+(`Whiteboard.tsx`, Marker-Schrift auf der Fläche `Whiteboard_Flaeche`, Inhalt `about.now`
+aus `content/about.ts`, das `/ueber` als Abschnitt und die Standbild-Karte als `NowList`
+zeigen). Seit ADR-0008 (2026-09-19) gilt eine neue Zuordnung, der Umbau steht in
 `docs/PLAN.md`: Radcomputer zeigt Fuelivo, gerechnet von `fuelivo.de/calculate` auf der
 letzten Strava-Einheit (erledigt), Laptop die Projektliste (erledigt), Pinnwand den Blog
-(erledigt), Whiteboard Über mich, Werkzeugwand den Stack.
+(erledigt), Whiteboard Über mich (erledigt), Werkzeugwand den Stack.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
 `public/models/garage-lightmap-tag.webp` (Licht ohne Farbe, UV-Set 2), `Scene.tsx` tauscht

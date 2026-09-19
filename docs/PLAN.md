@@ -117,9 +117,14 @@ Ziel: Der Radcomputer zeigt Fuelivo auf echten Trainingsdaten, der Laptop echte 
 Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
 
 - Nacht-Bake, zweite Lightmap, Blend nach Kölner Uhrzeit, Werkbankleuchte emissive.
-- Whiteboard: Über mich in Handschrift-Optik, wer, wo, was gerade läuft, wohin; Slug
-  `about` (ADR-0008). Werkzeugwand: jedes Werkzeug ein Tool aus einem Projekt, Hover nennt
-  Tool und Projekt.
+- ~~Whiteboard: Über mich in Handschrift-Optik, wer, wo, was gerade läuft, wohin; Slug
+  `about` (ADR-0008).~~ Erledigt 19.09.: Screen auf der weißen Fläche wie die Pinnwand auf
+  dem Kork (`Whiteboard_Flaeche` eigenes Mesh, DOM transparent, Marker-Schrift Caveat,
+  `Whiteboard.tsx`). Inhalt ist `about.now` in `content/about.ts`, das `/ueber` als Abschnitt
+  "Was gerade läuft" zeigt (`NowList.tsx`), die Standbild-Karte dieselbe Liste. Kamera von
+  2,2 m auf 1,1 m vor die Wand gerückt, sonst ist die Schrift auf dem Laptop 10 px hoch.
+  Kein Stand-in im GLB: das Standbild zeigt die Wand leer, wie Laptop und Radcomputer.
+- Werkzeugwand: jedes Werkzeug ein Tool aus einem Projekt, Hover nennt Tool und Projekt.
 - Blender: Helm, Schuhe, Flaschen, Kartons, Katze. Schrank-Inhalt planen (Laufschuhe,
   vielleicht etwas Aufklappbares), noch offen ob eigener Hotspot.
 - Radio mit Spotify, Hover-Sounds mit Toggle.

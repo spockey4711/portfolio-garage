@@ -62,10 +62,10 @@ test("the laptop's stand-in lists the projects and a row leads to the project pa
 test("a hotspot without a screen gets the note, and a click beside the card leaves", async ({
   page,
 }) => {
-  await openStill(page, "/?view=plan");
-  const dialog = page.getByRole("dialog", { name: "Whiteboard" });
+  await openStill(page, "/?view=tools");
+  const dialog = page.getByRole("dialog", { name: "Werkzeugwand" });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByText("Inhalt folgt in Phase 2.")).toBeVisible();
+  await expect(dialog.getByText("Inhalt folgt in Phase 3.")).toBeVisible();
 
   await page.mouse.click(10, 300);
   await expect(page).toHaveURL(/\/$/);
@@ -89,6 +89,22 @@ test("the board's stand-in lists the same posts as the notes in 3D", async ({
   await links.first().click();
   await expect(page).toHaveURL(/\/blog\/[a-z0-9-]+$/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+});
+
+test("the whiteboard's stand-in is the snapshot of /ueber with a link there", async ({
+  page,
+}) => {
+  await openStill(page, "/?view=about");
+  const dialog = page.getByRole("dialog", { name: "Whiteboard" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("link", { name: "fuelivo" })).toHaveAttribute(
+    "href",
+    "/projekte/fuelivo",
+  );
+
+  await dialog.getByRole("link", { name: "Mehr unter /ueber" }).click();
+  await expect(page).toHaveURL(/\/ueber$/);
+  await expect(page.getByText("Was gerade läuft")).toBeVisible();
 });
 
 test("the browser back button closes the stand-in", async ({ page }) => {

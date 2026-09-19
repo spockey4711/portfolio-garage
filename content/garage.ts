@@ -128,6 +128,13 @@ export interface GarageContent {
       /** Tag on the first row, the featured project of content/projects/index.ts. */
       readonly featured: string;
     };
+    /** The snapshot of content/about.ts in marker on the whiteboard (docs/adr/0008). */
+    readonly whiteboard: {
+      /** Accessible name of the board. */
+      readonly label: string;
+      /** Written small in a corner: what the board is and where the rest is. */
+      readonly more: string;
+    };
     readonly pinnwand: {
       /** Accessible name of the board. */
       readonly label: string;
@@ -156,7 +163,7 @@ const de: GarageContent = {
   },
   still: {
     alt: "Blick von vorn in die Garage: ein Rennrad auf dem Montageständer, dahinter die Werkbank mit Laptop, Werkzeugwand, Whiteboard und Pinnwand.",
-    comingSoon: "Inhalt folgt in Phase 2.",
+    comingSoon: "Inhalt folgt in Phase 3.",
   },
   screens: {
     radcomputer: {
@@ -212,6 +219,10 @@ const de: GarageContent = {
       title: "Projekte",
       intro: "Was ich gebaut habe. Jede Zeile führt zur Projektseite.",
       featured: "Leitprojekt",
+    },
+    whiteboard: {
+      label: "Whiteboard",
+      more: "Mehr unter /ueber",
     },
     pinnwand: {
       label: "Pinnwand",

@@ -4,6 +4,12 @@ import { PINBOARD_PX_PER_M, pinboard } from "@/lib/garage/pinboard";
 import { BikeComputer, EDGE_LENS, EDGE_SCALE } from "./BikeComputer";
 import { Laptop, LaptopCard } from "./Laptop";
 import { Pinboard, PinboardCard } from "./Pinboard";
+import {
+  WHITEBOARD_FACE_M,
+  WHITEBOARD_PX_PER_M,
+  Whiteboard,
+  WhiteboardCard,
+} from "./Whiteboard";
 
 export interface ScreenSpec {
   readonly Component: ComponentType;
@@ -49,6 +55,13 @@ export const screens: Readonly<Record<ScreenViewId, ScreenSpec>> = {
     pxWidth: 720,
     aspect: 30 / 19,
     Card: LaptopCard,
+  },
+  whiteboard: {
+    Component: Whiteboard,
+    pxWidth: WHITEBOARD_FACE_M.width * WHITEBOARD_PX_PER_M,
+    aspect: WHITEBOARD_FACE_M.width / WHITEBOARD_FACE_M.height,
+    // the marker script scaled to a phone is a scrawl: the card shows the list
+    Card: WhiteboardCard,
   },
   pinnwand: {
     Component: Pinboard,

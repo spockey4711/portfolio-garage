@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NowList } from "@/components/site/NowList";
 import { Section } from "@/components/site/Section";
 import { TextLink } from "@/components/site/TextLink";
 import { getAboutContent } from "@/content/about";
@@ -24,6 +25,9 @@ export default function Ueber() {
           ))}
         </div>
       </div>
+      <Section id="gerade" title={about.now.title}>
+        <NowList />
+      </Section>
       <Section id="werdegang" title={about.career.title}>
         <ul className="space-y-6">
           {about.career.entries.map((entry) => (

@@ -51,7 +51,7 @@ test("Tab reaches the hotspots, Enter opens one and moves focus to the back butt
   await expect(page.getByRole("link", { name: "Whiteboard" })).toBeFocused();
 
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/\?view=plan$/);
+  await expect(page).toHaveURL(/\?view=about$/);
   await expect(page.getByRole("button", { name: "Zurück" })).toBeFocused();
 
   await page.keyboard.press("Enter");
@@ -226,5 +226,22 @@ test.describe("screens in the canvas", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
       /Licht aus dem Ofen/,
     );
+  });
+
+  test("the whiteboard shows the snapshot of /ueber, a project on it leaves for its page", async ({
+    page,
+  }) => {
+    await openGarage(page, "/?view=about");
+    const board = page
+      .getByRole("region", { name: "3D-Garage" })
+      .getByRole("region", { name: "Whiteboard" });
+    await expect(board).toHaveCSS("pointer-events", "auto");
+    await expect(board.getByText("Was gerade läuft")).toBeVisible();
+    await expect(
+      board.getByRole("link", { name: "Mehr unter /ueber" }),
+    ).toHaveAttribute("href", "/ueber");
+
+    await board.getByRole("link", { name: "fuelivo" }).click();
+    await expect(page).toHaveURL(/\/projekte\/fuelivo$/);
   });
 });
