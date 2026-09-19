@@ -2,12 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getGarageContent } from "@/content/garage";
-import {
-  isFocusView,
-  isScreenView,
-  type ScreenViewId,
-  views,
-} from "@/lib/garage/hotspots";
+import { isScreenView, type ScreenViewId, views } from "@/lib/garage/hotspots";
 import { closeView } from "@/lib/garage/navigate";
 import { isDriving, useGarageStore } from "@/lib/garage/store";
 import { defaultLocale } from "@/lib/i18n";
@@ -16,9 +11,9 @@ import { screens } from "./screens";
 // The open hotspot without a camera: where the still stands in for the
 // canvas, ?view= still opens the same state (URL first, KONZEPT §5), and this
 // shows it as a card over the image, with the screen a device would show
-// (or, where the screen has one, its page-sized card) or, for a hotspot that
-// has no 2D content yet, a note. HotspotNav's back button
-// and ViewSync's Escape close it like in 3D; so does a click beside the card.
+// or, where the screen has one, its page-sized card. HotspotNav's back
+// button and ViewSync's Escape close it like in 3D; so does a click beside
+// the card.
 export function StillView() {
   const phase = useGarageStore((state) => state.phase);
   const viewId = useGarageStore((state) => state.view);
@@ -31,16 +26,15 @@ export function StillView() {
   }, [arrive, phase]);
 
   const view = views[viewId];
-  if (phase !== "focused" || !isFocusView(view.id)) return null;
+  if (phase !== "focused" || !isScreenView(view)) return null;
   const label = content.hotspots[view.id].label;
-  const spec = isScreenView(view) ? screens[view.id] : null;
+  const spec = screens[view.id];
   // A scaled screen card is as wide as fits, but never taller than the hero
   // minus the space around it (pt-16 + p-4 + the card's own heading), so the
   // bike computer's upright display fits a phone as a whole.
-  const maxWidth =
-    spec && !spec.Card
-      ? `min(32rem, calc((100svh - 8rem) * ${spec.aspect}))`
-      : undefined;
+  const maxWidth = spec.Card
+    ? undefined
+    : `min(32rem, calc((100svh - 8rem) * ${spec.aspect}))`;
 
   return (
     <div
@@ -62,13 +56,7 @@ export function StillView() {
         >
           {label}
         </h2>
-        {spec?.Card ? (
-          <spec.Card />
-        ) : isScreenView(view) ? (
-          <ScaledScreen viewId={view.id} />
-        ) : (
-          <p className="px-5 pb-5 text-zinc-400">{content.still.comingSoon}</p>
-        )}
+        {spec.Card ? <spec.Card /> : <ScaledScreen viewId={view.id} />}
       </section>
     </div>
   );

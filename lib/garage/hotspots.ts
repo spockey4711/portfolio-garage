@@ -17,8 +17,7 @@ export type FocusViewId = Exclude<ViewId, typeof REST_VIEW>;
 /** The kind of UI a focused view shows; drives which screen component mounts. */
 export type ViewUi =
   | "labels" // rest position: hover labels only
-  | "screen" // React tree on a face of the object (<Html transform occlude>): a display, or the board itself
-  | "hover"; // no screen, hovering parts of the object reveals text
+  | "screen"; // React tree on a face of the object (<Html transform occlude>): a display, or the board itself
 
 export interface View<Id extends ViewId = ViewId> {
   readonly id: Id;
@@ -67,11 +66,13 @@ const meta = {
     mesh: "Whiteboard",
     display: "Whiteboard_Flaeche",
   },
+  // The labels and hover tags lie on the plate between the rails, over the
+  // tools the GLB carries for every entry of lib/garage/tools.json.
   werkzeugwand: {
     slug: "tools",
-    ui: "hover",
+    ui: "screen",
     mesh: "Werkzeugwand",
-    display: null,
+    display: "Werkzeugwand_Platte",
   },
 } as const satisfies Record<
   ViewId,

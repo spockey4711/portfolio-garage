@@ -236,17 +236,209 @@ def whiteboard_flaeche(bm):
 parent_to(multi("Whiteboard_Flaeche", whiteboard_flaeche, [M["Whiteboard"]]), wb)
 
 # ---------------------------------------------------------------- Werkzeugwand
-# pegboard with steel rails, x -2.95..-1.75, z 1.00..2.20
-TWX, TWZ, TWS = -2.35, 1.6, 1.2
+# shadow board with steel rails, x -2.95..-1.75, z 1.00..2.20. The plate is
+# its own single-material mesh: the web lays its DOM (ToolWall.tsx, the tape
+# label above every hook, the projects on hover) on that face
+# (lib/garage/hotspots.ts, display), same split as the pinboard's cork. What
+# hangs on it comes from lib/garage/tools.json, which ToolWall.tsx reads too:
+# every entry is one tool, drawn from a few primitives inside its box, with a
+# hook above it and its silhouette painted on the plate, so the still and the
+# far view show the board full and the web's hover boxes lie on the tools.
+with open(os.path.join(os.path.dirname(LIB), "..", "..", "lib", "garage", "tools.json")) as f:
+    TOOLS = json.load(f)
+TWX, TWZ = -2.35, 1.6
+TWW, TWH = TOOLS["board"]["width"], TOOLS["board"]["height"]
+TW_FACE = 1.988  # front of the plate
+TW_GAP = 0.004  # a tool hangs this far off the plate
+TW_SHADOW = 0.008  # the painted silhouette reaches this far past the tool
+M["Griff"] = material("Griff", "#b0352c", roughness=0.7)
+M["Schatten"] = material("Schatten", "#b39b76", roughness=0.9)  # faded paint on the dark plate
 
 
 def werkzeugwand(bm):
-    bm_box(bm, (TWS, 0.012, TWS), (TWX, 1.994, TWZ), 0)
-    for z in (TWZ + TWS / 2 - 0.03, TWZ - TWS / 2 + 0.03):
-        bm_box(bm, (TWS + 0.04, 0.03, 0.05), (TWX, 1.975, z), 1)
+    for z in (TWZ + TWH / 2 - 0.03, TWZ - TWH / 2 + 0.03):
+        bm_box(bm, (TWW + 0.04, 0.03, 0.05), (TWX, 1.975, z), 0)
 
 
-multi("Werkzeugwand", werkzeugwand, [M["Holz_Dunkel"], M["Metall_Dunkel"]])
+tw = multi("Werkzeugwand", werkzeugwand, [M["Metall_Dunkel"]])
+
+
+def werkzeugwand_platte(bm):
+    bm_box(bm, (TWW, 0.012, TWH), (TWX, 1.994, TWZ), 0)
+
+
+parent_to(multi("Werkzeugwand_Platte", werkzeugwand_platte, [M["Holz_Dunkel"]]), tw)
+
+# A tool is a list of primitives in its own space: u to the right, v up, in
+# metres from the centre of its box; the same list draws the tool and,
+# flattened and grown by TW_SHADOW, its silhouette. Rotation is about the
+# plate's normal, clockwise as seen from the room, like CSS rotate().
+#   ("box", u, v, width, height, depth, rot, mat)
+#   ("rod", u, v, radius, length, rot, mat)   a cylinder along v
+#   ("disc", u, v, radius, depth, mat)        a cylinder along the normal
+MET, PLA, GRIP, SHADOW, HOOK, WOOD, LEVER = range(7)
+
+
+def drehmomentschluessel(w, h):
+    return [
+        ("rod", 0, h * 0.1, 0.009, h * 0.55, 0, MET),
+        ("rod", 0, -h / 2 + h * 0.15, w * 0.45, h * 0.3, 0, GRIP),
+        ("disc", 0, h / 2 - w / 2, w / 2, 0.014, MET),
+        ("box", 0, -h * 0.12, 0.018, 0.045, 0.02, 0, PLA),
+    ]
+
+
+def maulschluessel(w, h):
+    prims = [("box", 0, 0, 0.02, h * 0.72, 0.006, 0, MET)]
+    for s in (1, -1):
+        prims.append(("box", 0, s * (h / 2 - w * 0.55), w, w * 0.25, 0.006, 0, MET))
+        for side in (1, -1):
+            prims.append(("box", side * (w / 2 - w * 0.11), s * (h / 2 - w * 0.275), w * 0.22, w * 0.55, 0.006, 0, MET))
+    return prims
+
+
+def ringschluessel(w, h):
+    prims = [("box", 0, 0, 0.018, h - w, 0.006, 0, MET)]
+    for s in (1, -1):
+        prims.append(("disc", 0, s * (h / 2 - w / 2), w / 2, 0.008, MET))
+        prims.append(("disc", 0, s * (h / 2 - w / 2), w * 0.2, 0.0095, PLA))  # reads as the hole
+    return prims
+
+
+def hammer(w, h):
+    return [
+        ("box", 0, -0.0225, 0.026, h - 0.045, 0.026, 0, WOOD),
+        ("box", 0, h / 2 - 0.0225, w, 0.045, 0.03, 0, MET),
+    ]
+
+
+def schraubendreher(w, h):
+    return [
+        ("rod", 0, -h / 2 + h * 0.21, w / 2, h * 0.42, 0, GRIP),
+        ("rod", 0, h / 2 - h * 0.3, 0.004, h * 0.6, 0, MET),
+        ("box", 0, h / 2 - 0.006, 0.007, 0.012, 0.002, 0, MET),
+    ]
+
+
+def zange(w, h):
+    return [
+        ("box", -0.008, h * 0.32, 0.014, h * 0.36, 0.008, -5, MET),
+        ("box", 0.008, h * 0.32, 0.014, h * 0.36, 0.008, 5, MET),
+        ("disc", 0, h * 0.12, 0.016, 0.012, MET),
+        ("box", -w * 0.28, -h * 0.2, 0.016, h * 0.6, 0.012, 14, GRIP),
+        ("box", w * 0.28, -h * 0.2, 0.016, h * 0.6, 0.012, -14, GRIP),
+    ]
+
+
+def saege(w, h):
+    return [
+        ("box", -w / 2 + 0.02, h * 0.05, 0.016, h * 0.75, 0.01, 0, MET),
+        ("box", 0, h / 2 - 0.03, w - 0.02, 0.016, 0.01, 0, MET),
+        ("box", 0, -h / 2 + 0.08, w - 0.02, 0.016, 0.01, 0, MET),
+        ("box", w / 2 - 0.01, 0.025, 0.003, h - 0.11, 0.012, 0, MET),
+        ("box", -w / 2 + 0.025, -h / 2 + 0.045, 0.03, 0.09, 0.02, 10, PLA),
+    ]
+
+
+def inbus(w, h):
+    prims = []
+    for i in range(3):
+        s = 1 - 0.2 * i
+        u, r = -w / 2 + w * (0.2 + 0.3 * i), 0.004 * s
+        long, short = h * 0.8 * s, 0.04 * s
+        prims.append(("box", u, h / 2 - long / 2, 2 * r, long, 2 * r, 0, MET))
+        prims.append(("box", u + short / 2, h / 2 - r, short, 2 * r, 2 * r, 0, MET))
+    return prims
+
+
+def kettenpeitsche(w, h):
+    return [
+        ("box", 0, -h * 0.1, 0.022, h * 0.7, 0.006, 0, MET),
+        ("box", 0, -h / 2 + h * 0.14, 0.03, h * 0.28, 0.014, 0, GRIP),
+        ("box", -0.02, h / 2 - 0.045, 0.008, 0.05, 0.006, -25, MET),
+        ("box", 0.02, h / 2 - 0.045, 0.008, 0.05, 0.006, 25, MET),
+        ("box", 0, h / 2 - 0.006, w * 0.7, 0.008, 0.006, 0, MET),
+    ]
+
+
+def kassettenabzieher(w, h):
+    return [
+        ("disc", 0, h / 2 - w / 2, w / 2, 0.02, MET),
+        ("disc", 0, h / 2 - w / 2, w * 0.3, 0.026, HOOK),
+        ("box", 0, -w / 2, 0.016, h - w, 0.008, 0, MET),
+    ]
+
+
+def reifenheber(w, h):
+    prims = []
+    for u in (-w / 4, w / 4):
+        prims.append(("box", u, -h * 0.05, w * 0.36, h * 0.9, 0.006, 0, LEVER))
+        prims.append(("box", u, h / 2 - 0.0075, w * 0.44, 0.015, 0.008, 0, LEVER))
+    return prims
+
+
+def kettennieter(w, h):
+    return [
+        ("box", 0, h / 2 - 0.015, w, 0.03, 0.03, 0, MET),
+        ("box", 0, -0.015, 0.012, h - 0.03, 0.012, 0, MET),
+        ("disc", 0, -h / 2 + 0.014, 0.014, 0.016, PLA),
+    ]
+
+
+SHAPES = {f.__name__: f for f in (
+    drehmomentschluessel, maulschluessel, ringschluessel, hammer, schraubendreher, zange,
+    saege, inbus, kettenpeitsche, kassettenabzieher, reifenheber, kettennieter,
+)}
+
+
+def _paint(geom, mat):
+    for v in geom["verts"]:
+        for fc in v.link_faces:
+            fc.material_index = mat
+
+
+def _place(bm, prim, cx, cz, shadow):
+    """One primitive in world space, or its silhouette on the plate when `shadow`."""
+    kind, u, v = prim[0], prim[1], prim[2]
+    at = Matrix.Translation((cx + u, 0, cz + v))
+    if kind == "disc":
+        _, _, _, r, depth, mat = prim
+        r, depth, mat = (r + TW_SHADOW, 0.001, SHADOW) if shadow else (r, depth, mat)
+        m = at @ Matrix.Translation((0, TW_FACE - depth / 2, 0)) @ Matrix.Rotation(radians(-90), 4, "X")
+        _paint(bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=12, radius1=r, radius2=r, depth=depth, matrix=m), mat)
+        return
+    if kind == "rod":
+        _, _, _, r, length, rot, mat = prim
+        if not shadow:
+            m = at @ Matrix.Translation((0, TW_FACE - TW_GAP - r, 0)) @ Matrix.Rotation(radians(rot), 4, "Y")
+            _paint(bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=8, radius1=r, radius2=r, depth=length, matrix=m), mat)
+            return
+        prim = ("box", u, v, 2 * r, length, 2 * r, rot, mat)
+    _, _, _, w, h, depth, rot, mat = prim
+    if shadow:
+        w, h, depth, mat = w + TW_SHADOW, h + TW_SHADOW, 0.001, SHADOW
+    m = at @ Matrix.Translation((0, TW_FACE - (0 if shadow else TW_GAP) - depth / 2, 0)) @ Matrix.Rotation(radians(rot), 4, "Y") @ Matrix.Diagonal((w, depth, h, 1))
+    _paint(bmesh.ops.create_cube(bm, size=1.0, matrix=m), mat)
+
+
+def werkzeuge(bm):
+    for name, item in TOOLS["tools"].items():
+        cx, cz, w, h = TWX + item["x"], TWZ + item["y"], item["width"], item["height"]
+        prims = SHAPES[item["shape"]](w, h)
+        for prim in prims:
+            _place(bm, prim, cx, cz, shadow=True)
+        for prim in prims:
+            _place(bm, prim, cx, cz, shadow=False)
+        # the hook: a peg out of the plate just under the top of the box, with its plate
+        hz = cz + h / 2 - 0.012
+        bm_cyl(bm, 0.004, 0.03, (cx, TW_FACE - 0.015, hz), "y", 6, mat_index=HOOK)
+        bm_cyl(bm, 0.009, 0.003, (cx, TW_FACE - 0.0015, hz), "y", 8, mat_index=HOOK)
+
+
+parent_to(
+    multi("Werkzeugwand_Werkzeuge", werkzeuge, [M["Metall_Hell"], M["Kunststoff"], M["Griff"], M["Schatten"], M["Metall_Dunkel"], M["Holz_Dunkel"], M["Akzent"]]),
+    tw,
+)
 
 # ---------------------------------------------------------------- Leuchte
 for n in ("Leuchte_Arm", "Leuchte_Kopf"):

@@ -27,4 +27,7 @@ Headless geht es auch, ein Skript pro Lauf, aus dem Repo-Pfad der `.blend`:
 Die Pinnwand liest `lib/garage/pinboard.json` (Korkfläche und was wo hängt), dasselbe
 Layout, auf das `components/garage/screens/Pinboard.tsx` sein DOM legt. Das Möbel-Skript
 baut daraus die Papier-Attrappen mit Pin, damit Standbild und Fernsicht die gefüllte Wand
-zeigen.
+zeigen. Genauso die Werkzeugwand mit `lib/garage/tools.json`: je Eintrag ein Werkzeug aus
+ein paar Primitiven (`SHAPES` im Möbel-Skript), Haken und gemalte Silhouette, dasselbe
+Layout, auf das `ToolWall.tsx` Etiketten und Hover-Flächen legt. Eine neue Form braucht
+einen Builder in `SHAPES` und den Namen in `TOOL_SHAPES` (`lib/garage/tools.ts`).

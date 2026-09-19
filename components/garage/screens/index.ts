@@ -1,9 +1,11 @@
 import type { ComponentType } from "react";
 import type { ScreenViewId } from "@/lib/garage/hotspots";
 import { PINBOARD_PX_PER_M, pinboard } from "@/lib/garage/pinboard";
+import { TOOLWALL_PX_PER_M, toolWall } from "@/lib/garage/tools";
 import { BikeComputer, EDGE_LENS, EDGE_SCALE } from "./BikeComputer";
 import { Laptop, LaptopCard } from "./Laptop";
 import { Pinboard, PinboardCard } from "./Pinboard";
+import { ToolWall, ToolWallCard } from "./ToolWall";
 import {
   WHITEBOARD_FACE_M,
   WHITEBOARD_PX_PER_M,
@@ -71,5 +73,14 @@ export const screens: Readonly<Record<ScreenViewId, ScreenSpec>> = {
     shade: "[filter:brightness(0.72)_saturate(0.9)]",
     // the notes scaled to a phone are unreadable: the card lists the posts
     Card: PinboardCard,
+  },
+  werkzeugwand: {
+    Component: ToolWall,
+    pxWidth: toolWall.width * TOOLWALL_PX_PER_M,
+    aspect: toolWall.width / toolWall.height,
+    // tape on a wall in the shade, like the paper on the cork
+    shade: "[filter:brightness(0.72)_saturate(0.9)]",
+    // the tags scaled to a phone are unreadable: the card lists the tools
+    Card: ToolWallCard,
   },
 };

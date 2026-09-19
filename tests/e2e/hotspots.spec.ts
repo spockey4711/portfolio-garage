@@ -244,4 +244,32 @@ test.describe("screens in the canvas", () => {
     await board.getByRole("link", { name: "fuelivo" }).click();
     await expect(page).toHaveURL(/\/projekte\/fuelivo$/);
   });
+
+  // The projects of a tool are links kept out of sight until the tool is
+  // hovered or one of them has focus, so the wall works by keyboard too.
+  test("hovering a tool on the open wall names its projects, a project leaves for its page", async ({
+    page,
+  }) => {
+    await openGarage(page, "/?view=tools");
+    const wall = page
+      .getByRole("region", { name: "3D-Garage" })
+      .getByRole("region", { name: "Werkzeugwand" });
+    await expect(wall).toHaveCSS("pointer-events", "auto");
+    await expect(wall.getByText("Python")).toBeVisible();
+
+    const bash = wall.getByRole("listitem").filter({ hasText: "Bash" });
+    const projects = bash.getByRole("list");
+    const devblueprint = projects.getByRole("link", { name: "DevBlueprint" });
+    await expect(projects).toHaveCSS("opacity", "0");
+    await bash.hover();
+    await expect(projects).toHaveCSS("opacity", "1");
+
+    await page.mouse.move(0, 0);
+    await expect(projects).toHaveCSS("opacity", "0");
+    await devblueprint.focus();
+    await expect(projects).toHaveCSS("opacity", "1");
+
+    await devblueprint.click();
+    await expect(page).toHaveURL(/\/projekte\/devblueprint$/);
+  });
 });

@@ -124,7 +124,15 @@ Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
   "Was gerade läuft" zeigt (`NowList.tsx`), die Standbild-Karte dieselbe Liste. Kamera von
   2,2 m auf 1,1 m vor die Wand gerückt, sonst ist die Schrift auf dem Laptop 10 px hoch.
   Kein Stand-in im GLB: das Standbild zeigt die Wand leer, wie Laptop und Radcomputer.
-- Werkzeugwand: jedes Werkzeug ein Tool aus einem Projekt, Hover nennt Tool und Projekt.
+- ~~Werkzeugwand: jedes Werkzeug ein Tool aus einem Projekt, Hover nennt Tool und Projekt.~~
+  Erledigt 19.09.: Screen auf der Platte zwischen den Schienen wie die Pinnwand auf dem Kork
+  (`Werkzeugwand_Platte` eigenes Mesh, DOM transparent, `ToolWall.tsx`). Zwölf Werkzeuge
+  aus `lib/garage/tools.json`, jedes ein `stack`-Eintrag eines Projekts (`tools.test.ts`
+  erzwingt das, keine Logo-Wand), das Möbel-Skript baut Werkzeug, Haken und Silhouette aus
+  ein paar Primitiven je Form. Das DOM zeigt über jedem Haken ein Klebeband-Etikett mit dem
+  Namen, auf Hover oder Tastaturfokus darunter die Projekte als Links auf `/projekte/<slug>`.
+  Kamera von 2,2 m auf 1,4 m vor die Platte, Etiketten sind damit 16 px auf dem Laptop. Die
+  Standbild-Karte listet Tool und Projekte. Das Standbild zeigt die Werkzeuge ohne Etiketten.
 - Blender: Helm, Schuhe, Flaschen, Kartons, Katze. Schrank-Inhalt planen (Laufschuhe,
   vielleicht etwas Aufklappbares), noch offen ob eigener Hotspot.
 - Radio mit Spotify, Hover-Sounds mit Toggle.

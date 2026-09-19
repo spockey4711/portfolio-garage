@@ -1,0 +1,104 @@
+{
+  "board": {
+    "width": 1.2,
+    "height": 1.2
+  },
+  "tools": {
+    "drehmomentschluessel": {
+      "shape": "drehmomentschluessel",
+      "tool": "Python",
+      "x": -0.45,
+      "y": 0.32,
+      "width": 0.05,
+      "height": 0.3
+    },
+    "maulschluessel": {
+      "shape": "maulschluessel",
+      "tool": "FastAPI",
+      "x": -0.15,
+      "y": 0.33,
+      "width": 0.07,
+      "height": 0.28
+    },
+    "hammer": {
+      "shape": "hammer",
+      "tool": "PostgreSQL",
+      "x": 0.15,
+      "y": 0.33,
+      "width": 0.12,
+      "height": 0.28
+    },
+    "kassettenabzieher": {
+      "shape": "kassettenabzieher",
+      "tool": "Docker",
+      "x": 0.45,
+      "y": 0.4,
+      "width": 0.06,
+      "height": 0.14
+    },
+    "schraubendreher": {
+      "shape": "schraubendreher",
+      "tool": "React",
+      "x": -0.45,
+      "y": 0.0,
+      "width": 0.035,
+      "height": 0.26
+    },
+    "ringschluessel": {
+      "shape": "ringschluessel",
+      "tool": "SwiftUI",
+      "x": -0.15,
+      "y": 0.0,
+      "width": 0.06,
+      "height": 0.26
+    },
+    "zange": {
+      "shape": "zange",
+      "tool": "Bash",
+      "x": 0.15,
+      "y": 0.02,
+      "width": 0.09,
+      "height": 0.22
+    },
+    "saege": {
+      "shape": "saege",
+      "tool": "Node.js",
+      "x": 0.45,
+      "y": -0.01,
+      "width": 0.11,
+      "height": 0.28
+    },
+    "inbus": {
+      "shape": "inbus",
+      "tool": "Swift 6",
+      "x": -0.45,
+      "y": -0.27,
+      "width": 0.14,
+      "height": 0.14
+    },
+    "kettenpeitsche": {
+      "shape": "kettenpeitsche",
+      "tool": "GitHub Actions",
+      "x": -0.15,
+      "y": -0.34,
+      "width": 0.07,
+      "height": 0.28
+    },
+    "reifenheber": {
+      "shape": "reifenheber",
+      "tool": "Tailwind CSS",
+      "x": 0.15,
+      "y": -0.27,
+      "width": 0.07,
+      "height": 0.14
+    },
+    "kettennieter": {
+      "shape": "kettennieter",
+      "tool": "Stripe",
+      "x": 0.45,
+      "y": -0.26,
+      "width": 0.06,
+      "height": 0.12
+    }
+  }
+}
