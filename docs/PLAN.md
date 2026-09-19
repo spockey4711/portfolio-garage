@@ -155,7 +155,20 @@ Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
   Dialog ist `defaultPrevented`, damit `ViewSync` den offenen Hotspot nicht mitschließt.
   Der Knopf im Header erscheint ab 640 px, das Kürzel gilt überall. Der CV liegt als PDF
   unter `public/cv/`, aus Portfolio2 übernommen, nicht neu geschrieben.
-- Transparenz-Footer, `j`/`k` (KONZEPT §10).
+- Transparenz-Footer (KONZEPT §10).
+- ~~`j`/`k` durch die Sections, `?` als Shortcut-Overlay (KONZEPT §10).~~ Erledigt 19.09.:
+  `components/site/Shortcuts.tsx` im Root-Layout ist der eine Ort für Kürzel, die auf jeder
+  Seite gelten; die Entscheidung (`shortcutFor`, `sectionAfter`, `isEditable`) liegt in
+  `lib/shortcuts.ts` und ist ohne DOM getestet. Haltepunkte sind alle Elemente mit
+  `data-section` (`Section.tsx`, der Hero auf `/`, die Abschnitte der Rechtsseiten), der
+  Fokus geht auf die Überschrift aus `aria-labelledby` (tabIndex -1), gescrollt wird sanft,
+  bei `prefers-reduced-motion` sofort. Maßstab ist die Scrollposition, nicht ein gemerkter
+  Index; nur während ein Scroll noch läuft, zählt das Ziel des letzten Drucks weiter, sonst
+  träfen zwei schnelle `j` dieselbe Section. Ruhe in Eingabefeldern, bei offenem `<dialog>`
+  (Palette) und bei offenem Hotspot (Store-Phase nicht `idle`). Das Overlay ist ein natives
+  `<dialog>` wie die Palette, Escape darin `defaultPrevented`; die Zeilen stehen in
+  `content/site.ts` unter `shortcuts.items`, die Garage-Zeilen (Tab, Pfeile) nur auf `/`.
+  E2E in `tests/e2e/shortcuts.spec.ts`.
 - ~~Seite "Wie diese Seite gebaut ist" (KONZEPT §10).~~ Erledigt 19.09.: `/bauweise`, Inhalt
   in `content/bauweise.ts` als Sections mit Blöcken, aus den ADRs geschrieben (Schichten,
   Blender, Licht, Standbild, Radcomputer, Betrieb, Privatsphäre, Link aufs Repo). Der

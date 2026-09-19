@@ -12,6 +12,16 @@ export interface NavLink {
   readonly href: string;
 }
 
+/** One row of the shortcut overlay: the keys as they read on the cap, then what they do. */
+export interface ShortcutItem {
+  readonly keys: readonly string[];
+  /** The platform's command key (⌘ or Strg) precedes the keys; the client knows which. */
+  readonly modifier?: true;
+  readonly text: string;
+  /** Only listed where the garage is: the start page. */
+  readonly scope?: "garage";
+}
+
 export interface SiteContent {
   readonly name: string;
   /** One sentence for <meta name="description"> and the start page. */
@@ -65,6 +75,15 @@ export interface SiteContent {
     };
     /** The CV under public/; "laden" because the file is offered for download. */
     readonly cv: NavLink;
+  };
+  /** The ? overlay (docs/KONZEPT.md §10): every key the site listens for. */
+  readonly shortcuts: {
+    /** Title of the overlay and its accessible name. */
+    readonly label: string;
+    /** One line under the title: what the list is for. */
+    readonly intro: string;
+    /** The rows, in the order shown; the garage ones only on the start page. */
+    readonly items: readonly ShortcutItem[];
   };
   /** The text version of / that curl and friends get (lib/terminal/card.ts). */
   readonly terminal: {
@@ -168,6 +187,33 @@ const de: SiteContent = {
     home: "Startseite",
     copyMail: { label: "Mail kopieren", done: "Kopiert" },
     cv: { label: "CV laden", href: "/cv/yannik-wuenker.pdf" },
+  },
+  shortcuts: {
+    label: "Tastenkürzel",
+    intro: "Die Seite lässt sich ohne Maus bedienen.",
+    items: [
+      {
+        keys: ["K"],
+        modifier: true,
+        text: "Befehle: Seiten, Projekte, Beiträge, Aktionen",
+      },
+      { keys: ["j", "k"], text: "Nächster und voriger Abschnitt" },
+      {
+        keys: ["Tab"],
+        text: "Durch die Hotspots der Werkstatt, Enter öffnet",
+        scope: "garage",
+      },
+      {
+        keys: ["↑", "↓"],
+        text: "Seiten des Radcomputers, wenn er offen ist",
+        scope: "garage",
+      },
+      {
+        keys: ["Esc"],
+        text: "Schließt Übersicht, Befehle oder Hotspot",
+      },
+      { keys: ["?"], text: "Diese Übersicht" },
+    ],
   },
   terminal: {
     browser: "Die Werkstatt in 3D gibt es im Browser:",

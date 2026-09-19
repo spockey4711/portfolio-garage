@@ -101,6 +101,18 @@ Befehle (Seiten, Projekte, Posts, Hotspots, Mail kopieren, CV laden aus `public/
 gebauten Liste mountet; Escape darin ist `defaultPrevented`, sonst schlösse `ViewSync` den
 Hotspot mit. Eine neue Seite, ein neues Projekt oder ein neuer Post taucht ohne Zutun in der
 Liste auf.
+Tastatur auf jeder Seite (`j`/`k`, `?`): `components/site/Shortcuts.tsx` im Root-Layout ist
+der eine Ort für globale Kürzel, die Entscheidung steht ohne DOM in `lib/shortcuts.ts`.
+`j`/`k` springen durch alle Elemente mit `data-section` (`Section.tsx`, der Hero in
+`GarageHero.tsx`, die Abschnitte in `LegalPage.tsx`) und fokussieren die Überschrift aus
+`aria-labelledby` (tabIndex -1); ein neuer Abschnittstyp braucht genau diese drei Dinge.
+Maßstab ist die Scrollposition, nur während ein Scroll läuft zählt das Ziel des letzten
+Drucks weiter. Die Kürzel schweigen in Eingabefeldern, bei offenem `<dialog>` und wenn die
+Store-Phase der Garage nicht `idle` ist (Radcomputer hat die Pfeiltasten). Das `?`-Overlay
+ist ein `<dialog>` wie die Palette, Escape darin `defaultPrevented`, die Zeilen stehen in
+`content/site.ts` unter `shortcuts.items` (`scope: "garage"` nur auf `/`); ein neues Kürzel
+bekommt dort eine Zeile. Der Modifier-Hinweis (⌘/Strg) kommt aus `useModifierKey.ts`, den
+Palette und Overlay teilen. E2E in `tests/e2e/shortcuts.spec.ts`.
 
 Strava: `lib/strava/` ist die ganze Anbindung, Betrieb und Einrichtung in `docs/BETRIEB.md`.
 Zustand sind zwei JSON-Dateien in `DATA_DIR` (Token, Cache), die nur `lib/strava/sync.ts`

@@ -7,7 +7,8 @@ import { defaultLocale } from "@/lib/i18n";
 
 // /impressum and /datenschutz share one layout: title, optional intro, the
 // sections as plain running text with their own h2, the date at the foot.
-// No Section grid here, legal text reads top to bottom.
+// No Section grid here, legal text reads top to bottom; j and k still stop
+// at every section (data-section, components/site/Shortcuts.tsx).
 export function LegalPage({ page }: { readonly page: LegalPageContent }) {
   const legal = getLegalContent(defaultLocale);
 
@@ -24,9 +25,18 @@ export function LegalPage({ page }: { readonly page: LegalPageContent }) {
         )}
       </div>
       <div className="max-w-2xl space-y-10 border-t border-zinc-200 pt-10 leading-7 dark:border-zinc-800">
-        {page.sections.map((section) => (
-          <section key={section.heading} className="space-y-4">
-            <h2 className="text-xl font-semibold tracking-tight">
+        {page.sections.map((section, index) => (
+          <section
+            key={section.heading}
+            aria-labelledby={`abschnitt-${index + 1}`}
+            data-section=""
+            className="scroll-mt-8 space-y-4"
+          >
+            <h2
+              id={`abschnitt-${index + 1}`}
+              tabIndex={-1}
+              className="focus-visible:outline-accent w-fit rounded-sm text-xl font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4"
+            >
               {section.heading}
             </h2>
             {section.paragraphs?.map((paragraph) => (

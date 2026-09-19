@@ -27,6 +27,9 @@ const Garage = dynamic(
 // for an open hotspot where it cannot. URL sync and the hotspot links sit
 // outside the canvas and serve both. The section isolates its stacking
 // context so the vignette multiplies the picture, not the page behind it.
+// It is the first stop of j and k on the start page (data-section,
+// components/site/Shortcuts.tsx) and takes the focus itself, having no
+// heading; the hotspot links are the next Tab from there.
 export function GarageHero() {
   const content = getGarageContent(defaultLocale);
   const mode = useGarageMode();
@@ -35,7 +38,9 @@ export function GarageHero() {
   return (
     <section
       aria-label={content.heroLabel}
-      className="relative isolate h-svh w-full overflow-hidden"
+      data-section=""
+      tabIndex={-1}
+      className="relative isolate h-svh w-full overflow-hidden outline-none"
       style={{ backgroundColor: SKY_COLOR }}
     >
       <GarageStill />
