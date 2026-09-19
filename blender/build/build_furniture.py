@@ -634,4 +634,207 @@ curve(
     segs=8,
 )
 
+# ---------------------------------------------------------------- Kleinkram
+# The thirty small things that make the room lived-in (ATMOSPHAERE §2): what is
+# a box, a cylinder or a curve comes from here, cloth and organic shapes are
+# assets (ADR-0007). Nothing stands straight: every loose thing is turned a few
+# degrees. Each group is one mesh, one drawcall.
+M["Kunststoff_Grau"] = material("Kunststoff_Grau", "#585b5e", roughness=0.6)
+M["Keramik"] = material("Keramik", "#efe9dd", roughness=0.35)
+M["Kaffee"] = material("Kaffee", "#2b1a10", roughness=0.4)
+M["Lack_Rot"] = material("Lack_Rot", "#a8352c", roughness=0.45)
+M["Reifen"] = material("Reifen", "#232324", roughness=0.95)  # same values as build_bike.py
+M["Felge"] = material("Felge", "#0f0f11", roughness=0.4)
+M["Carbon_Matt"] = material("Carbon_Matt", "#1c1d20", roughness=0.7)
+
+
+def turned(center, deg):
+    """Placement for a loose thing: its centre, turned `deg` about z."""
+    return Matrix.Translation(center) @ Matrix.Rotation(radians(deg), 4, "Z")
+
+
+def bottle(bm, center, r, h, body, cap, cap_r=None, cap_h=0.025, band=None):
+    """A bottle standing on `center`: body cylinder, cap on top, optional label band."""
+    x, y, z = center
+    bm_cyl(bm, r, h, (x, y, z + h / 2), "z", 12, mat_index=body)
+    bm_cyl(bm, cap_r or r * 0.6, cap_h, (x, y, z + h + cap_h / 2), "z", 12, mat_index=cap)
+    if band is not None:
+        bm_cyl(bm, r + 0.0005, h * 0.35, (x, y, z + h * 0.45), "z", 12, mat_index=band)
+
+
+def carton(bm, size, tape):
+    """A closed cardboard box standing on the origin, tape across the top seam."""
+    sx, sy, sz = size
+    bm_box(bm, size, (0, 0, sz / 2), 0)
+    bm_box(bm, (0.05, sy + 0.004, 0.004), (0, 0, sz), tape)
+
+
+# -- on the bench: coffee mug by the radio, chain lube and a spare tube by the vice
+def werkbank_kleinkram(bm):
+    mx, my = -1.12, 1.56  # mug, front right where a hand rests
+    bm_cyl(bm, 0.041, 0.095, (mx, my, BZ + 0.0475), "z", 16, mat_index=0)
+    bm_cyl(bm, 0.036, 0.004, (mx, my, BZ + 0.085), "z", 16, mat_index=1)  # coffee
+    bm_torus(bm, 0.024, 0.006, (mx + 0.046, my, BZ + 0.05), "y", 16, 6, 0)  # handle
+    bottle(bm, (-2.22, 1.56, BZ), 0.021, 0.10, 2, 3, cap_r=0.012, cap_h=0.03, band=4)  # chain lube
+    bm_cyl(bm, 0.004, 0.02, (-2.22, 1.56, BZ + 0.14), "z", 8, r2=0.0015, mat_index=3)  # its nozzle
+    # inner tube, loosely coiled, at the back between the brick and the laptop
+    coil = Matrix.Translation((-2.10, 1.83, BZ + 0.012)) @ Matrix.Rotation(radians(6), 4, "X")
+    bm_placed(bm, coil, lambda bm: bm_torus(bm, 0.075, 0.012, (0, 0, 0), "z", 24, 6, 5))
+
+
+wk = multi("Werkbank_Kleinkram", werkbank_kleinkram, [M["Keramik"], M["Kaffee"], M["Kunststoff_Hell"], M["Lack_Rot"], M["Akzent"], M["Gummi"]], bevel=0.002)
+shade_smooth(wk, {0, 5})
+
+
+# -- under the bench: toolbox and a crate on the lower shelf
+def werkzeugkoffer(bm):
+    bm_box(bm, (0.46, 0.22, 0.20), (0, 0, 0.10), 0)
+    bm_box(bm, (0.47, 0.23, 0.012), (0, 0, 0.205), 0)  # lid
+    bm_box(bm, (0.14, 0.03, 0.03), (0, 0, 0.23), 1)  # handle
+    bm_box(bm, (0.05, 0.008, 0.03), (0, -0.115, 0.19), 1)  # latch
+
+
+def kiste(bm, size, body, slot):
+    sx, sy, sz = size
+    bm_box(bm, size, (0, 0, sz / 2), body)
+    bm_box(bm, (sx * 0.75, 0.012, 0.03), (0, -sy / 2, sz * 0.35), slot)  # grip slot, painted dark
+
+
+def werkbank_ablage(bm):
+    z = 0.245
+    bm_placed(bm, turned((-2.35, 1.68, z), -4), werkzeugkoffer)
+    bm_placed(bm, turned((-1.55, 1.72, z), 7), lambda bm: kiste(bm, (0.40, 0.30, 0.28), 2, 3))
+
+
+multi("Werkbank_Ablage", werkbank_ablage, [M["Lack_Gruen"], M["Metall_Dunkel"], M["Kunststoff_Grau"], M["Fuge"]], bevel=0.004)
+
+# -- the rack: crate and rolled tyre at the bottom, cans, folders, bottles above
+RB = [0.168, 0.648, 1.128, 1.608]  # board tops
+RGX, RGY = (RX0 + RX1) / 2, (RY0 + RY1) / 2
+
+
+def regal_inhalt(bm):
+    z = RB[0]
+    bm_placed(bm, turned((RGX - 0.08, RGY + 0.02, z), -3), lambda bm: kiste(bm, (0.38, 0.28, 0.22), 0, 1))
+    tyre = Matrix.Translation((RGX + 0.16, RGY - 0.02, z + 0.014)) @ Matrix.Rotation(radians(4), 4, "Y")
+    bm_placed(bm, tyre, lambda bm: bm_torus(bm, 0.115, 0.014, (0, 0, 0), "z", 24, 6, 2))  # rolled tyre
+    z = RB[1]
+    for i, (dx, dy) in enumerate(((-0.20, 0.08), (-0.12, 0.09), (-0.05, 0.05))):  # spray cans
+        bm_cyl(bm, 0.033, 0.19, (RGX + dx, RGY + dy, z + 0.095), "z", 12, mat_index=3)
+        bm_cyl(bm, 0.030, 0.03, (RGX + dx, RGY + dy, z + 0.205), "z", 12, mat_index=4 if i else 5)
+        bm_cyl(bm, 0.0335, 0.07, (RGX + dx, RGY + dy, z + 0.10), "z", 12, mat_index=(6, 5, 4)[i])  # label
+    bm_placed(bm, turned((RGX + 0.14, RGY + 0.02, z), 6), lambda bm: carton(bm, (0.24, 0.18, 0.12), 8))
+    z = RB[2]
+    for dx, col, lean in ((-0.22, 9, 0), (-0.185, 7, 0), (-0.15, 0, 0), (-0.11, 6, 9)):  # folders, the last one leaning
+        m = Matrix.Translation((RGX + dx, RGY + 0.03, z + 0.15)) @ Matrix.Rotation(radians(lean), 4, "Y")
+        cube_at(bm, (0, 0, 0), (0.03, 0.26, 0.30), m, col)
+    bottle(bm, (RGX + 0.10, RGY - 0.04, z), 0.037, 0.19, 4, 5, cap_r=0.02, cap_h=0.03)  # bidons
+    bottle(bm, (RGX + 0.20, RGY + 0.06, z), 0.037, 0.19, 6, 5, cap_r=0.02, cap_h=0.03, band=4)
+    z = RB[3]
+    bm_placed(bm, turned((RGX + 0.05, RGY + 0.03, z), -5), lambda bm: carton(bm, (0.36, 0.26, 0.22), 8))
+    bm_cyl(bm, 0.045, 0.12, (RGX - 0.20, RGY - 0.06, z + 0.06), "z", 12, mat_index=10)  # jar of bolts
+    bm_cyl(bm, 0.046, 0.015, (RGX - 0.20, RGY - 0.06, z + 0.1275), "z", 12, mat_index=1)
+
+
+ri = multi(
+    "Regal_Inhalt",
+    regal_inhalt,
+    [M["Kunststoff_Grau"], M["Fuge"], M["Reifen"], M["Metall_Hell"], M["Akzent"], M["Kunststoff"], M["Lack_Rot"], M["Karton"], M["Klebeband"], M["Lack_Gruen"], M["Metall_Dunkel"]],
+    bevel=0.003,
+)
+shade_smooth(ri, {2})
+
+# -- the right wall from the gate inwards: spare wheel on a hook, helmet, a chain,
+# the calendar over the trainer. The wall's inner face is x = 3.0; from Cam_Ruhe
+# it is the one big empty surface in the sun.
+WR = 3.0
+R_WHEEL = 0.34
+
+
+def ersatzlaufrad(bm):
+    y, z = -1.08, 1.36
+    c = Vector((WR - 0.075, y, z))
+    bm_tube(bm, (WR, y, z + 0.30), (WR - 0.15, y, z + 0.30), 0.008, 8, 4)  # hook through the rim
+    bm_tube(bm, (WR - 0.15, y, z + 0.30), (WR - 0.15, y, z + 0.36), 0.008, 8, 4)  # its lip, in front of the tyre
+    bm_torus(bm, R_WHEEL - 0.014, 0.014, c, "x", 36, 8, 0)  # tyre
+    bm_ring(bm, R_WHEEL - 0.078, R_WHEEL - 0.026, 0.027, c, "x", 36, 1)  # rim
+    bm_ring(bm, R_WHEEL - 0.026, R_WHEEL - 0.014, 0.022, c, "x", 36, 1)
+    bm_cyl(bm, 0.022, 0.10, c, "x", 12, mat_index=2)  # hub
+    for i in range(20):
+        a = 2 * pi * i / 20
+        side = 0.032 if i % 2 else -0.032
+        hub = c + Vector((side, 0.02 * cos(a + radians(25)), 0.02 * sin(a + radians(25))))
+        rim = c + Vector((0, (R_WHEEL - 0.078) * cos(a), (R_WHEEL - 0.078) * sin(a)))
+        bm_tube(bm, hub, rim, 0.0015, 4, 2)
+    bm_ring(bm, 0.045, 0.08, 0.002, c + Vector((-0.058, 0, 0)), "x", 24, 3)  # rotor, room side
+    bm_cyl(bm, 0.03, 0.004, c + Vector((-0.058, 0, 0)), "x", 12, mat_index=2)
+
+
+el = multi("Ersatzlaufrad", ersatzlaufrad, [M["Reifen"], M["Felge"], M["Carbon_Matt"], M["Metall_Hell"], M["Metall_Dunkel"]])
+shade_smooth(el, {0, 1})
+
+# the helmet hangs by its strap, tipped back the way a helmet hangs: crown up and
+# into the room, the opening down towards the wall. Built with the crown along
+# -x and the front along +z, then tipped about y and moved onto its hook.
+HY, HZ = -0.50, 1.72
+HELM_M = Matrix.Translation((WR - 0.085, HY + 0.005, HZ - 0.15)) @ Matrix.Rotation(radians(65), 4, "Y")
+
+
+def helm(bm):
+    bm_tube(bm, (WR, HY, HZ), (WR - 0.05, HY, HZ), 0.005, 8, 3)  # hook
+    bm_tube(bm, (WR - 0.05, HY, HZ), (WR - 0.05, HY, HZ + 0.025), 0.005, 8, 3)
+    before = set(bm.verts)
+    bm_dome(bm, (0, 0, 0), (0.17, 0.21, 0.27), (0.035, 0, -0.012), 0, 1)  # the rim sits lower at the back
+    for k in (-0.075, -0.04, -0.005, 0.03, 0.065):  # vents: dark slots sunk into the crown
+        cube_at(bm, (-0.074, k * 0.25, k), (0.012, 0.05, 0.008), Matrix.Rotation(radians(-12), 4, "X"), 1)
+    bmesh.ops.transform(bm, matrix=HELM_M, verts=[v for v in bm.verts if v not in before])
+
+
+hm = multi("Helm", helm, [M["Keramik"], M["Kunststoff"], M["Kunststoff"], M["Metall_Dunkel"]])
+shade_smooth(hm, {0})
+strap = [HELM_M @ Vector(p) for p in ((0.02, -0.03, -0.06), (0.02, -0.02, 0.0), (0.02, 0.02, 0.0), (0.02, 0.03, -0.06))]
+curve("Helm_Riemen", [*strap[:2], (WR - 0.052, HY - 0.012, HZ + 0.012), (WR - 0.048, HY, HZ + 0.013), (WR - 0.052, HY + 0.012, HZ + 0.012), *strap[2:]], 0.0025, M["Kunststoff"], segs=4)
+
+# a chain over a hook, both strands turned a little so the loop does not hang flat
+bm = bmesh.new()
+KY = -0.28
+bm_tube(bm, (WR, KY, 1.50), (WR - 0.05, KY, 1.50), 0.005, 8, 0)
+bm_tube(bm, (WR - 0.05, KY, 1.50), (WR - 0.05, KY, 1.525), 0.005, 8, 0)
+multi_mesh_object("Ketten_Haken", bm, [M["Metall_Dunkel"]])
+curve("Kette", [(WR - 0.03, KY - 0.02, 1.505), (WR - 0.045, KY - 0.05, 1.33), (WR - 0.04, KY - 0.015, 1.20), (WR - 0.03, KY + 0.03, 1.33), (WR - 0.03, KY + 0.02, 1.505)], 0.0055, M["Metall_Dunkel"], segs=6)
+
+
+# a bucket on the floor in the sun by the wall, handle dropped to one side
+EX, EY = 2.72, -1.42
+
+
+def eimer(bm):
+    bm_cyl(bm, 0.12, 0.27, (EX, EY, 0.135), "z", 16, r2=0.145, mat_index=0)
+    bm_ring(bm, 0.14, 0.152, 0.012, (EX, EY, 0.264), "z", 16, 0)  # lip
+    bm_cyl(bm, 0.135, 0.004, (EX, EY, 0.06), "z", 16, mat_index=1)  # something dark at the bottom
+    for sgn in (-1, 1):
+        bm_cyl(bm, 0.008, 0.008, (EX + sgn * 0.148, EY, 0.22), "x", 6, mat_index=2)  # handle lugs
+
+
+em = multi("Eimer", eimer, [M["Kunststoff_Grau"], M["Fuge"], M["Metall_Hell"]])
+shade_smooth(em, {0})
+curve("Eimer_Henkel", [(EX - 0.15, EY, 0.22), (EX - 0.10, EY - 0.17, 0.12), (EX, EY - 0.20, 0.06), (EX + 0.10, EY - 0.17, 0.12), (EX + 0.15, EY, 0.22)], 0.003, M["Metall_Hell"], segs=6)
+
+
+def kalender(bm):
+    bm_box(bm, (0.004, 0.30, 0.42), (0, 0, 0), 0)  # paper block
+    bm_box(bm, (0.002, 0.26, 0.18), (-0.0025, 0, 0.09), 1)  # the month's photo
+    for k in range(5):  # week rows
+        bm_box(bm, (0.001, 0.26, 0.002), (-0.0025, 0, -0.05 - k * 0.03), 2)
+    bm_box(bm, (0.006, 0.30, 0.012), (-0.003, 0, 0.205), 3)  # binding strip
+    bm_cyl(bm, 0.003, 0.02, (-0.002, 0, 0.215), "x", 6, mat_index=3)  # nail
+
+
+def kalender_platziert(bm):
+    # hangs a hair off plumb on its nail
+    bm_placed(bm, Matrix.Translation((WR - 0.003, 0.12, 1.55)) @ Matrix.Rotation(radians(2), 4, "X"), kalender)
+
+
+multi("Kalender", kalender_platziert, [M["Papier"], M["Foto"], M["Fuge"], M["Metall_Hell"]], bevel=0.001)
+
 result = {"objects": sorted(o.name for o in collection().objects)}

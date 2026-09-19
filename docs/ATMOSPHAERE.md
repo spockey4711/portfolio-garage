@@ -88,6 +88,20 @@ Wenige große Objekte, alle exakt platziert. Es fehlen die 30 kleinen: Kaffeebec
 Helm, Trikot am Haken, Radio, Sägespäne. Jedes 50 bis 500 Dreiecke, 30 davon sind 10k.
 Stoff hilft besonders (Trikot, Handtuch, Kissen), weil weiche Formen den Raum weich machen.
 
+Stand 2026-09-19, alles aus `build_furniture.py` (Abschnitt "Kleinkram"), je Gruppe ein
+Mesh: Steckdosenleiste, Netzteil und Kabel als Kurven, Standpumpe mit Schlauch, Radio
+(alles 18.09.). Dazu 19.09.: Kaffeebecher, Kettenöl und ein aufgerollter Schlauch auf der
+Werkbank, Werkzeugkoffer und Kiste auf ihrer Ablage, das Regal voll (Kiste, gerollter
+Reifen, Spraydosen, Ordner, Trinkflaschen, Karton, Schraubenglas), an der rechten Wand
+vom Tor aus Ersatzlaufrad am Haken, Helm am Riemen, Kette am Haken, Kalender über dem
+Rollentrainer, ein Eimer im Sonnenfleck. Die rechte Wand war von `Cam_Ruhe` aus die eine
+große leere Fläche im Licht, deshalb hängt das Meiste dort. Nichts steht gerade: jede lose
+Sache ist um 3 bis 9 Grad gedreht, ein Ordner lehnt. GLB 2,74 → 3,05 MB, 11.283 Faces,
+Bake unverändert 25 s. Offen: Lappen und Trikot, das sind CC0-Assets nach ADR-0007 (Poly
+Haven hat 2026-09-19 keins von beiden, nur Gartenhandschuhe), Sägespäne, Staub im
+Sonnenstrahl (§3, braucht eine Sonderbehandlung im Web, weil `Scene.tsx` jedes Material
+gegen `MeshBasicMaterial` tauscht).
+
 ## 3. Warum es blockig wirkt
 
 Nicht zu wenig Polygone, sondern perfekt gerade Kanten und Achsparallelität.
@@ -114,7 +128,8 @@ Nicht zu wenig Polygone, sondern perfekt gerade Kanten und Achsparallelität.
    dem Bake, neu gebacken (PR #14, Werte in `export.py`). Größter Sprung; Streiflicht mit
    Fasen und Schatten erledigt die Hälfte des Blockigen.
 2. Erledigt: Farben der Flächenmaterialien und der Himmel, siehe §2.
-3. Kleinkram und Kurven.
+3. Kleinkram und Kurven: die Skript-Hälfte erledigt 2026-09-19, siehe §2. Offen die
+   Assets (Lappen, Trikot) und der Staub.
 4. Das Rad.
 
 ## 5. Offene Entscheidung
