@@ -46,14 +46,32 @@ test("a click on a hotspot area opens the same ?view= as in 3D and shows its scr
 test("a hotspot without a screen gets the note, and a click beside the card leaves", async ({
   page,
 }) => {
-  await openStill(page, "/?view=board");
-  const dialog = page.getByRole("dialog", { name: "Pinnwand" });
+  await openStill(page, "/?view=plan");
+  const dialog = page.getByRole("dialog", { name: "Whiteboard" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText("Inhalt folgt in Phase 2.")).toBeVisible();
 
   await page.mouse.click(10, 300);
   await expect(page).toHaveURL(/\/$/);
   await expect(dialog).toBeHidden();
+});
+
+test("the board's stand-in carries the same links to /ueber as in 3D", async ({
+  page,
+}) => {
+  await openStill(page, "/?view=board");
+  const board = page
+    .getByRole("dialog", { name: "Pinnwand" })
+    .getByRole("navigation", { name: "Pinnwand" });
+  await expect(board).toBeVisible();
+  for (const href of await board
+    .getByRole("link")
+    .evaluateAll((links) => links.map((link) => link.getAttribute("href")))) {
+    expect(href).toMatch(/^\/ueber(#[a-z]+)?$/);
+  }
+
+  await board.getByRole("link", { name: /Kontakt/ }).click();
+  await expect(page).toHaveURL(/\/ueber#kontakt$/);
 });
 
 test("the browser back button closes the stand-in", async ({ page }) => {

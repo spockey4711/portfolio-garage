@@ -1,4 +1,6 @@
 import bpy, bmesh
+import json
+import os
 from math import radians, pi, cos, sin
 from mathutils import Matrix, Vector
 
@@ -155,35 +157,57 @@ karton("Karton_1", (0.6, 0.4, 0.4), (2.55, 1.15, 0.2), radians(4))
 karton("Karton_2", (0.5, 0.36, 0.36), (2.55, 1.15, 0.58), radians(-14))
 
 # ---------------------------------------------------------------- Pinnwand
-# cork board, x 1.30..2.20, z 1.20..1.80, 3 cm frame in dark wood
-PX, PZ, PW, PH = 1.75, 1.5, 0.9, 0.6
+# cork board centred at x 1.75, z 1.50, a 3 cm frame in dark wood around the cork
+# face. The face and what hangs on it come from lib/garage/pinboard.json, which
+# Pinboard.tsx reads too: the web lays its DOM (race numbers, photos, notes as
+# links) on the cork, item for item over the paper stand-ins built here, so the
+# still and the far view show the same board as the close-up.
+with open(os.path.join(os.path.dirname(LIB), "..", "..", "lib", "garage", "pinboard.json")) as f:
+    PINBOARD = json.load(f)
+PX, PZ = 1.75, 1.5
+PF = 0.03
+PW, PH = PINBOARD["cork"]["width"] + 2 * PF, PINBOARD["cork"]["height"] + 2 * PF
+M["Foto"] = material("Foto", "#8d9694", roughness=0.4)  # a print seen from across the room
 
 
-def pinnwand(bm):
-    f = 0.03
-    bm_box(bm, (PW, 0.025, f), (PX, 1.9875, PZ + PH / 2 - f / 2), 0)
-    bm_box(bm, (PW, 0.025, f), (PX, 1.9875, PZ - PH / 2 + f / 2), 0)
-    bm_box(bm, (f, 0.025, PH - 2 * f), (PX - PW / 2 + f / 2, 1.9875, PZ), 0)
-    bm_box(bm, (f, 0.025, PH - 2 * f), (PX + PW / 2 - f / 2, 1.9875, PZ), 0)
-    bm_box(bm, (PW - 2 * f, 0.015, PH - 2 * f), (PX, 1.9925, PZ), 1)
+def pinnwand_rahmen(bm):
+    bm_box(bm, (PW, 0.025, PF), (PX, 1.9875, PZ + PH / 2 - PF / 2), 0)
+    bm_box(bm, (PW, 0.025, PF), (PX, 1.9875, PZ - PH / 2 + PF / 2), 0)
+    bm_box(bm, (PF, 0.025, PH - 2 * PF), (PX - PW / 2 + PF / 2, 1.9875, PZ), 0)
+    bm_box(bm, (PF, 0.025, PH - 2 * PF), (PX + PW / 2 - PF / 2, 1.9875, PZ), 0)
 
 
-multi("Pinnwand", pinnwand, [M["Holz_Dunkel"], M["Kork"]])
+# one single-material mesh each: the web wants the cork as one mesh to put its
+# DOM on (lib/garage/hotspots.ts, display), and a multi-material object would
+# come out of the GLB as a group of one mesh per material
+board = multi("Pinnwand", pinnwand_rahmen, [M["Holz_Dunkel"]])
+
+
+def pinnwand_kork(bm):
+    bm_box(bm, (PW - 2 * PF, 0.015, PH - 2 * PF), (PX, 1.9925, PZ), 0)
+
+
+parent_to(multi("Pinnwand_Kork", pinnwand_kork, [M["Kork"]]), board)
+
+PIN_MATERIAL = {"startnummer": 0, "foto": 2, "zettel": 0}
 
 
 def zettel(bm):
     y = 1.984
-    for (dx, dz, w, h, rot) in ((-0.28, 0.12, 0.15, 0.21, 3), (-0.05, 0.14, 0.10, 0.15, -6), (0.20, 0.10, 0.18, 0.13, 2), (-0.20, -0.14, 0.21, 0.15, -2), (0.15, -0.12, 0.13, 0.18, 5)):
+    for item in PINBOARD["items"].values():
+        dx, dz, w, h, rot = item["x"], item["y"], item["width"], item["height"], item["rotation"]
+        # rotation about +Y: clockwise as seen from the room, like CSS rotate()
         m = Matrix.Translation((PX + dx, y, PZ + dz)) @ Matrix.Rotation(radians(rot), 4, "Y") @ Matrix.Diagonal((w, 0.002, h, 1))
         geom = bmesh.ops.create_cube(bm, size=1.0, matrix=m)
         for v in geom["verts"]:
             for fc in v.link_faces:
-                fc.material_index = 0
-        # pin
-        bm_cyl(bm, 0.005, 0.006, (PX + dx, y - 0.003, PZ + dz + h / 2 - 0.015), "y", 6, mat_index=1)
+                fc.material_index = PIN_MATERIAL[item["kind"]]
+        # pin, at the top centre of the item, before the rotation tilts it
+        pin = m @ Vector((0, 0, 0.5 - PINBOARD["cork"]["pinInset"] / h))
+        bm_cyl(bm, 0.005, 0.006, (pin.x, y - 0.003, pin.z), "y", 6, mat_index=1)
 
 
-multi("Pinnwand_Zettel", zettel, [M["Papier"], M["Akzent"]])
+parent_to(multi("Pinnwand_Zettel", zettel, [M["Papier"], M["Akzent"], M["Foto"]]), board)
 
 # ---------------------------------------------------------------- Whiteboard
 WX, WZ, WW, WH = 0.4, 1.5, 1.2, 0.9

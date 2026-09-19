@@ -1,6 +1,29 @@
 import type { ComputerPage } from "@/lib/garage/computer";
 import type { FocusViewId } from "@/lib/garage/hotspots";
+import type { PinboardItemId } from "@/lib/garage/pinboard";
 import type { Locale } from "@/lib/i18n";
+import { getAboutContent } from "./about";
+
+/** What is printed on one item of the cork board and where a click on it leads. */
+export type PinboardItemContent = { readonly href: string } & (
+  | {
+      readonly kind: "startnummer";
+      readonly event: string;
+      readonly number: string;
+    }
+  | {
+      readonly kind: "foto";
+      /** Written under the print; also the image's alt text. */
+      readonly caption: string;
+      /** Path under public/; without one the print shows a drawn stand-in. */
+      readonly src?: string;
+    }
+  | {
+      readonly kind: "zettel";
+      readonly title: string;
+      readonly lines: readonly string[];
+    }
+);
 
 export interface GarageContent {
   /** Accessible name of the hero section that holds the canvas. */
@@ -84,6 +107,14 @@ export interface GarageContent {
       /** Placeholder line until the project list arrives (Phase 2). */
       readonly comingSoon: string;
     };
+    readonly pinnwand: {
+      /** Accessible name of the board. */
+      readonly label: string;
+      /** Read out before the items: where they all lead. */
+      readonly hint: string;
+      /** One entry per item of lib/garage/pinboard.json, same kind as there. */
+      readonly items: Readonly<Record<PinboardItemId, PinboardItemContent>>;
+    };
   };
 }
 
@@ -153,6 +184,51 @@ const de: GarageContent = {
       label: "Laptop-Display",
       projects: "Projekte",
       comingSoon: "Projektliste folgt in Phase 2.",
+    },
+    pinnwand: {
+      label: "Pinnwand",
+      hint: "Alles an der Pinnwand führt zur Seite Über mich.",
+      items: {
+        "startnummer-1": {
+          kind: "startnummer",
+          event: "Radmarathon",
+          number: "1247",
+          href: "/ueber",
+        },
+        "foto-1": {
+          kind: "foto",
+          caption: "Ausfahrt",
+          href: "/ueber",
+        },
+        "zettel-1": {
+          kind: "zettel",
+          title: "Über mich",
+          lines: [
+            "Wirtschaftsinformatik",
+            "Universität zu Köln",
+            "Werkstudent am IW",
+            "baut fuelivo",
+          ],
+          href: "/ueber#werdegang",
+        },
+        "zettel-2": {
+          kind: "zettel",
+          title: "Kontakt",
+          lines: [getAboutContent("de").contact.email],
+          href: "/ueber#kontakt",
+        },
+        "foto-2": {
+          kind: "foto",
+          caption: "Hockey",
+          href: "/ueber",
+        },
+        "startnummer-2": {
+          kind: "startnummer",
+          event: "Halbmarathon",
+          number: "2306",
+          href: "/ueber",
+        },
+      },
     },
   },
 };

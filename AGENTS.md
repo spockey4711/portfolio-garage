@@ -17,7 +17,8 @@ Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Woche 2 bis auf das Go-li
 Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`) und der Radcomputer
 (`BikeComputer.tsx`: die ganze Glasfront eines Edge 540 als DOM, Garmin-Farben, drei Seiten,
 Pfeiltasten, Daten aus `/api/activity`, Logik in `lib/garage/computer.ts`; Gehäuse, Tasten und
-Glas kommen aus `build_bike.py`, Glas und DOM teilen sich das Pixelmaß), der Laptop ist noch
+Glas kommen aus `build_bike.py`, Glas und DOM teilen sich das Pixelmaß), die Pinnwand
+(`Pinboard.tsx`, alles darauf verlinkt nach `/ueber`), der Laptop ist noch
 Platzhalter.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
@@ -42,7 +43,12 @@ dem Canvas-Wrapper, in den drei das DOM portalt, deshalb stoppt der offene Scree
 Pointer-Events, sonst zählt ein Klick im Screen als "Klick ins Leere". Geschlossene Screens
 sind `inert` ohne Pointer-Events, der Klick trifft die Klickbox dahinter. `occlude` bekommt
 nur den GLB-Root, nie die Klickboxen. Neue Screen-View: `ui: "screen"` in `hotspots.ts`
-erzwingt einen Eintrag in `components/garage/screens/index.ts`.
+erzwingt einen Eintrag in `components/garage/screens/index.ts`. Die Pinnwand ist ein Screen
+auf der Korkfläche (`Pinnwand_Kork`): das DOM ist transparent, Kork und Rahmen kommen aus
+dem GLB, `ScreenSpec.shade` dunkelt es im Raum ab, `backdrop` malt der Standbild-Karte den
+Kork. Was wo hängt, steht in `lib/garage/pinboard.json`, das `build_furniture.py` für die
+Papier-Attrappen im GLB und `Pinboard.tsx` für das DOM lesen; Layout ändern heißt JSON
+ändern, Möbel-Skript laufen lassen, exportieren.
 
 Fallback: Das Standbild ist immer der erste Paint. `GarageStill.tsx` zeigt die vom Export
 gerenderte Ruheansicht (`public/models/garage-ruhe-tag-{quer,hoch}.webp`, dieselbe Kamera,

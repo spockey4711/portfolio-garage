@@ -31,7 +31,7 @@ export function Screen({ view, scene }: ScreenProps) {
   const isOpen = useGarageStore(
     (state) => state.phase === "focused" && state.view === view.id,
   );
-  const { Component, pxWidth } = screens[view.id];
+  const { Component, pxWidth, shade } = screens[view.id];
 
   const { plane, occlude } = useMemo(() => {
     const display = displayMesh(view, scene);
@@ -55,7 +55,7 @@ export function Screen({ view, scene }: ScreenProps) {
     >
       <div
         style={{ width: pxWidth, height: pxHeight }}
-        className="overflow-hidden"
+        className={["overflow-hidden", shade ?? ""].join(" ").trim()}
         inert={!isOpen}
         {...keepPointerEventsInside}
       >
