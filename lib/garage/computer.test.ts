@@ -6,26 +6,27 @@ import {
   formatDistance,
   formatDuration,
   formatElevation,
+  formatHours,
+  formatTemperature,
   isPageKey,
   nextPage,
   pageAfterKey,
-  weekdayIndex,
 } from "./computer";
 
 describe("pageAfterKey", () => {
   it("scrolls down through the pages like the Down key on the Edge", () => {
-    expect(pageAfterKey("today", "ArrowDown")).toBe("week");
-    expect(pageAfterKey("week", "ArrowDown")).toBe("about");
+    expect(pageAfterKey("ride", "ArrowDown")).toBe("plan");
+    expect(pageAfterKey("plan", "ArrowDown")).toBe("why");
   });
 
   it("wraps around at both ends like the data screen loop", () => {
-    expect(pageAfterKey("about", "ArrowDown")).toBe("today");
-    expect(pageAfterKey("today", "ArrowUp")).toBe("about");
+    expect(pageAfterKey("why", "ArrowDown")).toBe("ride");
+    expect(pageAfterKey("ride", "ArrowUp")).toBe("why");
   });
 
   it("treats Left and Right like Up and Down", () => {
-    expect(pageAfterKey("week", "ArrowRight")).toBe("about");
-    expect(pageAfterKey("week", "ArrowLeft")).toBe("today");
+    expect(pageAfterKey("plan", "ArrowRight")).toBe("why");
+    expect(pageAfterKey("plan", "ArrowLeft")).toBe("ride");
   });
 
   it("ignores every other key", () => {
@@ -41,8 +42,8 @@ describe("pageAfterKey", () => {
 
 describe("nextPage", () => {
   it("is the Down key", () => {
-    expect(nextPage("today")).toBe("week");
-    expect(nextPage("about")).toBe("today");
+    expect(nextPage("ride")).toBe("plan");
+    expect(nextPage("why")).toBe("ride");
   });
 });
 
@@ -107,9 +108,16 @@ describe("formatDay", () => {
   });
 });
 
-describe("weekdayIndex", () => {
-  it("counts from Monday", () => {
-    expect(weekdayIndex("2026-09-14")).toBe(0);
-    expect(weekdayIndex("2026-09-20")).toBe(6);
+describe("formatTemperature", () => {
+  it("rounds to whole degrees and keeps the sign", () => {
+    expect(formatTemperature(17.4)).toBe("17");
+    expect(formatTemperature(-2.6)).toBe("-3");
+  });
+});
+
+describe("formatHours", () => {
+  it("has one decimal with a comma", () => {
+    expect(formatHours(3.05)).toBe("3,1");
+    expect(formatHours(1)).toBe("1,0");
   });
 });

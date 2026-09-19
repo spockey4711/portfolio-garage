@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useState, type ReactNode } from "react";
 import { getGarageContent, type GarageContent } from "@/content/garage";
+import { whyNoPlan } from "@/lib/fuelivo/request";
 import {
   COMPUTER_PAGES,
   formatClock,
@@ -10,21 +11,18 @@ import {
   formatDistance,
   formatDuration,
   formatElevation,
+  formatHours,
   formatInteger,
+  formatTemperature,
   isPageKey,
   nextPage,
   pageAfterKey,
-  weekdayIndex,
   type ComputerPage,
 } from "@/lib/garage/computer";
 import { useGarageStore } from "@/lib/garage/store";
 import { defaultLocale } from "@/lib/i18n";
-import {
-  HOME_ZONE,
-  localDay,
-  type TrainingSummary,
-} from "@/lib/strava/summary";
-import { useTrainingSummary } from "./useTrainingSummary";
+import { HOME_ZONE, localDay, type LatestActivity } from "@/lib/strava/summary";
+import { useTrainingSummary } from "@/lib/strava/useTrainingSummary";
 
 type ComputerContent = GarageContent["screens"]["radcomputer"];
 
@@ -49,17 +47,19 @@ export const EDGE_SCALE = 2;
 
 const px = (devicePx: number) => devicePx * EDGE_SCALE;
 
-// The Edge UI of docs/KONZEPT.md §3, after a Garmin Edge 540: a button-only
+// The Edge UI of docs/adr/0008, after a Garmin Edge 540: a button-only
 // device whose Up and Down keys scroll a loop of data pages, each a grid of
 // fields with a small label and a big value, black on the white transflective
-// panel, the grid lines in Garmin blue. Page 1 is the last session, page 2
-// the running week with a chart, page 3 the rider. The arrow keys page while
-// the view is open (KONZEPT §4); a click on the display pages too, for the
-// still on a phone, where there is no keyboard.
+// panel, the grid lines in Garmin blue. Page 1 is the last ride from Strava,
+// the demo input; page 2 the plan fuelivo.de calculated for it; page 3 why,
+// Fuelivo's rationale. The arrow keys page while the view is open (KONZEPT
+// §4); a click on the display pages too, for the still on a phone, where
+// there is no keyboard.
 export function BikeComputer() {
   const content = getGarageContent(defaultLocale).screens.radcomputer;
   const summary = useTrainingSummary();
-  const [page, setPage] = useState<ComputerPage>("today");
+  const latest = summary?.latest ?? null;
+  const [page, setPage] = useState<ComputerPage>("ride");
   const keysId = useId();
   const isOpen = useGarageStore(
     (state) => state.phase === "focused" && state.view === "radcomputer",
@@ -90,9 +90,9 @@ export function BikeComputer() {
           {content.keys}
         </span>
         <StatusBar title={content.pages[page]} />
-        {page === "today" && <TodayPage summary={summary} content={content} />}
-        {page === "week" && <WeekPage summary={summary} content={content} />}
-        {page === "about" && <AboutPage content={content} />}
+        {page === "ride" && <RidePage latest={latest} content={content} />}
+        {page === "plan" && <PlanPage latest={latest} content={content} />}
+        {page === "why" && <WhyPage latest={latest} content={content} />}
         <PageDots page={page} />
       </div>
     </Lens>
@@ -133,13 +133,18 @@ function Lens({ children }: { readonly children: ReactNode }) {
   );
 }
 
+/** The Edge's grid lines: two device pixels of Garmin blue. */
+const RULE = "border-[#0b7fcb]";
+
 interface PageProps {
-  readonly summary: TrainingSummary | null;
+  /** Null while the data is loading, failed, or the cache is empty. */
+  readonly latest: LatestActivity | null;
   readonly content: ComputerContent;
 }
 
-function TodayPage({ summary, content }: PageProps) {
-  const latest = summary?.latest ?? null;
+// Page 1: the last activity as Strava has it, the five values Fuelivo's
+// plan is calculated from plus the effort behind the intensity.
+function RidePage({ latest, content }: PageProps) {
   const today = localDay(new Date(), HOME_ZONE);
   const when = latest
     ? [
@@ -161,14 +166,22 @@ function TodayPage({ summary, content }: PageProps) {
         </span>
         <span className="min-h-[26px] text-[20px] text-[#4b525b]">{when}</span>
       </Field>
-      <div className="grid flex-1 grid-cols-2 grid-rows-2">
+      <div className="grid flex-1 grid-cols-2 grid-rows-3">
         <Field label={content.fields.duration} right bottom>
           <Value text={latest && formatDuration(latest.movingTime)} />
         </Field>
         <Field label={content.fields.distance} unit={content.units.km} bottom>
           <Value text={latest && formatDistance(latest.distance)} />
         </Field>
-        <Field label={content.fields.heartRate} unit={content.units.bpm} right>
+        <Field
+          label={content.fields.elevation}
+          unit={content.units.m}
+          right
+          bottom
+        >
+          <Value text={latest && formatElevation(latest.elevationGain)} />
+        </Field>
+        <Field label={content.fields.heartRate} unit={content.units.bpm} bottom>
           <Value
             icon={<Heart />}
             text={
@@ -178,9 +191,26 @@ function TodayPage({ summary, content }: PageProps) {
             }
           />
         </Field>
-        <Field label={content.fields.load}>
+        <Field
+          label={content.fields.temperature}
+          unit={content.units.celsius}
+          right
+        >
           <Value
-            text={latest?.tss != null ? formatInteger(latest.tss) : null}
+            text={
+              latest?.averageTemp != null
+                ? formatTemperature(latest.averageTemp)
+                : null
+            }
+          />
+        </Field>
+        <Field label={content.fields.effort}>
+          <Value
+            text={
+              latest?.relativeEffort != null
+                ? formatInteger(latest.relativeEffort)
+                : null
+            }
           />
         </Field>
       </div>
@@ -188,161 +218,151 @@ function TodayPage({ summary, content }: PageProps) {
   );
 }
 
-function WeekPage({ summary, content }: PageProps) {
-  const week = summary?.week ?? null;
+/** Why the plan pages are empty: the activity itself, or Fuelivo has not answered yet. */
+function noPlanText(
+  latest: LatestActivity | null,
+  content: ComputerContent,
+): string {
+  if (!latest) return content.noActivity;
+  return content.noPlan[whyNoPlan(latest) ?? "pending"];
+}
+
+// Page 2: what fuelivo.de says for the ride on page 1, in the device's own
+// language: data fields, per hour on the left, for the whole ride on the
+// right. The wide field names the input the plan was calculated from.
+function PlanPage({ latest, content }: PageProps) {
+  const plan = latest?.plan ?? null;
+  const input = plan
+    ? [
+        content.plan.intensity[plan.input.intensity],
+        `${formatHours(plan.input.duration_hours)} ${content.units.hours}`,
+        `${formatTemperature(plan.input.temperature_c)} ${content.units.celsius}`,
+      ].join(" · ")
+    : noPlanText(latest, content);
+  const rows = [
+    {
+      label: content.fields.carbs,
+      unit: content.units.g,
+      perHour: plan?.carbsPerHour,
+      total: plan?.totalCarbs,
+    },
+    {
+      label: content.fields.fluid,
+      unit: content.units.ml,
+      perHour: plan?.fluidPerHour,
+      total: plan?.totalFluid,
+    },
+    {
+      label: content.fields.sodium,
+      unit: content.units.mg,
+      perHour: plan?.sodiumPerHour,
+      total: plan?.totalSodium,
+    },
+  ];
 
   return (
     <>
-      <div className="grid flex-1 grid-cols-2">
-        <Field label={content.fields.duration} right>
-          <Value text={week && formatDuration(week.movingTime)} />
-        </Field>
-        <Field label={content.fields.distance} unit={content.units.km}>
-          <Value text={week && formatDistance(week.distance)} />
-        </Field>
+      <Field label={content.plan.field} wide>
+        <span className="text-[30px] leading-tight font-bold">{input}</span>
+        {/* The 2D page is the source of truth (KONZEPT §5); the screen only links there. */}
+        <Link
+          href="/projekte/fuelivo"
+          onClick={(event) => event.stopPropagation()}
+          className="text-[20px] font-medium text-[#0b7fcb] underline-offset-4 hover:underline focus-visible:underline focus-visible:outline-none"
+        >
+          {`${content.plan.more} →`}
+        </Link>
+      </Field>
+      <div
+        aria-hidden="true"
+        className={`${RULE} grid h-[30px] grid-cols-2 items-center border-b-[4px] text-center text-[19px] leading-none tracking-wide text-[#4b525b] uppercase`}
+      >
+        <span>{content.plan.perHour}</span>
+        <span>{content.plan.total}</span>
       </div>
-      <WeekChart summary={summary} content={content} />
-      <div className="grid flex-1 grid-cols-2">
-        <Field label={content.fields.elevation} unit={content.units.m} right>
-          <Value text={week && formatElevation(week.elevationGain)} />
-        </Field>
-        <Field label={content.fields.load}>
-          <Value text={week?.tss != null ? formatInteger(week.tss) : null} />
-        </Field>
+      <div className="grid flex-1 grid-cols-2 grid-rows-3">
+        {rows.map((row, index) => {
+          const last = index === rows.length - 1;
+          return (
+            <Fragment key={row.label}>
+              <Field
+                label={row.label}
+                unit={`${row.unit}${content.units.perHour}`}
+                right
+                bottom={!last}
+              >
+                <Value
+                  text={row.perHour != null ? formatInteger(row.perHour) : null}
+                />
+              </Field>
+              <Field label={row.label} unit={row.unit} bottom={!last}>
+                <Value
+                  text={row.total != null ? formatInteger(row.total) : null}
+                />
+              </Field>
+            </Fragment>
+          );
+        })}
       </div>
     </>
   );
 }
 
-/** Horizontal padding of every field, so the chart lines up with the values. */
-const FIELD_PADDING = 24;
-
-const CHART = {
-  width: px(EDGE.display.width) - 2 * FIELD_PADDING,
-  height: 150,
-  barWidth: 24,
-  cornerRadius: 4,
-} as const;
-
-/** The Edge's grid lines: two device pixels of Garmin blue. */
-const RULE = "border-[#0b7fcb]";
-
-// Moving time per day, Monday to Sunday, one hue (a single series needs no
-// legend), today's label bold. Zero days show only the baseline.
-function WeekChart({ summary, content }: PageProps) {
-  const days = summary?.week.days ?? [];
-  const today = localDay(new Date(), HOME_ZONE);
-  const todayIndex = weekdayIndex(today);
-  const max = Math.max(...days.map((day) => day.movingTime), 1);
-  const slot = CHART.width / 7;
-  const baseline = CHART.height - 1;
-  const count = summary?.week.count;
-  const range = `${content.weekdays[0]}. bis ${content.weekdays[6]}.`;
-
-  return (
-    <figure className={`${RULE} border-t-[4px] border-b-[4px] px-6 pt-3 pb-2`}>
-      <figcaption className="flex justify-between text-[19px] tracking-wide text-[#4b525b] uppercase">
-        <span>{range}</span>
-        <span className="normal-case tabular-nums">
-          {count === undefined
-            ? content.noData
-            : `${count} ${count === 1 ? content.fields.count.one : content.fields.count.other}`}
+// Page 3: Fuelivo's core idea, every step of the calculation writes down
+// its reason. The lines come from fuelivo.de as they are; the warnings
+// follow them.
+function WhyPage({ latest, content }: PageProps) {
+  const plan = latest?.plan ?? null;
+  if (!plan) {
+    return (
+      <Field label={content.why.rationale} wide grow>
+        <span className="text-center text-[30px] leading-tight font-bold text-[#4b525b]">
+          {noPlanText(latest, content)}
         </span>
-      </figcaption>
-      <svg
-        viewBox={`0 0 ${CHART.width} ${CHART.height}`}
-        width={CHART.width}
-        height={CHART.height}
-        role="img"
-        aria-label={`${content.fields.duration} ${range}`}
-        className="mt-2 block"
-      >
-        {days.map((day, index) => {
-          const height = Math.round((day.movingTime / max) * (baseline - 8));
-          const x = index * slot + (slot - CHART.barWidth) / 2;
-          return (
-            <path
-              key={day.date}
-              d={roundedColumn(x, baseline, CHART.barWidth, height)}
-              className="fill-[#0b7fcb]"
-            >
-              <title>
-                {`${formatDay(day.date, today, content.day, content.weekdays)}: ${formatDuration(day.movingTime)}, ${formatDistance(day.distance)} ${content.units.km}`}
-              </title>
-            </path>
-          );
-        })}
-        <line
-          x1={0}
-          x2={CHART.width}
-          y1={baseline}
-          y2={baseline}
-          className="stroke-[#8a9098]"
-          strokeWidth={2}
-        />
-      </svg>
-      {/* HTML, not SVG <text>: under drei's tiny 3D scale Chrome lays SVG glyphs out at zero width. */}
-      <div
-        aria-hidden="true"
-        className="grid grid-cols-7 pt-1 text-center text-[19px] leading-none text-[#4b525b]"
-      >
-        {content.weekdays.map((weekday, index) => (
-          <span
-            key={weekday}
-            className={index === todayIndex ? "font-bold text-[#0e1013]" : ""}
-          >
-            {weekday}
-          </span>
-        ))}
-      </div>
-    </figure>
+      </Field>
+    );
+  }
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <Reasons title={content.why.rationale} lines={plan.rationale} />
+      {plan.warnings.length > 0 && (
+        <Reasons title={content.why.warnings} lines={plan.warnings} warning />
+      )}
+    </div>
   );
 }
 
-/** A column that stands on the baseline: square foot, rounded top. */
-function roundedColumn(
-  x: number,
-  baseline: number,
-  width: number,
-  height: number,
-): string {
-  if (height <= 0) return "";
-  const r = Math.min(CHART.cornerRadius, height, width / 2);
-  const top = baseline - height;
-  return [
-    `M${x},${baseline}`,
-    `V${top + r}`,
-    `A${r},${r} 0 0 1 ${x + r},${top}`,
-    `H${x + width - r}`,
-    `A${r},${r} 0 0 1 ${x + width},${top + r}`,
-    `V${baseline}`,
-    "Z",
-  ].join(" ");
-}
-
-function AboutPage({ content }: { readonly content: ComputerContent }) {
+// One block of lines, laid out like a wide field: label on top, then the
+// lines with a dot in the colour of the block, blue for reasons, red for
+// warnings.
+function Reasons({
+  title,
+  lines,
+  warning,
+}: {
+  readonly title: string;
+  readonly lines: readonly string[];
+  readonly warning?: boolean;
+}) {
   return (
-    <Field label={content.about.field} wide grow>
-      <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <span className="text-[72px] leading-none font-bold">
-          {content.about.name}
-        </span>
-        <span className="mt-4 text-[30px] leading-none text-[#2e343c]">
-          {content.about.place}
-        </span>
-        <span className="mt-3 text-[24px] leading-snug text-[#4b525b]">
-          {content.about.claim}
-        </span>
-      </div>
-      {/* The 2D page is the source of truth (KONZEPT §5); the screen only links there. */}
-      <Link
-        href="/ueber"
-        onClick={(event) => event.stopPropagation()}
-        className="self-center text-[22px] font-medium text-[#0b7fcb] underline-offset-4 hover:underline focus-visible:underline focus-visible:outline-none"
-      >
-        {`${content.about.more} →`}
-      </Link>
-    </Field>
+    <section
+      className={`${RULE} border-b-[4px] px-6 pt-2 pb-4 last:border-b-0`}
+    >
+      <h3 className="text-center text-[19px] leading-none tracking-wide text-[#4b525b] uppercase">
+        {title}
+      </h3>
+      <ul className="mt-3 space-y-3 text-[25px] leading-snug">
+        {lines.map((line) => (
+          <li key={line} className="flex gap-3">
+            <span
+              aria-hidden="true"
+              className={`mt-[0.5em] h-[10px] w-[10px] shrink-0 rounded-full ${warning ? "bg-[#e5322d]" : "bg-[#0b7fcb]"}`}
+            />
+            <span>{line}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -352,7 +372,7 @@ interface FieldProps {
   readonly unit?: string;
   /** Full display width, a fixed height unless `grow`. */
   readonly wide?: boolean;
-  /** Take the remaining height (page 3). */
+  /** Take the remaining height (page 3 without a plan). */
   readonly grow?: boolean;
   /** Divider on the right, i.e. a left-hand cell. */
   readonly right?: boolean;

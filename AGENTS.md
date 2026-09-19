@@ -15,14 +15,14 @@ nicht zum Einsatz. Aus Woche 1 steht der Code: Store, Kamerafahrten, Hotspot-Kli
 Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Woche 1 komplett:
 Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Woche 2 bis auf das Go-live komplett.
 Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`) und der Radcomputer
-(`BikeComputer.tsx`: die ganze Glasfront eines Edge 540 als DOM, Garmin-Farben, drei Seiten,
-Pfeiltasten, Daten aus `/api/activity`, Logik in `lib/garage/computer.ts`; Gehäuse, Tasten und
-Glas kommen aus `build_bike.py`, Glas und DOM teilen sich das Pixelmaß), die Pinnwand
-(`Pinboard.tsx`, alles darauf verlinkt nach `/ueber`), der Laptop ist noch
+(`BikeComputer.tsx`: die ganze Glasfront eines Edge 540 als DOM, Garmin-Farben, drei Seiten
+Fahrt, Plan, Warum, Pfeiltasten, Daten aus `/api/activity`, Logik in `lib/garage/computer.ts`;
+Gehäuse, Tasten und Glas kommen aus `build_bike.py`, Glas und DOM teilen sich das Pixelmaß),
+die Pinnwand (`Pinboard.tsx`, alles darauf verlinkt nach `/ueber`), der Laptop ist noch
 Platzhalter. Seit ADR-0008 (2026-09-19) gilt eine neue Zuordnung, der Umbau steht in
 `docs/PLAN.md`: Radcomputer zeigt Fuelivo, gerechnet von `fuelivo.de/calculate` auf der
-letzten Strava-Einheit (drei Seiten Fahrt, Plan, Warum), Laptop die Projektliste, Pinnwand
-den Blog, Whiteboard Über mich, Werkzeugwand den Stack.
+letzten Strava-Einheit (erledigt), Laptop die Projektliste, Pinnwand den Blog, Whiteboard
+Über mich, Werkzeugwand den Stack.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
 `public/models/garage-lightmap-tag.webp` (Licht ohne Farbe, UV-Set 2), `Scene.tsx` tauscht
@@ -74,7 +74,13 @@ Zustand sind zwei JSON-Dateien in `DATA_DIR` (Token, Cache), die nur `lib/strava
 schreibt; `/api/activity` rechnet die Summary (`summary.ts`) bei jedem Aufruf aus dem Cache und
 lässt Privates weg. Die Module importieren einander mit `.ts`-Endung, weil
 `scripts/strava.mts` sie direkt unter Node ausführt: keine Parameter-Properties, kein
-`enum`, kein `@/`-Alias in `lib/strava/`.
+`enum`, kein `@/`-Alias in `lib/strava/` und `lib/fuelivo/`. Fuelivo: `lib/fuelivo/request.ts`
+bildet eine Aktivität auf `CalculationRequest` ab, `client.ts` ruft `fuelivo.de/calculate`;
+der Sync rechnet den Plan nur für die neueste sichtbare Einheit (die der Computer zeigt) und
+legt ihn unter `plans[id]` in den Cache, ein Plan mit unverändertem Input wird nicht neu
+gerechnet, kein Plan ist nie ein Fehler. `tests/e2e/data/activities.json` ist der Fixture-Cache
+der E2E-Tests (Playwright setzt `DATA_DIR`); gegen einen eigenen Dev-Server auf 3000 laufen
+die Computer-Tests mit dem, was `/api/activity` liefert.
 
 # Kommandos
 

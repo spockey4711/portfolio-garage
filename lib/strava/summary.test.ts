@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { type ActivityCache, emptyCache, upsertActivity } from "./cache";
+import { plan } from "../fuelivo/fixtures";
+import {
+  type ActivityCache,
+  emptyCache,
+  setPlan,
+  upsertActivity,
+} from "./cache";
 import { activity, ride } from "./fixtures";
 import {
   localDay,
   mondayOf,
   summarize,
+  toLatest,
   toPublic,
   trainingStress,
 } from "./summary";
@@ -70,6 +77,22 @@ describe("toPublic", () => {
     expect(pub).not.toHaveProperty("athleteId");
     expect(pub).not.toHaveProperty("isPrivate");
     expect(pub.tss).toBe(220);
+    expect(pub.averageTemp).toBe(17);
+  });
+
+  it("has no temperature for an activity cached before the field existed", () => {
+    const { averageTemp: _omitted, ...before } = ride;
+    void _omitted;
+    expect(toPublic(before as typeof ride, null).averageTemp).toBeNull();
+  });
+});
+
+describe("toLatest", () => {
+  it("adds the plan of the activity, null without one", () => {
+    expect(toLatest(ride, { ftp: null, plans: {} }).plan).toBeNull();
+    expect(toLatest(ride, { ftp: null, plans: { [ride.id]: plan } }).plan).toBe(
+      plan,
+    );
   });
 });
 
@@ -119,8 +142,9 @@ describe("summarize", () => {
         normalizedWatts: null,
       },
     ]);
-    const { latest, week } = summarize(cache, friday);
+    const { latest, week } = summarize(setPlan(cache, 4, plan), friday);
     expect(latest?.id).toBe(4);
+    expect(latest?.plan).toEqual(plan);
     expect(week.count).toBe(3);
     expect(week.movingTime).toBe(10980 + 1800 + 600);
     expect(week.distance).toBe(84213.5 + 12000 + 3000);

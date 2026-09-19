@@ -36,6 +36,8 @@ export interface Activity {
   readonly kilojoules: number | null;
   /** Strava's relative effort ("suffer score"), heart-rate based. */
   readonly relativeEffort: number | null;
+  /** Mean temperature in °C from the head unit; null without a sensor. */
+  readonly averageTemp: number | null;
   readonly trainer: boolean;
   readonly commute: boolean;
   /** Private on Strava: kept in the cache, never served by the public API. */
@@ -120,6 +122,7 @@ export function activityFromStrava(value: unknown): Activity {
     powerFromMeter: hasPower ? boolean(raw, "device_watts") : null,
     kilojoules: optionalNumber(raw, "kilojoules"),
     relativeEffort: optionalNumber(raw, "suffer_score"),
+    averageTemp: optionalNumber(raw, "average_temp"),
     trainer: boolean(raw, "trainer"),
     commute: boolean(raw, "commute"),
     isPrivate: boolean(raw, "private"),

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { FuelPlanCard } from "@/components/site/FuelPlanCard";
 import { ProjectFacts } from "@/components/site/ProjectFacts";
 import { Section } from "@/components/site/Section";
 import { TextLink } from "@/components/site/TextLink";
@@ -73,6 +74,17 @@ export default async function Projekt({ params }: { params: Promise<Params> }) {
           ))}
         </ul>
       </Section>
+      {project.demo === "fuelplan" && (
+        <Section id="live" title={site.project.plan.title}>
+          <p>{site.project.plan.intro}</p>
+          <FuelPlanCard />
+          <p>
+            <TextLink href={site.project.plan.more.href}>
+              {site.project.plan.more.label}
+            </TextLink>
+          </p>
+        </Section>
+      )}
       <Section id="ergebnis" title={site.project.sections.result}>
         <p>{project.result}</p>
       </Section>

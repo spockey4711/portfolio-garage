@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "syncedAt": "2026-09-18T17:30:00.000Z",
+  "ftp": 260,
+  "activities": [
+    {
+      "id": 1234567890,
+      "athleteId": 4711,
+      "name": "Bergisches Land",
+      "sport": "Ride",
+      "startedAt": "2026-09-15T05:42:10Z",
+      "startedAtLocal": "2026-09-15T07:42:10",
+      "timezone": "Europe/Berlin",
+      "movingTime": 10980,
+      "elapsedTime": 11520,
+      "distance": 84213.5,
+      "elevationGain": 912,
+      "averageHeartRate": 142.7,
+      "maxHeartRate": 176,
+      "averageWatts": 198.4,
+      "normalizedWatts": 221,
+      "powerFromMeter": true,
+      "kilojoules": 2178.4,
+      "relativeEffort": 118,
+      "averageTemp": 17,
+      "trainer": false,
+      "commute": false,
+      "isPrivate": false
+    }
+  ],
+  "plans": {
+    "1234567890": {
+      "calculatedAt": "2026-09-18T10:00:00.000Z",
+      "logicVersion": "1.0",
+      "input": {
+        "duration_hours": 3.05,
+        "intensity": "moderate",
+        "sport_type": "bike",
+        "session_type": "training",
+        "temperature_c": 17
+      },
+      "carbsPerHour": 65,
+      "fluidPerHour": 800,
+      "sodiumPerHour": 770,
+      "totalCarbs": 198,
+      "totalFluid": 2440,
+      "totalSodium": 2350,
+      "timing": "Every 20-30 minutes during session",
+      "rationale": [
+        "Duration bucket baseline set carbs to 70 g/h.",
+        "Intensity modifier (moderate) adjusted carbs by +0 g/h."
+      ],
+      "warnings": ["Warm conditions: watch your fluid intake."]
+    }
+  }
+}

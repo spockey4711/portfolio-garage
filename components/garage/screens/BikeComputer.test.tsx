@@ -2,6 +2,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useGarageStore } from "@/lib/garage/store";
+import { plan } from "@/lib/fuelivo/fixtures";
 import type { TrainingSummary } from "@/lib/strava/summary";
 import { BikeComputer } from "./BikeComputer";
 
@@ -24,7 +25,9 @@ const summary: TrainingSummary = {
     normalizedWatts: 221,
     tss: 220,
     relativeEffort: 118,
+    averageTemp: 17.4,
     trainer: false,
+    plan,
   },
   week: {
     start: "2026-09-14",
@@ -90,41 +93,69 @@ afterEach(() => {
 });
 
 describe("BikeComputer", () => {
-  it("opens on page 1 with the last session in Edge formatting", async () => {
+  it("opens on page 1 with the last ride in Edge formatting", async () => {
     await mount(summary);
-    expect(title()).toBe("Heute");
+    expect(title()).toBe("Fahrt");
     const text = container.textContent;
     expect(text).toContain("Bergisches Land");
     expect(text).toContain("Gestern · Rad");
     expect(text).toContain("3:03:00");
     expect(text).toContain("84,21");
+    expect(text).toContain("912");
     expect(text).toContain("143");
-    expect(text).toContain("220");
+    expect(text).toContain("17");
+    expect(text).toContain("118");
     expect(text).toContain("18:04");
   });
 
   it("pages with the arrow keys and wraps around like the device", async () => {
     await mount(summary);
     press("ArrowDown");
-    expect(title()).toBe("Woche");
-    expect(container.textContent).toContain("5:35:00");
-    expect(container.textContent).toContain("3 Einheiten");
-    expect(container.querySelectorAll("figure path")).toHaveLength(7);
+    expect(title()).toBe("Plan");
+    const text = container.textContent;
+    expect(text).toContain("moderat · 3,1 h · 17 °C");
+    expect(text).toContain("65");
+    expect(text).toContain("198");
+    expect(text).toContain("800");
+    expect(text).toContain("2.440");
+    expect(text).toContain("770");
+    expect(text).toContain("2.350");
+    expect(container.querySelector("a")?.getAttribute("href")).toBe(
+      "/projekte/fuelivo",
+    );
     press("ArrowDown");
-    expect(title()).toBe("Über");
-    expect(container.textContent).toContain("Yannik");
-    expect(container.querySelector("a")?.getAttribute("href")).toBe("/ueber");
+    expect(title()).toBe("Warum");
+    expect(container.textContent).toContain(plan.rationale[0]);
+    expect(container.textContent).toContain(plan.warnings[0]);
     press("ArrowDown");
-    expect(title()).toBe("Heute");
+    expect(title()).toBe("Fahrt");
     press("ArrowUp");
-    expect(title()).toBe("Über");
+    expect(title()).toBe("Warum");
+  });
+
+  it("names the reason when the activity has no plan", async () => {
+    await mount({
+      ...summary,
+      latest: { ...summary.latest!, sport: "Hike", plan: null },
+    });
+    press("ArrowDown");
+    expect(container.textContent).toContain("Kein Plan für diese Sportart");
+    expect(container.textContent).not.toContain("65");
+    press("ArrowDown");
+    expect(container.textContent).toContain("Kein Plan für diese Sportart");
+  });
+
+  it("says the plan is still to come when Fuelivo has not answered yet", async () => {
+    await mount({ ...summary, latest: { ...summary.latest!, plan: null } });
+    press("ArrowDown");
+    expect(container.textContent).toContain("Plan folgt");
   });
 
   it("ignores the keys while the view is not open", async () => {
     await mount(summary);
     act(() => useGarageStore.setState({ phase: "idle", view: "ruhe" }));
     press("ArrowDown");
-    expect(title()).toBe("Heute");
+    expect(title()).toBe("Fahrt");
   });
 
   it("keeps its fields empty when the data does not arrive", async () => {
@@ -132,5 +163,7 @@ describe("BikeComputer", () => {
     expect(container.textContent).toContain("Keine Einheit");
     expect(container.textContent).toContain("--");
     expect(container.textContent).not.toContain("NaN");
+    press("ArrowDown");
+    expect(container.textContent).toContain("Keine Einheit");
   });
 });

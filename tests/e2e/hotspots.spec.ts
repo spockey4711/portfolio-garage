@@ -117,6 +117,60 @@ test.describe("screens in the canvas", () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
+  // The three pages of docs/adr/0008 against what the server serves: the
+  // ride, the plan fuelivo.de calculated for it, and why. The fixture cache
+  // in tests/e2e/data has a plan; a server on your own cache may not, then
+  // the pages name the reason instead.
+  test("the bike computer pages through ride, plan and why with the arrow keys", async ({
+    page,
+  }) => {
+    const summary = (await (
+      await page.request.get("/api/activity")
+    ).json()) as {
+      latest: {
+        name: string;
+        sport: string;
+        movingTime: number;
+        plan: {
+          carbsPerHour: number;
+          totalFluid: number;
+          rationale: string[];
+        } | null;
+      } | null;
+    };
+    await openGarage(page, "/?view=computer");
+    const screen = bikeComputer(page);
+    await expect(screen).toHaveCSS("pointer-events", "auto");
+    const title = screen.locator("header span").first();
+    await expect(title).toHaveText("Fahrt");
+    if (summary.latest) await expect(screen).toContainText(summary.latest.name);
+
+    await page.keyboard.press("ArrowDown");
+    await expect(title).toHaveText("Plan");
+    const plan = summary.latest?.plan ?? null;
+    if (plan) {
+      await expect(screen).toContainText(String(plan.carbsPerHour));
+      await expect(screen).toContainText(
+        plan.totalFluid.toLocaleString("de-DE"),
+      );
+    } else {
+      await expect(screen).toContainText(/Kein Plan|Plan folgt|Keine Einheit/);
+    }
+    await expect(screen.getByRole("link", { name: /fuelivo/ })).toHaveAttribute(
+      "href",
+      "/projekte/fuelivo",
+    );
+
+    await page.keyboard.press("ArrowDown");
+    await expect(title).toHaveText("Warum");
+    if (plan) await expect(screen).toContainText(plan.rationale[0]);
+
+    await page.keyboard.press("ArrowDown");
+    await expect(title).toHaveText("Fahrt");
+    await page.keyboard.press("ArrowUp");
+    await expect(title).toHaveText("Warum");
+  });
+
   test("a click on a closed screen opens its hotspot", async ({ page }) => {
     await openGarage(page);
     // The bike computer sits in the middle of the frame on every viewport; the

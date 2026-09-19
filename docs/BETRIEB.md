@@ -77,19 +77,27 @@ docker run --rm -p 127.0.0.1:3777:3000 portfolio-garage:local
 
 ## Strava
 
-Der Radcomputer zeigt Trainingsdaten aus Strava (`docs/KONZEPT.md` §5, ADR-0002). Der Code
-liegt in `lib/strava/`, die Routen unter `app/api/`. Der Container hält nur zwei Dateien
-Zustand, beide im Volume `data` unter `/data`: `strava-token.json` (Access- und
+Der Radcomputer zeigt die letzte Einheit aus Strava und den Verpflegungsplan, den
+fuelivo.de dafür rechnet (`docs/KONZEPT.md` §5, ADR-0002, ADR-0008). Der Code liegt in
+`lib/strava/` und `lib/fuelivo/`, die Routen unter `app/api/`. Der Container hält nur zwei
+Dateien Zustand, beide im Volume `data` unter `/data`: `strava-token.json` (Access- und
 Refresh-Token, rotiert bei jedem Refresh) und `activities.json` (die letzten 400 Tage,
-ohne Ortsdaten).
+ohne Ortsdaten, dazu der Fuelivo-Plan unter `plans[<id>]`).
 
 ```
 Garmin -> Strava -> POST /api/strava/webhook  (Event mit id, Antwort sofort, Abruf danach)
                      POST /api/strava/sync     (Host-Cron mit Secret, Fallback, holt die
                                                letzte Woche plus alles Neue nach)
-                     GET  /api/activity        (öffentlich: letzte Einheit, laufende Woche,
-                                               nichts Privates)
+                        -> POST fuelivo.de/calculate  (am Ende jedes Syncs für die neueste
+                                               sichtbare Einheit, wenn sie noch keinen
+                                               Plan hat; ohne Antwort bleibt sie ohne)
+                     GET  /api/activity        (öffentlich: letzte Einheit mit Plan,
+                                               laufende Woche, nichts Privates)
 ```
+
+Der Aufruf nach fuelivo.de braucht keinen Schlüssel und läuft nur aus dem Sync heraus, nie
+aus einer Seitenanfrage. Bleibt der Plan aus (Log: "No plan from fuelivo.de"), zeigt der
+Computer "Plan folgt nach dem nächsten Sync"; ein `sync` holt ihn nach.
 
 ### Einmalig einrichten
 

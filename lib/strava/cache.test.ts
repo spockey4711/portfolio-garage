@@ -10,9 +10,11 @@ import {
   pruneCache,
   readCache,
   removeActivity,
+  setPlan,
   upsertActivity,
   writeCache,
 } from "./cache";
+import { plan } from "../fuelivo/fixtures";
 import { activity, ride } from "./fixtures";
 
 const older = activity({ id: 1, startedAt: "2026-09-10T06:00:00Z" });
@@ -46,6 +48,12 @@ describe("removeActivity", () => {
     expect(removeActivity(cache, ride.id).activities).toEqual([]);
     expect(removeActivity(cache, 99).activities).toEqual([ride]);
   });
+
+  it("takes the activity's plan with it", () => {
+    const cache = setPlan(upsertActivity(emptyCache, ride), ride.id, plan);
+    expect(cache.plans[ride.id]).toBe(plan);
+    expect(removeActivity(cache, ride.id).plans).toEqual({});
+  });
 });
 
 describe("pruneCache", () => {
@@ -63,8 +71,14 @@ describe("pruneCache", () => {
         now.getTime() - (KEEP_DAYS - 1) * 86_400_000,
       ).toISOString(),
     });
-    const cache = [ancient, kept].reduce(upsertActivity, emptyCache);
-    expect(pruneCache(cache, now).activities.map((a) => a.id)).toEqual([4]);
+    const cache = setPlan(
+      setPlan([ancient, kept].reduce(upsertActivity, emptyCache), 3, plan),
+      4,
+      plan,
+    );
+    const pruned = pruneCache(cache, now);
+    expect(pruned.activities.map((a) => a.id)).toEqual([4]);
+    expect(Object.keys(pruned.plans)).toEqual(["4"]);
   });
 });
 
@@ -85,10 +99,19 @@ describe("readCache and writeCache", () => {
       syncedAt: "2026-09-18T12:00:00.000Z",
       ftp: 260,
       activities: [ride],
+      plans: { [ride.id]: plan },
     };
     await writeCache(dir, cache);
     expect(await readCache(dir)).toEqual(cache);
     expect(await readFile(cachePath(dir), "utf8")).toMatch(/\n$/);
+  });
+
+  it("reads a file from before the plans as one without any", async () => {
+    await writeFile(
+      cachePath(dir),
+      JSON.stringify({ version: 1, syncedAt: null, ftp: 260, activities: [] }),
+    );
+    expect((await readCache(dir)).plans).toEqual({});
   });
 
   it("treats a file of another version as empty", async () => {

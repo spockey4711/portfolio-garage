@@ -19,7 +19,7 @@ describe("activityFromStrava", () => {
     );
   });
 
-  it("handles a ride without power or heart rate", () => {
+  it("handles a ride without power, heart rate or temperature", () => {
     const parsed = activityFromStrava({
       ...rawRide,
       average_watts: undefined,
@@ -31,12 +31,14 @@ describe("activityFromStrava", () => {
       max_heartrate: undefined,
       suffer_score: undefined,
       total_elevation_gain: undefined,
+      average_temp: undefined,
     });
     expect(parsed.averageWatts).toBeNull();
     expect(parsed.normalizedWatts).toBeNull();
     expect(parsed.powerFromMeter).toBeNull();
     expect(parsed.averageHeartRate).toBeNull();
     expect(parsed.relativeEffort).toBeNull();
+    expect(parsed.averageTemp).toBeNull();
     expect(parsed.elevationGain).toBe(0);
   });
 
