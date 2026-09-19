@@ -18,7 +18,6 @@ export type FocusViewId = Exclude<ViewId, typeof REST_VIEW>;
 export type ViewUi =
   | "labels" // rest position: hover labels only
   | "screen" // React tree on a face of the object (<Html transform occlude>): a display, or the board itself
-  | "overlay" // DOM overlay in front of a wall object (not built yet)
   | "hover"; // no screen, hovering parts of the object reveals text
 
 export interface View<Id extends ViewId = ViewId> {
@@ -60,11 +59,13 @@ const meta = {
     mesh: "Pinnwand",
     display: "Pinnwand_Kork",
   },
+  // The handwriting lies on the white face inside the frame; the DOM is
+  // transparent, the face comes from the bake (Whiteboard.tsx).
   whiteboard: {
-    slug: "plan",
-    ui: "overlay",
+    slug: "about",
+    ui: "screen",
     mesh: "Whiteboard",
-    display: null,
+    display: "Whiteboard_Flaeche",
   },
   werkzeugwand: {
     slug: "tools",

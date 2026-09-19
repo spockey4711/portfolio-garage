@@ -16,11 +16,43 @@ export interface SkillGroup {
   readonly items: readonly string[];
 }
 
+/** One line of the snapshot: a project, a job, a habit. */
+export interface NowEntry {
+  readonly label: string;
+  /** The current state, one short clause. */
+  readonly detail: string;
+  /** Makes the label a link; internal route or URL. */
+  readonly href?: string;
+}
+
+/**
+ * The snapshot the whiteboard in the garage shows (docs/adr/0008: who,
+ * where, what is running, where to) and /ueber prints as a section. Meant
+ * to be edited often: change the entries and bump `updated`, nothing else.
+ */
+export interface NowContent {
+  readonly title: string;
+  /** Free text, e.g. "Stand September 2026". */
+  readonly updated: string;
+  /**
+   * Who and where in the fewest words, one line each: the whiteboard writes
+   * them under the name, the page says the same in the intro.
+   */
+  readonly who: readonly string[];
+  readonly entries: readonly NowEntry[];
+  /** Where this is going: a heading and one sentence. */
+  readonly next: {
+    readonly title: string;
+    readonly text: string;
+  };
+}
+
 export interface AboutContent {
   readonly title: string;
   /** For <meta name="description">. */
   readonly description: string;
   readonly intro: readonly string[];
+  readonly now: NowContent;
   readonly career: {
     readonly title: string;
     readonly entries: readonly CareerEntry[];
@@ -48,6 +80,41 @@ const de: AboutContent = {
     "Ich studiere Wirtschaftsinformatik an der Universität zu Köln und baue nebenbei die Dinge, die ich selbst gebraucht hätte. Mein bisher größtes Projekt ist fuelivo: Aus Dauer, Intensität, Sportart und ein paar Angaben zur Verträglichkeit wird ein konkreter Verpflegungsplan, in Gramm und Millilitern statt in Faustregeln. Es war das erste Projekt, das über ein Python-Skript mit README hinausgewachsen ist, mit eigener Domain, CI und einer nativen iOS-App.",
     "Neben dem Studium mache ich viel Sport: Rad, Hockey, Laufen, Gym und was sonst gerade ansteht. Das prägt, wie ich arbeite. Ein Plan, saubere Ausführung, und Dinge zu Ende bringen. Deshalb steht auf der Startseite eine Werkstatt und kein Hero-Bild.",
   ],
+  now: {
+    title: "Was gerade läuft",
+    updated: "Stand September 2026",
+    who: [
+      "Wirtschaftsinformatik, Uni Köln",
+      "Werkstudent am IW Köln",
+      "Rad, Hockey, Laufen, Gym",
+    ],
+    entries: [
+      {
+        label: "fuelivo",
+        detail: "live auf fuelivo.de, Web und iOS, Plan pro Einheit",
+        href: "/projekte/fuelivo",
+      },
+      {
+        label: "Diese Garage",
+        detail:
+          "Portfolio als Werkstatt in 3D, der Radcomputer rechnet auf echten Einheiten",
+        href: "/blog/warum-eine-werkstatt",
+      },
+      {
+        label: "Patentdatenbank",
+        detail:
+          "Datenanalyse und Prozesse am Institut der deutschen Wirtschaft",
+      },
+      {
+        label: "Studium",
+        detail: "B.Sc. Wirtschaftsinformatik, seit Oktober 2024",
+      },
+    ],
+    next: {
+      title: "Wohin",
+      text: "Software für Ausdauersportler, die rechnet statt rät: deterministisch, mit Begründung, zu Ende gebaut.",
+    },
+  },
   career: {
     title: "Werdegang",
     entries: [

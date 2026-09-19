@@ -28,7 +28,7 @@ describe("hrefForView", () => {
 
   it("keeps unrelated params and replaces an existing view", () => {
     const search = new URLSearchParams("utm=x&view=laptop");
-    expect(hrefForView(views.whiteboard, search)).toBe("/?utm=x&view=plan");
+    expect(hrefForView(views.whiteboard, search)).toBe("/?utm=x&view=about");
     expect(hrefForView(views[REST_VIEW], search)).toBe("/?utm=x");
     expect(search.get("view"), "input is not mutated").toBe("laptop");
   });

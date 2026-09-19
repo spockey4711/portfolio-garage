@@ -210,21 +210,30 @@ def zettel(bm):
 parent_to(multi("Pinnwand_Zettel", zettel, [M["Papier"], M["Akzent"], M["Foto"]]), board)
 
 # ---------------------------------------------------------------- Whiteboard
+# aluminium frame with pen tray, the white face its own single-material mesh:
+# the web lays the handwriting (Whiteboard.tsx, transparent DOM) on that face
+# (lib/garage/hotspots.ts, display), same split as the pinboard's cork
 WX, WZ, WW, WH = 0.4, 1.5, 1.2, 0.9
+WF = 0.02
 
 
-def whiteboard(bm):
-    f = 0.02
-    bm_box(bm, (WW, 0.02, f), (WX, 1.99, WZ + WH / 2 - f / 2), 0)
-    bm_box(bm, (WW, 0.02, f), (WX, 1.99, WZ - WH / 2 + f / 2), 0)
-    bm_box(bm, (f, 0.02, WH - 2 * f), (WX - WW / 2 + f / 2, 1.99, WZ), 0)
-    bm_box(bm, (f, 0.02, WH - 2 * f), (WX + WW / 2 - f / 2, 1.99, WZ), 0)
-    bm_box(bm, (WW - 2 * f, 0.012, WH - 2 * f), (WX, 1.994, WZ), 1)
+def whiteboard_rahmen(bm):
+    bm_box(bm, (WW, 0.02, WF), (WX, 1.99, WZ + WH / 2 - WF / 2), 0)
+    bm_box(bm, (WW, 0.02, WF), (WX, 1.99, WZ - WH / 2 + WF / 2), 0)
+    bm_box(bm, (WF, 0.02, WH - 2 * WF), (WX - WW / 2 + WF / 2, 1.99, WZ), 0)
+    bm_box(bm, (WF, 0.02, WH - 2 * WF), (WX + WW / 2 - WF / 2, 1.99, WZ), 0)
     bm_box(bm, (0.5, 0.06, 0.015), (WX, 1.96, WZ - WH / 2 + 0.0075), 0)  # pen tray
     bm_box(bm, (0.5, 0.008, 0.03), (WX, 1.934, WZ - WH / 2 + 0.022), 0)
 
 
-multi("Whiteboard", whiteboard, [M["Metall_Hell"], M["Whiteboard"]])
+wb = multi("Whiteboard", whiteboard_rahmen, [M["Metall_Hell"]])
+
+
+def whiteboard_flaeche(bm):
+    bm_box(bm, (WW - 2 * WF, 0.012, WH - 2 * WF), (WX, 1.994, WZ), 0)
+
+
+parent_to(multi("Whiteboard_Flaeche", whiteboard_flaeche, [M["Whiteboard"]]), wb)
 
 # ---------------------------------------------------------------- Werkzeugwand
 # pegboard with steel rails, x -2.95..-1.75, z 1.00..2.20

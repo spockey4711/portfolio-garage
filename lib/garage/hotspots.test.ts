@@ -63,7 +63,7 @@ describe("viewFromSlug", () => {
     expect(viewFromSlug("computer").id).toBe("radcomputer");
     expect(viewFromSlug("laptop").id).toBe("laptop");
     expect(viewFromSlug("blog").id).toBe("pinnwand");
-    expect(viewFromSlug("plan").id).toBe("whiteboard");
+    expect(viewFromSlug("about").id).toBe("whiteboard");
     expect(viewFromSlug("tools").id).toBe("werkzeugwand");
   });
 
