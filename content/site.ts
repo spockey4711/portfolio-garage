@@ -23,6 +23,8 @@ export interface SiteContent {
   readonly footer: {
     readonly label: string;
     readonly links: readonly NavLink[];
+    /** Impressum and Datenschutz, the row under the contact links. */
+    readonly legal: readonly NavLink[];
   };
   readonly home: {
     /** Under the name: what, where, current role, current build. */
@@ -98,6 +100,10 @@ const de: SiteContent = {
       { label: "mail@yannikwuenker.de", href: "mailto:mail@yannikwuenker.de" },
       { label: "GitHub", href: "https://github.com/spockey4711" },
       { label: "LinkedIn", href: "https://www.linkedin.com/in/yannik-wuenker" },
+    ],
+    legal: [
+      { label: "Impressum", href: "/impressum" },
+      { label: "Datenschutz", href: "/datenschutz" },
     ],
   },
   home: {

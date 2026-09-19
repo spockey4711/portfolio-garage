@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getAboutContent } from "./about";
 import { getPosts } from "./blog";
 import { getGarageContent } from "./garage";
+import { getLegalContent, legalEntity } from "./legal";
 import { getProjects } from "./projects";
 import { getSiteContent } from "./site";
 
@@ -26,6 +27,7 @@ const all = [
   ...strings(getSiteContent("de"), "site"),
   ...strings(getAboutContent("de"), "about"),
   ...strings(getGarageContent("de"), "garage"),
+  ...strings(getLegalContent("de"), "legal"),
   ...strings(getProjects("de"), "projects"),
   ...strings(getPosts("de"), "blog"),
 ];
@@ -102,5 +104,26 @@ describe("blog posts", () => {
         post.slug,
       ).toBe(true);
     }
+  });
+});
+
+describe("legal pages", () => {
+  const legal = getLegalContent("de");
+
+  it("both name the responsible person with a postal address and a mail", () => {
+    for (const page of [legal.imprint, legal.privacy]) {
+      const lines = page.sections.flatMap((section) => section.address ?? []);
+      expect(lines, page.title).toContain(legalEntity.name);
+      expect(lines, page.title).toContain(legalEntity.street);
+      const hrefs = page.sections.flatMap((section) =>
+        (section.links ?? []).map((link) => link.href),
+      );
+      expect(hrefs, page.title).toContain(`mailto:${legalEntity.email}`);
+    }
+  });
+
+  it("are linked from the footer", () => {
+    const hrefs = getSiteContent("de").footer.legal.map((link) => link.href);
+    expect(hrefs).toEqual(["/impressum", "/datenschutz"]);
   });
 });

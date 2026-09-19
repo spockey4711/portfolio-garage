@@ -110,7 +110,13 @@ Ziel: Der Radcomputer zeigt Fuelivo auf echten Trainingsdaten, der Laptop echte 
   Zettel je Post. Geometrie der Zettel unverändert, deshalb kein neuer Export nötig. Die
   Standbild-Karte zeigt die `PostList` statt der skalierten Wand. Zwei erste Posts liegen
   als Entwurf in `content/blog/`.
-- 2D-Inhalte füllen: Projekte, Über, erste Blogposts.
+- ~~2D-Inhalte füllen: Projekte, Über, erste Blogposts.~~ Erledigt 19.09.: die drei Projekte
+  mit Detailseite aus Portfolio2 (fuelivo, Aurelian, DevBlueprint) neu geschrieben, die drei
+  ohne Story bleiben draußen; `/ueber` komplett, zwei Posts in `content/blog/`. Dazu
+  Impressum und Datenschutz (`content/legal.ts`, `/impressum`, `/datenschutz`, im Footer
+  verlinkt), neu formuliert für das, was diese Seite wirklich tut: keine Cookies, kein
+  Speicher, keine Analyse, Schriften und Szene vom eigenen Server, eigene Trainingsdaten aus
+  Strava. Ändert sich die Verarbeitung, ändert sich `legal.ts`.
 
 ### Woche 5 und 6: 20.10. bis 02.11. - Phase 3, Kür
 
