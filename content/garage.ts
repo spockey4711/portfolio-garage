@@ -122,12 +122,14 @@ export interface GarageContent {
       /** Shown in a field whose value is missing or still loading. */
       readonly noData: string;
     };
+    /** The project list of docs/adr/0008: one window, the projects of content/projects. */
     readonly laptop: {
-      readonly label: string;
-      /** Title of the window on the laptop. */
-      readonly projects: string;
-      /** Placeholder line until the project list arrives (Phase 2). */
-      readonly comingSoon: string;
+      /** Title of the window, also the heading of the list. */
+      readonly title: string;
+      /** One line above the list: what it is and what a click does. */
+      readonly intro: string;
+      /** Tag on the first row, the featured project of content/projects/index.ts. */
+      readonly featured: string;
     };
     readonly pinnwand: {
       /** Accessible name of the board. */
@@ -210,9 +212,9 @@ const de: GarageContent = {
       noData: "--",
     },
     laptop: {
-      label: "Laptop-Display",
-      projects: "Projekte",
-      comingSoon: "Projektliste folgt in Phase 2.",
+      title: "Projekte",
+      intro: "Was ich gebaut habe. Jede Zeile führt zur Projektseite.",
+      featured: "Leitprojekt",
     },
     pinnwand: {
       label: "Pinnwand",

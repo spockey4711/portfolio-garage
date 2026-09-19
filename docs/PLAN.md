@@ -92,25 +92,13 @@ Ziel: Der Radcomputer zeigt Fuelivo auf echten Trainingsdaten, der Laptop echte 
   Plan. Maximal-HF ist die höchste im Cache beobachtete. E2E mit Fixture-Cache in
   `tests/e2e/data`. Die Begründungen kommen englisch von fuelivo.de, das ist Daten, nicht
   Content.
-- `Laptop.tsx`: Projektliste, Fuelivo inklusive und oben, kein Mini-Rechner (ADR-0008).
-  - `content/garage.ts`: `comingSoon` des Laptops raus, Fenstertitel und Beschriftungen rein,
-    `GarageContent`-Typ anpassen.
-  - Layout: 960 px, 16:10, ein Fenster mit der Liste. `getProjects(defaultLocale)`, pro
-    Zeile Name, Tagline, `ProjectFacts`, Leitprojekt oben. Jede Zeile ein `next/link` auf
-    `/projekte/<slug>`.
-  - `role="img"` und `aria-label` am Wrapper entfernen, es sind Links. `<section>` mit
-    Überschrift.
-  - Klickverhalten: Link im offenen Screen navigiert (die `stopPropagation`-Handler in
-    `Screen.tsx` dürfen `next/link` nicht bremsen).
-  - Lesbarkeit: Schriftgrößen bei `pxWidth: 960` gegen die Fokus-Kamera prüfen (Display etwa
-    65 % Viewport-Höhe), notfalls `pxWidth` ändern.
-  - Geschlossener Zustand bleibt Kulisse (inert, keine Pointer-Events), sieht aber nicht
-    mehr nach Platzhalter aus.
-  - `StillView.tsx`: Laptop-Karte in 32rem prüfen.
-  - Test für `Laptop.tsx`: genau die Projekte aus `content/projects/index.ts` in der
-    Reihenfolge, Links stimmen.
-  - E2E auf `/?view=laptop`: Projektklick navigiert, Escape fährt zurück, Klick im Screen
-    ist kein Klick ins Leere, unter 768 px greift die Karte. Pixel-Check.
+- ~~`Laptop.tsx`: Projektliste, Fuelivo inklusive und oben, kein Mini-Rechner (ADR-0008).~~
+  Erledigt 19.09.: ein Fenster mit der Liste aus `content/projects/index.ts`, jede Zeile ein
+  `next/link` auf `/projekte/<slug>` (navigiert aus dem drei-Portal heraus, die
+  `stopPropagation`-Handler in `Screen.tsx` stören nicht), Leitprojekt oben mit Tag.
+  `pxWidth` 720 statt 960, weil die Fokus-Kamera das Display bei etwa 600 px zeigt. Die
+  Standbild-Karte zeigt nicht den skalierten Screen (auf dem Handy 7-px-Schrift), sondern
+  über `ScreenSpec.Card` dieselbe `ProjectList` wie die Startseite in Seitengröße.
 - Pinnwand auf Blog umbauen (ADR-0008): Blog-Inhalte in `content/blog/` wie die Projekte
   (eine Datei je Post, `index.ts` bestimmt Reihenfolge), Route `app/(seiten)/blog/[slug]`.
   `pinboard.json` bekommt je Post einen Zettel, Startnummern und Fotos bleiben Deko ohne

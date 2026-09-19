@@ -2,7 +2,7 @@ import type { ComponentType } from "react";
 import type { ScreenViewId } from "@/lib/garage/hotspots";
 import { PINBOARD_PX_PER_M, pinboard } from "@/lib/garage/pinboard";
 import { BikeComputer, EDGE_LENS, EDGE_SCALE } from "./BikeComputer";
-import { Laptop } from "./Laptop";
+import { Laptop, LaptopCard } from "./Laptop";
 import { Pinboard } from "./Pinboard";
 
 export interface ScreenSpec {
@@ -31,6 +31,12 @@ export interface ScreenSpec {
    * component that paints its own background.
    */
   readonly backdrop?: string;
+  /**
+   * What the still's card shows instead of the component scaled down as a
+   * whole: a screen whose content is text is unreadable scaled to a phone,
+   * so its card shows the same content at page size.
+   */
+  readonly Card?: ComponentType;
 }
 
 // One entry per view whose ui is "screen" in lib/garage/hotspots.ts; the
@@ -42,7 +48,14 @@ export const screens: Readonly<Record<ScreenViewId, ScreenSpec>> = {
     pxWidth: EDGE_LENS.width * EDGE_SCALE,
     aspect: EDGE_LENS.width / EDGE_LENS.height,
   },
-  laptop: { Component: Laptop, pxWidth: 960, aspect: 16 / 10 },
+  // 720 px across the 30 cm panel: the focus camera shows it at about 600
+  // px on a laptop viewport, so the type lands close to its CSS size.
+  laptop: {
+    Component: Laptop,
+    pxWidth: 720,
+    aspect: 30 / 19,
+    Card: LaptopCard,
+  },
   pinnwand: {
     Component: Pinboard,
     pxWidth: pinboard.width * PINBOARD_PX_PER_M,
