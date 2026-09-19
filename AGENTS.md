@@ -14,8 +14,9 @@ nicht zum Einsatz. Aus Woche 1 steht der Code: Store, Kamerafahrten, Hotspot-Kli
 `?view=`-Sync, Tastatur, Hover-Outline, Screens als `<Html transform occlude>` mit
 Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Woche 1 komplett:
 Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Woche 2 bis auf das Go-live komplett.
-Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`), die Screens sind
-noch Platzhalter.
+Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`) und die Pinnwand
+(`Pinboard.tsx`, alles darauf verlinkt nach `/ueber`), Radcomputer und Laptop sind noch
+Platzhalter.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
 `public/models/garage-lightmap-tag.webp` (Licht ohne Farbe, UV-Set 2), `Scene.tsx` tauscht
@@ -39,7 +40,12 @@ dem Canvas-Wrapper, in den drei das DOM portalt, deshalb stoppt der offene Scree
 Pointer-Events, sonst zählt ein Klick im Screen als "Klick ins Leere". Geschlossene Screens
 sind `inert` ohne Pointer-Events, der Klick trifft die Klickbox dahinter. `occlude` bekommt
 nur den GLB-Root, nie die Klickboxen. Neue Screen-View: `ui: "screen"` in `hotspots.ts`
-erzwingt einen Eintrag in `components/garage/screens/index.ts`.
+erzwingt einen Eintrag in `components/garage/screens/index.ts`. Die Pinnwand ist ein Screen
+auf der Korkfläche (`Pinnwand_Kork`): das DOM ist transparent, Kork und Rahmen kommen aus
+dem GLB, `ScreenSpec.shade` dunkelt es im Raum ab, `backdrop` malt der Standbild-Karte den
+Kork. Was wo hängt, steht in `lib/garage/pinboard.json`, das `build_furniture.py` für die
+Papier-Attrappen im GLB und `Pinboard.tsx` für das DOM lesen; Layout ändern heißt JSON
+ändern, Möbel-Skript laufen lassen, exportieren.
 
 Fallback: Das Standbild ist immer der erste Paint. `GarageStill.tsx` zeigt die vom Export
 gerenderte Ruheansicht (`public/models/garage-ruhe-tag-{quer,hoch}.webp`, dieselbe Kamera,

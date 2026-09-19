@@ -81,7 +81,8 @@ Ziel: Der Radcomputer zeigt echte Trainingsdaten, der Laptop echte Projekte.
 - `BikeComputer.tsx`: Edge-Layout, Seite 1 Heute, Seite 2 Woche mit Chart, Seite 3 Über.
   Pfeiltasten wie am Gerät.
 - `Laptop.tsx`: Projektliste, Fuelivo-Mini live.
-- `Pinboard.tsx`: Startnummern, Fotos, Zettel klickbar, führt zu `/ueber`.
+- ~~`Pinboard.tsx`: Startnummern, Fotos, Zettel klickbar, führt zu `/ueber`.~~ Erledigt 18.09.:
+  DOM auf der Korkfläche, Layout in `lib/garage/pinboard.json`, Attrappen im GLB darunter.
 - 2D-Inhalte füllen: Projekte, Über, erste Blogposts.
 
 ### Woche 5 und 6: 20.10. bis 02.11. - Phase 3, Kür

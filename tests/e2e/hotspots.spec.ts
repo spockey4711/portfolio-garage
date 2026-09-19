@@ -122,4 +122,15 @@ test.describe("screens in the canvas", () => {
     await page.mouse.click(x, y);
     await expect(page).toHaveURL(/\?view=computer$/);
   });
+
+  test("the items on the open board are links that leave for /ueber", async ({
+    page,
+  }) => {
+    await openGarage(page, "/?view=board");
+    const board = page.getByRole("navigation", { name: "Pinnwand" });
+    await expect(board).toHaveCSS("pointer-events", "auto");
+
+    await board.getByRole("link", { name: /Über mich/ }).click();
+    await expect(page).toHaveURL(/\/ueber#werdegang$/);
+  });
 });

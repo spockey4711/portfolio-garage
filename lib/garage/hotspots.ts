@@ -17,8 +17,8 @@ export type FocusViewId = Exclude<ViewId, typeof REST_VIEW>;
 /** The kind of UI a focused view shows; drives which screen component mounts. */
 export type ViewUi =
   | "labels" // rest position: hover labels only
-  | "screen" // React tree on a display surface (<Html transform occlude>)
-  | "overlay" // DOM overlay in front of a wall object
+  | "screen" // React tree on a face of the object (<Html transform occlude>): a display, or the board itself
+  | "overlay" // DOM overlay in front of a wall object (not built yet)
   | "hover"; // no screen, hovering parts of the object reveals text
 
 export interface View<Id extends ViewId = ViewId> {
@@ -34,7 +34,7 @@ export interface View<Id extends ViewId = ViewId> {
    * more than its display; the rest view has none.
    */
   readonly mesh: string | null;
-  /** Name of the display mesh a screen view renders on; null unless ui is "screen". */
+  /** Name of the mesh on whose face a screen view renders; null unless ui is "screen". */
   readonly display: string | null;
 }
 
@@ -52,7 +52,14 @@ const meta = {
     mesh: "Laptop",
     display: "Laptop_Display",
   },
-  pinnwand: { slug: "board", ui: "overlay", mesh: "Pinnwand", display: null },
+  // The board's DOM lies on the cork inside the frame, over the paper
+  // stand-ins the GLB carries (lib/garage/pinboard.ts).
+  pinnwand: {
+    slug: "board",
+    ui: "screen",
+    mesh: "Pinnwand",
+    display: "Pinnwand_Kork",
+  },
   whiteboard: {
     slug: "plan",
     ui: "overlay",
