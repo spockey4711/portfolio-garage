@@ -78,8 +78,13 @@ liest ihn von dort: Canvas-Hintergrund und Standbild sind pixelgleich (gemessen)
 
 ### Nachbearbeitung
 
-Der Composer in `HoverOutline.tsx` steht. Leichte Vignette und warmer Tint kosten nichts.
-Aber erst das Licht richtig backen, sonst wird nur kaschiert.
+Erledigt 2026-09-19, aber nicht im Composer: Standbild und Canvas müssen dasselbe Bild
+bleiben (das Standbild ist der erste Paint, das Canvas blendet darüber ein), und ein
+Composer-Pass hätte einen zweiten Render der Standbilder in `export.py` gebraucht.
+Stattdessen liegt `Vignette.tsx` als eine CSS-Ebene mit `mix-blend-mode: multiply` über
+beiden: radialer Verlauf, Weiß bis 40 % der Diagonale, in den Ecken `#d8c4ae` (etwa ein
+Fünftel dunkler und warm). Gemessen: Mitte unverändert, Ecken in Standbild und Canvas
+gleich, kein Render, kein Bake. Stärker soll es nicht werden, der Raum lebt im Schatten.
 
 ### Bewohnt statt aufgeräumt
 
