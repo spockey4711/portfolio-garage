@@ -280,7 +280,20 @@ part("Rad_Flasche", flaschen, [M["Akzent"], M["Kunststoff"], M["Carbon_Matt"]])
 
 
 # ---------------------------------------------------------------- Radcomputer
-# Edge 840 on an out-front mount, 10 cm ahead of the bar, tilted 20 deg towards the rider
+# Garmin Edge 540 on an out-front mount, 10 cm ahead of the bar, tilted 20 deg towards
+# the rider. Local frame: x up the device (portrait), y across, z out of the glass.
+# Measured in the display's own pixels (the Edge's 246 x 322 panel is 0.163 mm/px)
+# and built a third larger than life, so the screen reads from the rider's eye. The
+# glass lens is the mesh the DOM sits on (Screen.tsx), so its outline in pixels is
+# what BikeComputer.tsx lays out: display 246 x 322, bezel 46 above, 40 beside, 68
+# below with the wordmark. Change one side only together with the other.
+RC_PX = 0.000163 * 1.35
+RC_LENS = (436 * RC_PX, 326 * RC_PX)  # (x, y): 322 + 46 + 68 by 246 + 2 * 40 px
+RC_RIM = 0.0025 * 1.35  # plastic around the glass
+RC_BODY = (RC_LENS[0] + 2 * RC_RIM, RC_LENS[1] + 2 * RC_RIM, 0.026)
+RC_LENS_T = 0.0012  # the glass stands proud of the body
+RC_FACE = RC_BODY[2] / 2 + RC_LENS_T  # z of the glass surface
+
 rc = bpy.data.objects.get("Radcomputer")
 if rc is not None and rc.type != "EMPTY":
     remove("Radcomputer")
@@ -297,37 +310,82 @@ rc.rotation_euler = (0, radians(-20), 0)
 rc.scale = (1, 1, 1)
 
 
-def rc_child(name, build, mats, bevel=None):
+def rc_child(name, build, mats, bevel=None, smooth=None):
     bm = bmesh.new()
     build(bm)
     obj = multi_mesh_object(name, bm, mats)
     if bevel:
         add_bevel(obj, bevel)
+    if smooth:
+        smooth_by_angle(obj, smooth)
     obj.parent = rc
     obj.matrix_parent_inverse = Matrix.Identity(4)
     obj.matrix_basis = Matrix.Identity(4)
     return obj
 
 
-rc_child("Radcomputer_Gehaeuse", lambda bm: cube(bm, (0, 0, 0), (0.09, 0.06, 0.014)), [M["Kunststoff"]], bevel=0.003)
-rc_child("Radcomputer_Display", lambda bm: cube(bm, (0, 0, 0.0075), (0.074, 0.046, 0.002)), [M["Display"]])
+def rounded_prism(bm, center, size, radius, thick, segs=6, mi=0):
+    """Rounded rectangle (sx, sy) in the xy plane, extruded `thick` along z."""
+    cx, cy, cz = center
+    sx, sy = size
+    profile = []
+    for k, (ex, ey) in enumerate(((1, 1), (-1, 1), (-1, -1), (1, -1))):
+        ax, ay = cx + ex * (sx / 2 - radius), cy + ey * (sy / 2 - radius)
+        for i in range(segs + 1):
+            a = k * pi / 2 + (pi / 2) * i / segs
+            profile.append((ax + radius * cos(a), ay + radius * sin(a)))
+    bottom = [bm.verts.new((x, y, cz - thick / 2)) for x, y in profile]
+    top = [bm.verts.new((x, y, cz + thick / 2)) for x, y in profile]
+    faces = [bm.faces.new(bottom[::-1]), bm.faces.new(top)]
+    n = len(profile)
+    for i in range(n):
+        f = bm.faces.new((bottom[i], bottom[(i + 1) % n], top[(i + 1) % n], top[i]))
+        f.smooth = True
+        faces.append(f)
+    for f in faces:
+        f.material_index = mi
+    bmesh.ops.recalc_face_normals(bm, faces=faces)
+
+
+def gehaeuse(bm):
+    rounded_prism(bm, (0, 0, 0), RC_BODY[:2], 60 * RC_PX, RC_BODY[2])
+
+
+def lens(bm):
+    rounded_prism(bm, (0, 0, RC_BODY[2] / 2 + RC_LENS_T / 2), RC_LENS, 45 * RC_PX, RC_LENS_T, segs=4)
+
+
+def tasten(bm):
+    """Power and Back on the left, Up and Down on the right, Lap and Start along the bottom."""
+    hx, hy, hz = (s / 2 for s in RC_BODY)
+    proud, height = 0.0035, 0.010
+    for x, length in ((hx - 0.020, 0.010), (-0.004, 0.018)):
+        cube(bm, (x, hy, 0), (length, 2 * proud, height))
+    for x in (0.014, -0.010):
+        cube(bm, (x, -hy, 0), (0.016, 2 * proud, height))
+    for y in (0.022, -0.022):
+        cube(bm, (-hx, y, 0), (2 * proud, 0.016, height))
 
 
 def halter(bm):
-    cube(bm, (-0.055, 0, -0.012), (0.11, 0.02, 0.008), Matrix.Rotation(radians(20), 4, "Y"))
-    cube(bm, (-0.10, 0, -0.03), (0.04, 0.05, 0.03))  # clamp around the bar
+    plate_z = RC_BODY[2] / 2 + 0.002
+    cube(bm, (-0.055, 0, -plate_z), (0.11, 0.02, 0.008), Matrix.Rotation(radians(20), 4, "Y"))
+    cube(bm, (-0.10, 0, -0.035), (0.04, 0.05, 0.03))  # clamp around the bar
 
 
+rc_child("Radcomputer_Gehaeuse", gehaeuse, [M["Kunststoff"]], bevel=0.003, smooth=40)
+rc_child("Radcomputer_Display", lens, [M["Display"]])
+rc_child("Radcomputer_Tasten", tasten, [M["Kunststoff"]], bevel=0.0012)
 rc_child("Radcomputer_Halter", halter, [M["Kunststoff"]])
 
-# hotspot empties follow the display: target on the panel, camera 17 cm out, 8 degrees
+# hotspot empties follow the display: target on the glass, camera 14.5 cm out, 8 degrees
 # steeper than the panel normal, i.e. from the rider's eye above the bar (pose.ts rolls
 # the camera so the panel's vertical edge stays vertical on screen)
 bpy.context.view_layer.update()
-disp_w = rc.matrix_world @ Vector((0, 0, 0.0085))
+disp_w = rc.matrix_world @ Vector((0, 0, RC_FACE))
 cam_dir = (rad.matrix_world.to_3x3() @ Vector((-sin(radians(28)), 0, cos(radians(28))))).normalized()
 bpy.data.objects["Ziel_Radcomputer"].location = disp_w
-bpy.data.objects["Cam_Radcomputer"].location = disp_w + cam_dir * 0.172
+bpy.data.objects["Cam_Radcomputer"].location = disp_w + cam_dir * 0.145
 
 # ---------------------------------------------------------------- Montageständer
 # clamps the seat post; column 42 cm to the bike's left (away from the camera) and a
