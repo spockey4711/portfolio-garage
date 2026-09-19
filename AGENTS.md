@@ -79,8 +79,12 @@ Datei in `content/projects/`, die Liste in `index.ts` bestimmt Reihenfolge und M
 der erste Eintrag ist das Leitprojekt; `/projekte/[slug]` baut nur diese Slugs
 (`dynamicParams = false`). Blogposts genauso in `content/blog/` (`index.ts` neueste zuerst,
 Body als Blöcke `p`/`h2`/`ul`/`quote`, kein MDX), Route `/blog/[slug]`, Liste auf der
-Startseite unter `/#blog`. `content/content.test.ts` prüft jeden sichtbaren String auf
-Gedankenstriche, Emoji und Whitespace.
+Startseite unter `/#blog`. Impressum und Datenschutz stehen in `content/legal.ts`
+(`/impressum`, `/datenschutz`, `LegalPage.tsx`, Footer-Links); die Datenschutzerklärung
+beschreibt, was die Seite tatsächlich tut (keine Cookies, kein Speicher, keine Analyse,
+keine Drittdienste im Browser, eigene Strava-Daten), wer die Verarbeitung ändert, ändert
+sie mit. `content/content.test.ts` prüft jeden sichtbaren String auf Gedankenstriche,
+Emoji und Whitespace.
 
 Strava: `lib/strava/` ist die ganze Anbindung, Betrieb und Einrichtung in `docs/BETRIEB.md`.
 Zustand sind zwei JSON-Dateien in `DATA_DIR` (Token, Cache), die nur `lib/strava/sync.ts`
