@@ -44,8 +44,6 @@ export interface GarageContent {
   readonly still: {
     /** Alt text of the rendered rest view. */
     readonly alt: string;
-    /** Body of the stand-in for a hotspot that has no 2D content yet. */
-    readonly comingSoon: string;
   };
   readonly screens: {
     readonly radcomputer: {
@@ -135,6 +133,13 @@ export interface GarageContent {
       /** Written small in a corner: what the board is and where the rest is. */
       readonly more: string;
     };
+    /** The shadow board of docs/KONZEPT.md §3: the stack, one tool per entry (docs/adr/0008). */
+    readonly werkzeugwand: {
+      /** Accessible name of the wall. */
+      readonly label: string;
+      /** What the tools are and where the links lead: read out on the wall, printed on the still's card. */
+      readonly hint: string;
+    };
     readonly pinnwand: {
       /** Accessible name of the board. */
       readonly label: string;
@@ -163,7 +168,6 @@ const de: GarageContent = {
   },
   still: {
     alt: "Blick von vorn in die Garage: ein Rennrad auf dem Montageständer, dahinter die Werkbank mit Laptop, Werkzeugwand, Whiteboard und Pinnwand.",
-    comingSoon: "Inhalt folgt in Phase 3.",
   },
   screens: {
     radcomputer: {
@@ -223,6 +227,10 @@ const de: GarageContent = {
     whiteboard: {
       label: "Whiteboard",
       more: "Mehr unter /ueber",
+    },
+    werkzeugwand: {
+      label: "Werkzeugwand",
+      hint: "Jedes Werkzeug ist ein Tool aus einem Projekt; die Projekte führen zur Projektseite.",
     },
     pinnwand: {
       label: "Pinnwand",

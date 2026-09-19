@@ -23,10 +23,15 @@ Fotos Deko, Standbild-Karte über `ScreenSpec.Card`), der Laptop
 (`Laptop.tsx`, Projektliste, Standbild-Karte über `ScreenSpec.Card`) und das Whiteboard
 (`Whiteboard.tsx`, Marker-Schrift auf der Fläche `Whiteboard_Flaeche`, Inhalt `about.now`
 aus `content/about.ts`, das `/ueber` als Abschnitt und die Standbild-Karte als `NowList`
-zeigen). Seit ADR-0008 (2026-09-19) gilt eine neue Zuordnung, der Umbau steht in
-`docs/PLAN.md`: Radcomputer zeigt Fuelivo, gerechnet von `fuelivo.de/calculate` auf der
-letzten Strava-Einheit (erledigt), Laptop die Projektliste (erledigt), Pinnwand den Blog
-(erledigt), Whiteboard Über mich (erledigt), Werkzeugwand den Stack.
+zeigen) und die Werkzeugwand (`ToolWall.tsx`, transparentes DOM auf `Werkzeugwand_Platte`:
+Klebeband-Etikett über jedem Haken, auf Hover oder Fokus die Projekte als Links; welches
+Werkzeug wo hängt und welchen `stack`-Eintrag es meint, steht in `lib/garage/tools.json`,
+das `build_furniture.py` für Werkzeuge, Haken und Silhouetten im GLB und `ToolWall.tsx` für
+das DOM lesen, `tools.test.ts` lässt nur Tools zu, die ein Projekt in `content/projects/`
+wirklich in `stack` nennt). Seit ADR-0008 (2026-09-19) gilt eine neue Zuordnung, der Umbau
+steht in `docs/PLAN.md`: Radcomputer zeigt Fuelivo, gerechnet von `fuelivo.de/calculate` auf
+der letzten Strava-Einheit, Laptop die Projektliste, Pinnwand den Blog, Whiteboard Über mich,
+Werkzeugwand den Stack (alles erledigt).
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
 `public/models/garage-lightmap-tag.webp` (Licht ohne Farbe, UV-Set 2), `Scene.tsx` tauscht

@@ -146,14 +146,14 @@ Klick ins Leere fährt zurück. Koordinaten sind Startwerte, Feinabstimmung in B
 Fokus-Kameras stehen so nah, dass das Display etwa 65 % der Viewport-Höhe füllt, sonst ist
 die DOM-UI darauf nicht lesbar.
 
-| Hotspot      | Kamera-Position                           | Blick auf                   | UI-Typ                                                       | URL               |
-| ------------ | ----------------------------------------- | --------------------------- | ------------------------------------------------------------ | ----------------- |
-| Ruhe         | (0, 1.6, 5.2), vertikales FOV 55° (23 mm) | (0, 1.1, 0)                 | Hover-Labels                                                 | `/`               |
-| Radcomputer  | (0.18, 1.25, 0.68), 14,5 cm vor dem Glas  | Display (0.3, 1.07, 0.0)    | DOM in `<Html>`, Edge-UI, Fuelivo auf der letzten Fahrt      | `/?view=computer` |
-| Laptop       | (-1.8, 1.08, -1.23), auf der Lid-Normalen | Display (-1.8, 1.01, -1.63) | DOM in `<Html>`, Projektliste inklusive Fuelivo              | `/?view=laptop`   |
-| Pinnwand     | (1.75, 1.5, -1.1), 0,9 m vor dem Kork     | (1.75, 1.5, -1.9)           | DOM in `<Html>` auf dem Kork, Blog, jeder Post ein Zettel    | `/?view=blog`     |
-| Whiteboard   | (0.4, 1.5, -0.9), 1,1 m vor der Fläche    | (0.4, 1.5, -1.9)            | DOM in `<Html>` auf der Fläche, Über mich als Marker-Schrift | `/?view=about`    |
-| Werkzeugwand | (-2.3, 1.5, 0.2)                          | (-2.4, 1.6, -1.9)           | Hover auf Werkzeug zeigt Tool und Projekt                    | `/?view=tools`    |
+| Hotspot      | Kamera-Position                           | Blick auf                   | UI-Typ                                                                    | URL               |
+| ------------ | ----------------------------------------- | --------------------------- | ------------------------------------------------------------------------- | ----------------- |
+| Ruhe         | (0, 1.6, 5.2), vertikales FOV 55° (23 mm) | (0, 1.1, 0)                 | Hover-Labels                                                              | `/`               |
+| Radcomputer  | (0.18, 1.25, 0.68), 14,5 cm vor dem Glas  | Display (0.3, 1.07, 0.0)    | DOM in `<Html>`, Edge-UI, Fuelivo auf der letzten Fahrt                   | `/?view=computer` |
+| Laptop       | (-1.8, 1.08, -1.23), auf der Lid-Normalen | Display (-1.8, 1.01, -1.63) | DOM in `<Html>`, Projektliste inklusive Fuelivo                           | `/?view=laptop`   |
+| Pinnwand     | (1.75, 1.5, -1.1), 0,9 m vor dem Kork     | (1.75, 1.5, -1.9)           | DOM in `<Html>` auf dem Kork, Blog, jeder Post ein Zettel                 | `/?view=blog`     |
+| Whiteboard   | (0.4, 1.5, -0.9), 1,1 m vor der Fläche    | (0.4, 1.5, -1.9)            | DOM in `<Html>` auf der Fläche, Über mich als Marker-Schrift              | `/?view=about`    |
+| Werkzeugwand | (-2.35, 1.6, -0.6), 1,4 m vor der Platte  | (-2.35, 1.6, -2.0)          | DOM in `<Html>` auf der Platte, Hover auf Werkzeug zeigt Tool und Projekt | `/?view=tools`    |
 
 Zuordnung seit ADR-0008: der Computer ist die Produkt-Seite, der Laptop die Code-Seite,
 Pinnwand und Whiteboard haben Blog und Über mich getauscht.

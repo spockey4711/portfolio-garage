@@ -39,10 +39,7 @@ function rollDeg(quaternion: Quaternion): number {
 }
 
 describe("cameraUp", () => {
-  it("is world y for a view without a screen", () => {
-    expect(cameraUp(views.werkzeugwand, new Group())).toEqual(
-      new Vector3(0, 1, 0),
-    );
+  it("is world y for the rest view, which has no screen", () => {
     expect(cameraUp(views.ruhe, new Group())).toEqual(new Vector3(0, 1, 0));
   });
 

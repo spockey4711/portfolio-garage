@@ -59,13 +59,19 @@ test("the laptop's stand-in lists the projects and a row leads to the project pa
   await expect(page).toHaveURL(/\/projekte\/fuelivo$/);
 });
 
-test("a hotspot without a screen gets the note, and a click beside the card leaves", async ({
+test("the wall's stand-in lists the tools with their projects, and a click beside the card leaves", async ({
   page,
 }) => {
   await openStill(page, "/?view=tools");
   const dialog = page.getByRole("dialog", { name: "Werkzeugwand" });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByText("Inhalt folgt in Phase 3.")).toBeVisible();
+  // A tool of the featured project, and the project as a link to its page.
+  await expect(
+    dialog.getByRole("term").filter({ hasText: "Python" }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole("link", { name: "fuelivo" }).first(),
+  ).toHaveAttribute("href", "/projekte/fuelivo");
 
   await page.mouse.click(10, 300);
   await expect(page).toHaveURL(/\/$/);
