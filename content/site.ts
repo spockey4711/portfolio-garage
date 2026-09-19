@@ -64,6 +64,11 @@ export interface SiteContent {
     /** The CV under public/; "laden" because the file is offered for download. */
     readonly cv: NavLink;
   };
+  /** The text version of / that curl and friends get (lib/terminal/card.ts). */
+  readonly terminal: {
+    /** The closing line; the site's address follows on the same line. */
+    readonly browser: string;
+  };
   /** The chrome of a /blog/<slug> page. */
   readonly post: {
     readonly back: NavLink;
@@ -160,6 +165,9 @@ const de: SiteContent = {
     home: "Startseite",
     copyMail: { label: "Mail kopieren", done: "Kopiert" },
     cv: { label: "CV laden", href: "/cv/yannik-wuenker.pdf" },
+  },
+  terminal: {
+    browser: "Die Werkstatt in 3D gibt es im Browser:",
   },
   post: {
     back: { label: "Alle Beiträge", href: "/#blog" },
