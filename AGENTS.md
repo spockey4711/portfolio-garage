@@ -87,6 +87,12 @@ sie mit. `content/content.test.ts` prüft jeden sichtbaren String auf Gedankenst
 Emoji und Whitespace. `curl /` bekommt die Textkarte: `proxy.ts` (nur Matcher `/`) schreibt
 Terminal-Clients per `lib/terminal/detect.ts` auf `app/ascii/route.ts` um, die Karte rendert
 `lib/terminal/card.ts` aus demselben Content mit absoluten Links vom Host der Anfrage.
+Command Palette (cmd+K, Knopf im Header ab 640 px): `lib/palette.ts` baut und filtert die
+Befehle (Seiten, Projekte, Posts, Hotspots, Mail kopieren, CV laden aus `public/cv/`),
+`CommandPalette.tsx` ist ein natives `<dialog>`, das `SiteHeader` mit der serverseitig
+gebauten Liste mountet; Escape darin ist `defaultPrevented`, sonst schlösse `ViewSync` den
+Hotspot mit. Eine neue Seite, ein neues Projekt oder ein neuer Post taucht ohne Zutun in der
+Liste auf.
 
 Strava: `lib/strava/` ist die ganze Anbindung, Betrieb und Einrichtung in `docs/BETRIEB.md`.
 Zustand sind zwei JSON-Dateien in `DATA_DIR` (Token, Cache), die nur `lib/strava/sync.ts`

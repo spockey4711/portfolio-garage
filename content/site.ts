@@ -1,5 +1,6 @@
 import type { Intensity, NoPlanReason } from "@/lib/fuelivo/request";
 import type { Locale } from "@/lib/i18n";
+import type { CommandGroup } from "@/lib/palette";
 
 // The strings around the content: header, footer, the start page below the
 // garage and the chrome of a project page. The garage's own strings live in
@@ -43,6 +44,25 @@ export interface SiteContent {
       readonly title: string;
       readonly intro: string;
     };
+  };
+  /** The command palette (docs/KONZEPT.md §10): cmd+K, or the button in the header. */
+  readonly palette: {
+    /** Accessible name of the dialog and of the button that opens it. */
+    readonly label: string;
+    readonly placeholder: string;
+    /** Shown in place of the list when nothing matches. */
+    readonly empty: string;
+    /** Headings of the list, one per group. */
+    readonly groups: Readonly<Record<CommandGroup, string>>;
+    /** The start page in the list; the nav has no link to it. */
+    readonly home: string;
+    readonly copyMail: {
+      readonly label: string;
+      /** Replaces the label for a moment once the address is on the clipboard. */
+      readonly done: string;
+    };
+    /** The CV under public/; "laden" because the file is offered for download. */
+    readonly cv: NavLink;
   };
   /** The text version of / that curl and friends get (lib/terminal/card.ts). */
   readonly terminal: {
@@ -130,6 +150,21 @@ const de: SiteContent = {
       intro:
         "Notizen aus der Werkstatt: was ich gebaut habe und warum, wenn es eine Erklärung wert ist.",
     },
+  },
+  palette: {
+    label: "Befehle",
+    placeholder: "Seite, Projekt, Beitrag oder Aktion",
+    empty: "Nichts gefunden.",
+    groups: {
+      pages: "Seiten",
+      projects: "Projekte",
+      blog: "Blog",
+      garage: "Werkstatt",
+      actions: "Aktionen",
+    },
+    home: "Startseite",
+    copyMail: { label: "Mail kopieren", done: "Kopiert" },
+    cv: { label: "CV laden", href: "/cv/yannik-wuenker.pdf" },
   },
   terminal: {
     browser: "Die Werkstatt in 3D gibt es im Browser:",

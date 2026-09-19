@@ -145,8 +145,15 @@ Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
 
 ### Ab Woche 7: November - Craft und Politur
 
-- cmd+K Command Palette, Transparenz-Footer, `j`/`k`, Seite "Wie diese Seite gebaut ist"
-  (KONZEPT §10).
+- ~~cmd+K Command Palette.~~ Erledigt 19.09.: `lib/palette.ts` baut die Liste (Seiten,
+  Projekte, Posts, Hotspots, Mail kopieren, CV laden) und filtert sie ohne Umlaute und
+  Groß/Klein, `CommandPalette.tsx` ist ein natives `<dialog>` im Header mit Listbox und
+  Pfeiltasten, kein Paket. Ein Hotspot-Befehl auf `/` nimmt den flachen `pushState`-Weg
+  wie ein Klick in der Szene, von einer tiefen Seite `router.push("/?view=")`. Escape im
+  Dialog ist `defaultPrevented`, damit `ViewSync` den offenen Hotspot nicht mitschließt.
+  Der Knopf im Header erscheint ab 640 px, das Kürzel gilt überall. Der CV liegt als PDF
+  unter `public/cv/`, aus Portfolio2 übernommen, nicht neu geschrieben.
+- Transparenz-Footer, `j`/`k`, Seite "Wie diese Seite gebaut ist" (KONZEPT §10).
 - ~~`curl yannikwuenker.de` als ASCII.~~ Erledigt 19.09.: `proxy.ts` schreibt `/` für
   Terminal-Clients (`lib/terminal/detect.ts`: curl, wget, HTTPie, xh oder ein Accept, das
   `text/plain` vor `text/html` stellt) auf `app/ascii/route.ts` um, die URL bleibt. Die Karte
