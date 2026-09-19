@@ -84,7 +84,12 @@ Startseite unter `/#blog`. Impressum und Datenschutz stehen in `content/legal.ts
 beschreibt, was die Seite tatsächlich tut (keine Cookies, kein Speicher, keine Analyse,
 keine Drittdienste im Browser, eigene Strava-Daten), wer die Verarbeitung ändert, ändert
 sie mit. `content/content.test.ts` prüft jeden sichtbaren String auf Gedankenstriche,
-Emoji und Whitespace.
+Emoji und Whitespace. Command Palette (cmd+K, Knopf im Header ab 640 px): `lib/palette.ts`
+baut und filtert die Befehle (Seiten, Projekte, Posts, Hotspots, Mail kopieren, CV laden aus
+`public/cv/`), `CommandPalette.tsx` ist ein natives `<dialog>`, das `SiteHeader` mit der
+serverseitig gebauten Liste mountet; Escape darin ist `defaultPrevented`, sonst schlösse
+`ViewSync` den Hotspot mit. Eine neue Seite, ein neues Projekt oder ein neuer Post taucht
+ohne Zutun in der Liste auf.
 
 Strava: `lib/strava/` ist die ganze Anbindung, Betrieb und Einrichtung in `docs/BETRIEB.md`.
 Zustand sind zwei JSON-Dateien in `DATA_DIR` (Token, Cache), die nur `lib/strava/sync.ts`

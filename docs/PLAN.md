@@ -145,8 +145,16 @@ Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
 
 ### Ab Woche 7: November - Craft und Politur
 
-- cmd+K Command Palette, `curl yannikwuenker.de` als ASCII, Transparenz-Footer, `j`/`k`,
-  Seite "Wie diese Seite gebaut ist" (KONZEPT §10).
+- ~~cmd+K Command Palette.~~ Erledigt 19.09.: `lib/palette.ts` baut die Liste (Seiten,
+  Projekte, Posts, Hotspots, Mail kopieren, CV laden) und filtert sie ohne Umlaute und
+  Groß/Klein, `CommandPalette.tsx` ist ein natives `<dialog>` im Header mit Listbox und
+  Pfeiltasten, kein Paket. Ein Hotspot-Befehl auf `/` nimmt den flachen `pushState`-Weg
+  wie ein Klick in der Szene, von einer tiefen Seite `router.push("/?view=")`. Escape im
+  Dialog ist `defaultPrevented`, damit `ViewSync` den offenen Hotspot nicht mitschließt.
+  Der Knopf im Header erscheint ab 640 px, das Kürzel gilt überall. Der CV liegt als PDF
+  unter `public/cv/`, aus Portfolio2 übernommen, nicht neu geschrieben.
+- `curl yannikwuenker.de` als ASCII, Transparenz-Footer, `j`/`k`, Seite "Wie diese Seite
+  gebaut ist" (KONZEPT §10).
 - Lighthouse 100 auf dem Fallback, Performance-Feinschliff, Mobile-Fallback nachziehen.
 - Nach Feedback: Kamera-Positionen und Fahrten nachjustieren.
 

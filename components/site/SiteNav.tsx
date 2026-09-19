@@ -26,7 +26,7 @@ export function SiteNav({
               <Link
                 href={link.href}
                 aria-current={current ? "page" : undefined}
-                className={`focus-visible:outline-accent rounded-sm underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 ${
+                className={`focus-visible:outline-accent rounded-sm whitespace-nowrap underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 ${
                   current
                     ? "text-foreground"
                     : "text-zinc-600 dark:text-zinc-400"
