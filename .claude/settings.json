@@ -19,7 +19,18 @@
       "Edit(./.env.local)"
     ]
   },
-  "worktree": {
-    "symlinkDirectories": ["node_modules"]
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|mcp__blender__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=.claude/hooks/blender-guard.sh; [ -f \"$f\" ] || f=\"${CLAUDE_PROJECT_DIR}/$f\"; bash \"$f\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }
