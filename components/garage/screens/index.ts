@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 import type { ScreenViewId } from "@/lib/garage/hotspots";
 import { PINBOARD_PX_PER_M, pinboard } from "@/lib/garage/pinboard";
-import { BikeComputer } from "./BikeComputer";
+import { BikeComputer, EDGE_LENS, EDGE_SCALE } from "./BikeComputer";
 import { Laptop } from "./Laptop";
 import { Pinboard } from "./Pinboard";
 
@@ -36,7 +36,12 @@ export interface ScreenSpec {
 // One entry per view whose ui is "screen" in lib/garage/hotspots.ts; the
 // type makes a new screen view a compile error until it has a component.
 export const screens: Readonly<Record<ScreenViewId, ScreenSpec>> = {
-  radcomputer: { Component: BikeComputer, pxWidth: 400, aspect: 2 / 3 },
+  // The whole glass front of the Edge 540, laid out at twice its pixels.
+  radcomputer: {
+    Component: BikeComputer,
+    pxWidth: EDGE_LENS.width * EDGE_SCALE,
+    aspect: EDGE_LENS.width / EDGE_LENS.height,
+  },
   laptop: { Component: Laptop, pxWidth: 960, aspect: 16 / 10 },
   pinnwand: {
     Component: Pinboard,

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 // The click path of docs/KONZEPT.md §4 through the DOM: the hotspot links,
 // ?view=, Escape, the back button of the browser and the one on screen. The
@@ -68,10 +68,16 @@ test("unknown views fall back to the rest position", async ({ page }) => {
 // box behind them. Both cases click by coordinates: Playwright refuses to
 // click an element that does not receive pointer events, which for the
 // closed screen is the point.
-async function centerOf(page: Page, name: string) {
-  const box = await page.getByRole("img", { name }).boundingBox();
-  if (!box) throw new Error(`${name} has no bounding box`);
+async function centerOf(screen: Locator) {
+  const box = await screen.boundingBox();
+  if (!box) throw new Error("the screen has no bounding box");
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
+// The bike computer's glass is a focusable group (its pages turn on click and
+// arrow keys), not a picture like the placeholder screens.
+function bikeComputer(page: Page) {
+  return page.getByRole("group", { name: "Radcomputer-Display" });
 }
 
 test.describe("screens in the canvas", () => {
@@ -99,11 +105,11 @@ test.describe("screens in the canvas", () => {
     page,
   }) => {
     await openGarage(page, "/?view=computer");
-    const screen = page.getByRole("img", { name: "Radcomputer-Display" });
+    const screen = bikeComputer(page);
     // pointer-events switch on when the camera has arrived.
     await expect(screen).toHaveCSS("pointer-events", "auto");
 
-    const { x, y } = await centerOf(page, "Radcomputer-Display");
+    const { x, y } = await centerOf(screen);
     await page.mouse.click(x, y);
     await expect(page).toHaveURL(/\?view=computer$/);
 
@@ -115,10 +121,10 @@ test.describe("screens in the canvas", () => {
     await openGarage(page);
     // The bike computer sits in the middle of the frame on every viewport; the
     // laptop is outside the narrow portrait frame on the mobile project.
-    const screen = page.getByRole("img", { name: "Radcomputer-Display" });
+    const screen = bikeComputer(page);
     await expect(screen).toHaveCSS("pointer-events", "none");
 
-    const { x, y } = await centerOf(page, "Radcomputer-Display");
+    const { x, y } = await centerOf(screen);
     await page.mouse.click(x, y);
     await expect(page).toHaveURL(/\?view=computer$/);
   });

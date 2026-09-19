@@ -1,3 +1,4 @@
+import type { ComputerPage } from "@/lib/garage/computer";
 import type { FocusViewId } from "@/lib/garage/hotspots";
 import type { PinboardItemId } from "@/lib/garage/pinboard";
 import type { Locale } from "@/lib/i18n";
@@ -51,15 +52,52 @@ export interface GarageContent {
     readonly radcomputer: {
       /** Accessible name of the device screen. */
       readonly label: string;
-      /** Title of the first data page. */
-      readonly today: string;
+      /** How to switch pages; announced to assistive tech. */
+      readonly keys: string;
+      /** Titles of the three data pages (docs/KONZEPT.md §3), in device order. */
+      readonly pages: Readonly<Record<ComputerPage, string>>;
+      /** Label of the wide field on page 1. */
+      readonly latest: string;
+      /** Value of that field while the cache holds no visible activity. */
+      readonly noActivity: string;
+      /** The day of an activity relative to today; older days show the date. */
+      readonly day: { readonly today: string; readonly yesterday: string };
       readonly fields: {
         readonly duration: string;
         readonly distance: string;
         readonly heartRate: string;
         readonly load: string;
+        readonly elevation: string;
+        /** Activities in the week, singular and plural. */
+        readonly count: { readonly one: string; readonly other: string };
       };
-      /** Shown in every field until real data arrives (Phase 2). */
+      readonly units: {
+        readonly km: string;
+        readonly bpm: string;
+        readonly m: string;
+      };
+      /** German names for Strava's sport types; an unknown type shows as is. */
+      readonly sports: Readonly<Record<string, string>>;
+      /** Monday first, like the week on the device. */
+      readonly weekdays: readonly [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+      ];
+      /** Page 3: the one field about the rider (KONZEPT §3). */
+      readonly about: {
+        readonly field: string;
+        readonly name: string;
+        readonly place: string;
+        readonly claim: string;
+        /** Link text to the 2D page, which is the source of truth. */
+        readonly more: string;
+      };
+      /** Shown in a field whose value is missing or still loading. */
       readonly noData: string;
     };
     readonly laptop: {
@@ -102,12 +140,43 @@ const de: GarageContent = {
   screens: {
     radcomputer: {
       label: "Radcomputer-Display",
-      today: "Heute",
+      keys: "Pfeiltasten wechseln die Seite",
+      pages: { today: "Heute", week: "Woche", about: "Über" },
+      latest: "Letzte Einheit",
+      noActivity: "Keine Einheit",
+      day: { today: "Heute", yesterday: "Gestern" },
       fields: {
-        duration: "Dauer",
+        duration: "Zeit",
         distance: "Distanz",
         heartRate: "HF Ø",
         load: "TSS",
+        elevation: "Anstieg",
+        count: { one: "Einheit", other: "Einheiten" },
+      },
+      units: { km: "km", bpm: "bpm", m: "m" },
+      sports: {
+        Ride: "Rad",
+        VirtualRide: "Rolle",
+        GravelRide: "Gravel",
+        MountainBikeRide: "MTB",
+        EBikeRide: "E-Bike",
+        Run: "Laufen",
+        TrailRun: "Trail",
+        VirtualRun: "Laufband",
+        Walk: "Gehen",
+        Hike: "Wandern",
+        Swim: "Schwimmen",
+        WeightTraining: "Kraft",
+        Workout: "Workout",
+        Yoga: "Yoga",
+      },
+      weekdays: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+      about: {
+        field: "Fahrer",
+        name: "Yannik",
+        place: "Köln",
+        claim: "Baut Software für Ausdauersportler.",
+        more: "Mehr über mich",
       },
       noData: "--",
     },

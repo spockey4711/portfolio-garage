@@ -14,8 +14,11 @@ nicht zum Einsatz. Aus Woche 1 steht der Code: Store, Kamerafahrten, Hotspot-Kli
 `?view=`-Sync, Tastatur, Hover-Outline, Screens als `<Html transform occlude>` mit
 Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Woche 1 komplett:
 Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Woche 2 bis auf das Go-live komplett.
-Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`) und die Pinnwand
-(`Pinboard.tsx`, alles darauf verlinkt nach `/ueber`), Radcomputer und Laptop sind noch
+Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`) und der Radcomputer
+(`BikeComputer.tsx`: die ganze Glasfront eines Edge 540 als DOM, Garmin-Farben, drei Seiten,
+Pfeiltasten, Daten aus `/api/activity`, Logik in `lib/garage/computer.ts`; Gehäuse, Tasten und
+Glas kommen aus `build_bike.py`, Glas und DOM teilen sich das Pixelmaß), die Pinnwand
+(`Pinboard.tsx`, alles darauf verlinkt nach `/ueber`), der Laptop ist noch
 Platzhalter.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in

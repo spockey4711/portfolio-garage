@@ -80,7 +80,46 @@ Ziel: Der Radcomputer zeigt echte Trainingsdaten, der Laptop echte Projekte.
   laufender Woche.
 - `BikeComputer.tsx`: Edge-Layout, Seite 1 Heute, Seite 2 Woche mit Chart, Seite 3 Über.
   Pfeiltasten wie am Gerät.
-- `Laptop.tsx`: Projektliste, Fuelivo-Mini live.
+- `Laptop.tsx`: Projektliste, Fuelivo-Mini live. Das Mini ist ein rein clientseitiger,
+  vereinfachter Rechner wie das `FuelivoProof`-Widget des Vorgängers, kein API-Call.
+  - Umfang festlegen: additives Modell mit Trace (Basis, Intensität, Sport, Hitze, Cap).
+    `../Portfolio2-public/lib/fuelivo/proof.ts` ist Material, wird neu geschrieben (ADR-0001).
+  - Layout skizzieren: 960 px, 16:10, links Projektliste, rechts Fenster "fuelivo". Zwei
+    Fenster auf einem Desktop oder ein Fenster mit zwei Spalten entscheiden.
+  - `lib/fuelivo/model.ts`: Typen, Slider-Grenzen, Default-Eingabe, `computeFueling(input)`
+    als pure Funktion ohne Abhängigkeiten.
+  - `lib/fuelivo/model.test.ts`: deterministisch, Summe der Trace-Schritte gleich Endwert,
+    Cap greift bei hart + heiß + lang, Slider-Grenzen halten.
+  - `content/fuelivo.ts` hinter `getFuelivoMiniContent(locale)`: Regler-Labels, Einheiten,
+    Begründung je `TraceKind`, Link-Text zu fuelivo.de. Läuft durch `content.test.ts`.
+  - `components/site/FuelivoMini.tsx` (`"use client"`): Segmented Controls als `radiogroup`,
+    Dauer als `range`, drei Ergebniszeilen mit Balken und Begründung. Balken nur
+    `motion-safe`, Startzustand ist der Default, damit Server und Client gleich rendern.
+  - Mini auf `/projekte/fuelivo` einbauen, 2D zuerst: Feld `demo` im `Project`-Typ oder die
+    Seite mountet per Slug. Position nach dem Ansatz, vor dem Ergebnis.
+  - `content/garage.ts`: `comingSoon` des Laptops raus, Fenstertitel und Beschriftungen rein,
+    `GarageContent`-Typ anpassen.
+  - `Laptop.tsx` Projektliste: `getProjects(defaultLocale)`, pro Zeile Name, Tagline,
+    `ProjectFacts`, Leitprojekt oben. Jede Zeile ein `next/link` auf `/projekte/<slug>`.
+  - `Laptop.tsx` Mini einbetten: dieselbe `FuelivoMini`, kompakte Variante über Prop oder
+    Container-Query, rechts bleiben etwa 550 px.
+  - `role="img"` und `aria-label` am Wrapper entfernen, es sind echte Controls. `<section>`
+    mit Überschriften je Bereich.
+  - Klickverhalten: Link im offenen Screen navigiert (die `stopPropagation`-Handler in
+    `Screen.tsx` dürfen `next/link` nicht bremsen), Slider-Drag ist kein Parallax, Escape im
+    Slider schließt trotzdem die View.
+  - Lesbarkeit: Schriftgrößen bei `pxWidth: 960` gegen die Fokus-Kamera prüfen (Display etwa
+    65 % Viewport-Höhe), notfalls `pxWidth` ändern.
+  - Geschlossener Zustand bleibt Kulisse (inert, keine Pointer-Events), sieht aber nicht
+    mehr nach Platzhalter aus.
+  - `StillView.tsx`: Laptop-Karte in 32rem prüfen. Zu klein heißt nur Liste plus Link zum
+    Mini auf der 2D-Seite.
+  - Test für `Laptop.tsx`: genau die Projekte aus `content/projects/index.ts` in der
+    Reihenfolge, Links stimmen.
+  - E2E auf `/?view=laptop`: Projektklick navigiert, Mini reagiert, Escape fährt zurück,
+    Klick im Screen ist kein Klick ins Leere, unter 768 px greift die Karte. Pixel-Check.
+  - Quality Gate, dann Punkt hier abhaken und "Screens sind noch Platzhalter" in `CLAUDE.md`
+    anpassen.
 - ~~`Pinboard.tsx`: Startnummern, Fotos, Zettel klickbar, führt zu `/ueber`.~~ Erledigt 18.09.:
   DOM auf der Korkfläche, Layout in `lib/garage/pinboard.json`, Attrappen im GLB darunter.
 - 2D-Inhalte füllen: Projekte, Über, erste Blogposts.
