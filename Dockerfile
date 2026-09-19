@@ -8,7 +8,10 @@ RUN corepack enable pnpm
 WORKDIR /app
 
 FROM base AS deps
+# pnpm-workspace.yaml#patchedDependencies points into patches/, so the install
+# needs the patch files next to the lockfile.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches ./patches
 RUN pnpm install --frozen-lockfile
 
 FROM base AS build
