@@ -19,7 +19,10 @@ Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`) und der 
 Pfeiltasten, Daten aus `/api/activity`, Logik in `lib/garage/computer.ts`; Gehäuse, Tasten und
 Glas kommen aus `build_bike.py`, Glas und DOM teilen sich das Pixelmaß), die Pinnwand
 (`Pinboard.tsx`, alles darauf verlinkt nach `/ueber`), der Laptop ist noch
-Platzhalter.
+Platzhalter. Seit ADR-0008 (2026-09-19) gilt eine neue Zuordnung, der Umbau steht in
+`docs/PLAN.md`: Radcomputer zeigt Fuelivo, gerechnet von `fuelivo.de/calculate` auf der
+letzten Strava-Einheit (drei Seiten Fahrt, Plan, Warum), Laptop die Projektliste, Pinnwand
+den Blog, Whiteboard Über mich, Werkzeugwand den Stack.
 
 Licht: nichts wird zur Laufzeit beleuchtet. Der Skill `blender-export` backt Tageslicht in
 `public/models/garage-lightmap-tag.webp` (Licht ohne Farbe, UV-Set 2), `Scene.tsx` tauscht
@@ -99,6 +102,9 @@ lässt Privates weg. Die Module importieren einander mit `.ts`-Endung, weil
   handgeschriebene `hotspots.ts` importiert sie und ergänzt nur URL und UI-Typ.
 - Trainingsdaten kommen über Strava (offizielle API, Webhook), nicht über Garmin Connect.
   Begründung in `docs/KONZEPT.md` §5.
+- Der Fuelivo-Plan wird nicht nachgebaut, sondern beim Sync von `fuelivo.de/calculate`
+  geholt und im Cache abgelegt (ein Request pro Einheit). Abbildung Strava auf
+  `CalculationRequest` und was der Free-Tarif liefert: `docs/adr/0008`.
 - Licht wird in Blender gebacken, im Web gibt es kein Echtzeitlicht. `docs/KONZEPT.md` §5.
 - Vorgänger ist Portfolio2-public (`../Portfolio2-public`, live auf yannikwuenker.de). Texte,
   Projektdaten und Integrationen dort sind Quellmaterial zum Neuschreiben, Code und Design
