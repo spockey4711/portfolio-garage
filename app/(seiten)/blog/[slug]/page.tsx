@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Blocks } from "@/components/site/Blocks";
 import { TextLink } from "@/components/site/TextLink";
-import {
-  getPost,
-  getPostLabels,
-  getPosts,
-  type PostBlock,
-} from "@/content/blog";
+import { getPost, getPostLabels, getPosts } from "@/content/blog";
 import { getSiteContent } from "@/content/site";
 import { defaultLocale } from "@/lib/i18n";
 
@@ -58,39 +54,8 @@ export default async function Beitrag({ params }: { params: Promise<Params> }) {
         </p>
       </div>
       <div className="max-w-2xl space-y-5 border-t border-zinc-200 pt-10 leading-7 dark:border-zinc-800">
-        {post.body.map((block, index) => (
-          <Block key={index} block={block} />
-        ))}
+        <Blocks blocks={post.body} />
       </div>
     </article>
   );
-}
-
-// The body is structured content (content/blog/types.ts); each block kind
-// has one rendering, so every post reads the same.
-function Block({ block }: { readonly block: PostBlock }) {
-  switch (block.kind) {
-    case "p":
-      return <p>{block.text}</p>;
-    case "h2":
-      return (
-        <h2 className="pt-4 text-xl font-semibold tracking-tight">
-          {block.text}
-        </h2>
-      );
-    case "ul":
-      return (
-        <ul className="list-disc space-y-2 pl-5 marker:text-zinc-400">
-          {block.items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      );
-    case "quote":
-      return (
-        <blockquote className="border-accent border-l-2 pl-5 text-zinc-600 italic dark:text-zinc-400">
-          {block.text}
-        </blockquote>
-      );
-  }
 }

@@ -80,12 +80,18 @@ Route-Gruppe `app/(seiten)/` (Header oben, Footer im Root-Layout). Projekte sind
 Datei in `content/projects/`, die Liste in `index.ts` bestimmt Reihenfolge und Mitgliedschaft,
 der erste Eintrag ist das Leitprojekt; `/projekte/[slug]` baut nur diese Slugs
 (`dynamicParams = false`). Blogposts genauso in `content/blog/` (`index.ts` neueste zuerst,
-Body als Blöcke `p`/`h2`/`ul`/`quote`, kein MDX), Route `/blog/[slug]`, Liste auf der
+Body als Blöcke `p`/`h2`/`ul`/`quote` aus `content/blocks.ts`, gerendert von
+`components/site/Blocks.tsx`, kein MDX), Route `/blog/[slug]`, Liste auf der
 Startseite unter `/#blog`. Impressum und Datenschutz stehen in `content/legal.ts`
 (`/impressum`, `/datenschutz`, `LegalPage.tsx`, Footer-Links); die Datenschutzerklärung
 beschreibt, was die Seite tatsächlich tut (keine Cookies, kein Speicher, keine Analyse,
 keine Drittdienste im Browser, eigene Strava-Daten), wer die Verarbeitung ändert, ändert
-sie mit. `content/content.test.ts` prüft jeden sichtbaren String auf Gedankenstriche,
+sie mit. "Wie diese Seite gebaut ist" ist `/bauweise` (`content/bauweise.ts`, je
+Entscheidung eine `Section` mit Blöcken, aus den ADRs geschrieben, keine Zahlen ohne
+Beleg); wer eine Entscheidung in `docs/adr/` ändert, ändert den Abschnitt mit. Der Link
+dorthin ist `footer.colophon` in `content/site.ts`, vor Impressum und Datenschutz;
+Footer, Palette und Terminal-Karte lesen dieses eine Feld.
+`content/content.test.ts` prüft jeden sichtbaren String auf Gedankenstriche,
 Emoji und Whitespace. `curl /` bekommt die Textkarte: `proxy.ts` (nur Matcher `/`) schreibt
 Terminal-Clients per `lib/terminal/detect.ts` auf `app/ascii/route.ts` um, die Karte rendert
 `lib/terminal/card.ts` aus demselben Content mit absoluten Links vom Host der Anfrage.

@@ -108,11 +108,13 @@ export function renderTerminalCard({
   );
 
   const contact = columns(
-    [...site.footer.links, ...site.footer.legal].map((link) => {
-      if (link.href.startsWith("mailto:")) return { key: link.label };
-      const href = link.href.startsWith("/") ? origin + link.href : link.href;
-      return { key: link.label, href };
-    }),
+    [...site.footer.links, site.footer.colophon, ...site.footer.legal].map(
+      (link) => {
+        if (link.href.startsWith("mailto:")) return { key: link.label };
+        const href = link.href.startsWith("/") ? origin + link.href : link.href;
+        return { key: link.label, href };
+      },
+    ),
   );
 
   const lines = [

@@ -58,7 +58,7 @@ export function buildCommands(locale: Locale): readonly Command[] {
       label: link.label,
       href: link.href,
     })),
-    ...site.footer.legal.map<Command>((link) => ({
+    ...[site.footer.colophon, ...site.footer.legal].map<Command>((link) => ({
       id: `page-${link.href}`,
       group: "pages",
       kind: "link",

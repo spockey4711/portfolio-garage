@@ -24,7 +24,9 @@ export interface SiteContent {
   readonly footer: {
     readonly label: string;
     readonly links: readonly NavLink[];
-    /** Impressum and Datenschutz, the row under the contact links. */
+    /** The colophon, /bauweise, first in the row under the contact links. */
+    readonly colophon: NavLink;
+    /** Impressum and Datenschutz, after the colophon in that row. */
     readonly legal: readonly NavLink[];
   };
   readonly home: {
@@ -126,6 +128,7 @@ const de: SiteContent = {
       { label: "GitHub", href: "https://github.com/spockey4711" },
       { label: "LinkedIn", href: "https://www.linkedin.com/in/yannik-wuenker" },
     ],
+    colophon: { label: "Wie diese Seite gebaut ist", href: "/bauweise" },
     legal: [
       { label: "Impressum", href: "/impressum" },
       { label: "Datenschutz", href: "/datenschutz" },

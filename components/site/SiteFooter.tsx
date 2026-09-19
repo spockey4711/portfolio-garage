@@ -6,9 +6,11 @@ const linkClassName =
   "focus-visible:outline-accent rounded-sm underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4";
 
 // The foot of every page: the contact row (mail first, then the profiles,
-// plain anchors, two of them leave the site) and under it the legal pages.
+// plain anchors, two of them leave the site) and under it the colophon and
+// the legal pages.
 export function SiteFooter() {
   const site = getSiteContent(defaultLocale);
+  const pages = [site.footer.colophon, ...site.footer.legal];
 
   return (
     <footer className="mt-auto border-t border-zinc-200 dark:border-zinc-800">
@@ -29,7 +31,7 @@ export function SiteFooter() {
           </ul>
         </nav>
         <ul className="flex flex-wrap justify-end gap-x-5 gap-y-2 text-xs text-zinc-500">
-          {site.footer.legal.map((link) => (
+          {pages.map((link) => (
             <li key={link.href}>
               <Link href={link.href} className={linkClassName}>
                 {link.label}

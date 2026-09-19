@@ -1,16 +1,13 @@
 import type { Locale } from "@/lib/i18n";
+import type { ContentBlock } from "../blocks";
 
 // One post is one file in this directory; index.ts decides membership and
 // order. Like the projects, a post is structured content, not Markdown: a
-// list of blocks the page renders, so every string sits behind
-// getPosts(locale) (docs/adr/0003) and content.test.ts can check it.
+// list of blocks the page renders (content/blocks.ts), so every string sits
+// behind getPosts(locale) (docs/adr/0003) and content.test.ts can check it.
 
 /** A block of the body, in reading order. */
-export type PostBlock =
-  | { readonly kind: "p"; readonly text: string }
-  | { readonly kind: "h2"; readonly text: string }
-  | { readonly kind: "ul"; readonly items: readonly string[] }
-  | { readonly kind: "quote"; readonly text: string };
+export type PostBlock = ContentBlock;
 
 export interface Post {
   /** URL segment under /blog, no umlaut. */

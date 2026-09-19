@@ -39,8 +39,12 @@ test("the header button opens it and a click on an option navigates", async ({
 }) => {
   test.skip(!!isMobile, "the header shows the button from 640 px up");
   await page.goto("/ueber");
-  await page.getByRole("button", { name: "Befehle" }).click();
-  await expect(palette(page)).toBeVisible();
+  // Same race as the shortcut: the button is in the HTML before its click
+  // handler is, so a click on a cold route is retried until the dialog answers.
+  await expect(async () => {
+    await page.getByRole("button", { name: "Befehle" }).click();
+    await expect(palette(page)).toBeVisible({ timeout: 1_000 });
+  }).toPass();
 
   await palette(page)
     .getByRole("option", { name: /^Impressum/ })

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getAboutContent } from "./about";
+import { getColophonContent } from "./bauweise";
 import { getPosts } from "./blog";
 import { getGarageContent } from "./garage";
 import { getLegalContent, legalEntity } from "./legal";
@@ -28,6 +29,7 @@ const all = [
   ...strings(getAboutContent("de"), "about"),
   ...strings(getGarageContent("de"), "garage"),
   ...strings(getLegalContent("de"), "legal"),
+  ...strings(getColophonContent("de"), "colophon"),
   ...strings(getProjects("de"), "projects"),
   ...strings(getPosts("de"), "blog"),
 ];
@@ -125,5 +127,29 @@ describe("legal pages", () => {
   it("are linked from the footer", () => {
     const hrefs = getSiteContent("de").footer.legal.map((link) => link.href);
     expect(hrefs).toEqual(["/impressum", "/datenschutz"]);
+  });
+});
+
+describe("colophon", () => {
+  const colophon = getColophonContent("de");
+
+  it("is linked from the footer under its route", () => {
+    expect(getSiteContent("de").footer.colophon.href).toBe("/bauweise");
+  });
+
+  it("has unique, URL-safe section anchors with text in each", () => {
+    const ids = colophon.sections.map((section) => section.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const section of colophon.sections) {
+      expect(section.id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+      expect(
+        section.blocks.some((block) => block.kind === "p"),
+        section.id,
+      ).toBe(true);
+    }
+  });
+
+  it("links the public repository over https", () => {
+    expect(colophon.source.link.href).toMatch(/^https:\/\/github\.com\//);
   });
 });

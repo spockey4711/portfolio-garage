@@ -155,7 +155,13 @@ Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
   Dialog ist `defaultPrevented`, damit `ViewSync` den offenen Hotspot nicht mitschließt.
   Der Knopf im Header erscheint ab 640 px, das Kürzel gilt überall. Der CV liegt als PDF
   unter `public/cv/`, aus Portfolio2 übernommen, nicht neu geschrieben.
-- Transparenz-Footer, `j`/`k`, Seite "Wie diese Seite gebaut ist" (KONZEPT §10).
+- Transparenz-Footer, `j`/`k` (KONZEPT §10).
+- ~~Seite "Wie diese Seite gebaut ist" (KONZEPT §10).~~ Erledigt 19.09.: `/bauweise`, Inhalt
+  in `content/bauweise.ts` als Sections mit Blöcken, aus den ADRs geschrieben (Schichten,
+  Blender, Licht, Standbild, Radcomputer, Betrieb, Privatsphäre, Link aufs Repo). Der
+  Block-Typ liegt jetzt in `content/blocks.ts`, `components/site/Blocks.tsx` rendert ihn für
+  Blog und Bauweise. Link im Footer als `footer.colophon` vor Impressum und Datenschutz;
+  Palette und Terminal-Karte lesen dasselbe Feld.
 - ~~`curl yannikwuenker.de` als ASCII.~~ Erledigt 19.09.: `proxy.ts` schreibt `/` für
   Terminal-Clients (`lib/terminal/detect.ts`: curl, wget, HTTPie, xh oder ein Accept, das
   `text/plain` vor `text/html` stellt) auf `app/ascii/route.ts` um, die URL bleibt. Die Karte
