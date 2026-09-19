@@ -11,6 +11,7 @@ import { HotspotNav } from "./HotspotNav";
 import { StillView } from "./StillView";
 import { useGarageMode } from "./useGarageMode";
 import { ViewSync } from "./ViewSync";
+import { Vignette } from "./Vignette";
 
 // three.js needs a window and is only requested once the hero has painted
 // and the device has qualified (useGarageMode), so the chunk never loads
@@ -24,7 +25,8 @@ const Garage = dynamic(
 // bottom, first paint on every device; the canvas over it where the device
 // can afford one, faded in once it has drawn the same view; the 2D stand-in
 // for an open hotspot where it cannot. URL sync and the hotspot links sit
-// outside the canvas and serve both.
+// outside the canvas and serve both. The section isolates its stacking
+// context so the vignette multiplies the picture, not the page behind it.
 export function GarageHero() {
   const content = getGarageContent(defaultLocale);
   const mode = useGarageMode();
@@ -33,7 +35,7 @@ export function GarageHero() {
   return (
     <section
       aria-label={content.heroLabel}
-      className="relative h-svh w-full overflow-hidden"
+      className="relative isolate h-svh w-full overflow-hidden"
       style={{ backgroundColor: SKY_COLOR }}
     >
       <GarageStill />
@@ -48,6 +50,7 @@ export function GarageHero() {
           <Garage onReady={() => setCanvasDrawn(true)} />
         </div>
       )}
+      <Vignette />
       {mode === "still" && <StillView />}
       <Suspense fallback={null}>
         <ViewSync />

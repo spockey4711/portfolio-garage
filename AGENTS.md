@@ -42,6 +42,8 @@ Belichtung der Datei und `LIGHTMAP_INTENSITY` gehören zusammen (`EXPOSURE_STOPS
 `export.py`). Der Composer in `HoverOutline.tsx` umgeht das Tonemapping des Renderers, den
 Highlight-Roll-off macht `SoftClipEffect` (`lib/garage/softclip.ts`): unter 0,8 bleibt das
 Bild exakt Cycles, gemessen. Lichtrig ändern heißt `export.py` ändern und neu exportieren.
+Vignette und warmer Tint sind kein Composer-Pass, sondern `Vignette.tsx`, eine
+Multiply-Ebene in CSS über Standbild und Canvas gleichermaßen (`docs/ATMOSPHAERE.md` §2).
 
 Interaktion: Die URL ist die Quelle der Wahrheit für den offenen Hotspot. Klick und Tastatur
 schreiben `?view=` per `history.pushState` (`lib/garage/navigate.ts`), `ViewSync.tsx` liest
