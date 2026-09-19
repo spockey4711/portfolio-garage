@@ -18,8 +18,8 @@ Aus Phase 2 steht die Strava-Anbindung (Webhook, Sync, `/api/activity`) und der 
 (`BikeComputer.tsx`: die ganze Glasfront eines Edge 540 als DOM, Garmin-Farben, drei Seiten
 Fahrt, Plan, Warum, Pfeiltasten, Daten aus `/api/activity`, Logik in `lib/garage/computer.ts`;
 Gehäuse, Tasten und Glas kommen aus `build_bike.py`, Glas und DOM teilen sich das Pixelmaß),
-die Pinnwand (`Pinboard.tsx`, alles darauf verlinkt nach `/ueber`), der Laptop ist noch
-Platzhalter. Seit ADR-0008 (2026-09-19) gilt eine neue Zuordnung, der Umbau steht in
+die Pinnwand (`Pinboard.tsx`, alles darauf verlinkt nach `/ueber`) und der Laptop
+(`Laptop.tsx`, Projektliste, Standbild-Karte über `ScreenSpec.Card`). Seit ADR-0008 (2026-09-19) gilt eine neue Zuordnung, der Umbau steht in
 `docs/PLAN.md`: Radcomputer zeigt Fuelivo, gerechnet von `fuelivo.de/calculate` auf der
 letzten Strava-Einheit (erledigt), Laptop die Projektliste, Pinnwand den Blog, Whiteboard
 Über mich, Werkzeugwand den Stack.

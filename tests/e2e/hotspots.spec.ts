@@ -183,6 +183,37 @@ test.describe("screens in the canvas", () => {
     await expect(page).toHaveURL(/\?view=computer$/);
   });
 
+  // The rows are next/link, so the click is a client navigation out of the
+  // garage; Screen.tsx stops the pointer events from bubbling to fiber, which
+  // must not keep the link from navigating.
+  test("a project on the open laptop navigates to its page, Escape drives back first", async ({
+    page,
+  }) => {
+    await openGarage(page, "/?view=laptop");
+    // Scoped to the hero: the start page has a "Projekte" section of its own
+    // below it. Closed, the screen is inert and so hidden to a role query.
+    const list = page
+      .getByRole("region", { name: "3D-Garage" })
+      .getByRole("region", { name: "Projekte", includeHidden: true });
+    await expect(list).toHaveCSS("pointer-events", "auto");
+
+    // A click on the list beside the rows stays in the hotspot.
+    const { x, y } = await centerOf(list.getByRole("heading"));
+    await page.mouse.click(x, y);
+    await expect(page).toHaveURL(/\?view=laptop$/);
+
+    await page.keyboard.press("Escape");
+    await expect(page).toHaveURL(/\/$/);
+    await expect(list).toHaveCSS("pointer-events", "none");
+
+    await page.goBack();
+    await expect(page).toHaveURL(/\?view=laptop$/);
+    await expect(list).toHaveCSS("pointer-events", "auto");
+    await list.getByRole("link", { name: /fuelivo/ }).click();
+    await expect(page).toHaveURL(/\/projekte\/fuelivo$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/fuelivo/);
+  });
+
   test("the items on the open board are links that leave for /ueber", async ({
     page,
   }) => {

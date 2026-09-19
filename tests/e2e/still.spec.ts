@@ -33,14 +33,30 @@ test("a click on a hotspot area opens the same ?view= as in 3D and shows its scr
 
   const dialog = page.getByRole("dialog", { name: "Laptop" });
   await expect(dialog).toBeVisible();
-  await expect(
-    dialog.getByRole("img", { name: "Laptop-Display" }),
-  ).toBeVisible();
+  await expect(dialog.getByRole("region", { name: "Projekte" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Zurück" })).toBeFocused();
 
   await page.keyboard.press("Escape");
   await expect(page).toHaveURL(/\/$/);
   await expect(dialog).toBeHidden();
+});
+
+test("the laptop's stand-in lists the projects and a row leads to the project page", async ({
+  page,
+}) => {
+  await openStill(page, "/?view=laptop");
+  const list = page
+    .getByRole("dialog", { name: "Laptop" })
+    .getByRole("region", { name: "Projekte" });
+  await expect(list).toBeVisible();
+  for (const href of await list
+    .getByRole("link")
+    .evaluateAll((links) => links.map((link) => link.getAttribute("href")))) {
+    expect(href).toMatch(/^\/projekte\/[a-z-]+$/);
+  }
+
+  await list.getByRole("link", { name: /fuelivo/ }).click();
+  await expect(page).toHaveURL(/\/projekte\/fuelivo$/);
 });
 
 test("a hotspot without a screen gets the note, and a click beside the card leaves", async ({

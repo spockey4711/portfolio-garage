@@ -15,8 +15,9 @@ import { screens } from "./screens";
 
 // The open hotspot without a camera: where the still stands in for the
 // canvas, ?view= still opens the same state (URL first, KONZEPT §5), and this
-// shows it as a card over the image, with the screen a device would show or,
-// for a hotspot that has no 2D content yet, a note. HotspotNav's back button
+// shows it as a card over the image, with the screen a device would show
+// (or, where the screen has one, its page-sized card) or, for a hotspot that
+// has no 2D content yet, a note. HotspotNav's back button
 // and ViewSync's Escape close it like in 3D; so does a click beside the card.
 export function StillView() {
   const phase = useGarageStore((state) => state.phase);
@@ -32,12 +33,14 @@ export function StillView() {
   const view = views[viewId];
   if (phase !== "focused" || !isFocusView(view.id)) return null;
   const label = content.hotspots[view.id].label;
-  // A screen card is as wide as fits, but never taller than the hero minus
-  // the space around it (pt-16 + p-4 + the card's own heading), so the bike
-  // computer's upright display fits a phone as a whole.
-  const maxWidth = isScreenView(view)
-    ? `min(32rem, calc((100svh - 8rem) * ${screens[view.id].aspect}))`
-    : undefined;
+  const spec = isScreenView(view) ? screens[view.id] : null;
+  // A scaled screen card is as wide as fits, but never taller than the hero
+  // minus the space around it (pt-16 + p-4 + the card's own heading), so the
+  // bike computer's upright display fits a phone as a whole.
+  const maxWidth =
+    spec && !spec.Card
+      ? `min(32rem, calc((100svh - 8rem) * ${spec.aspect}))`
+      : undefined;
 
   return (
     <div
@@ -59,7 +62,9 @@ export function StillView() {
         >
           {label}
         </h2>
-        {isScreenView(view) ? (
+        {spec?.Card ? (
+          <spec.Card />
+        ) : isScreenView(view) ? (
           <ScaledScreen viewId={view.id} />
         ) : (
           <p className="px-5 pb-5 text-zinc-400">{content.still.comingSoon}</p>
