@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       # Every PR builds the image so a broken Dockerfile fails before the merge;
       # only a push to develop logs in and publishes it.
