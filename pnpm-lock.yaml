@@ -177,13 +177,13 @@ importers:
         version: 9.7.0(@types/react@19.3.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
       '@react-three/postprocessing':
         specifier: ^3.1.1
-        version: 3.1.1(@react-three/fiber@9.7.0(@types/react@19.3.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(@types/three@0.186.0)(postprocessing@6.39.5(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(react@19.2.8)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
+        version: 3.1.1(@react-three/fiber@9.7.0(@types/react@19.3.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(@types/three@0.186.0)(postprocessing@6.39.6(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(react@19.2.8)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
       next:
         specifier: 16.3.5
         version: 16.3.5(@babel/core@7.29.7(supports-color@7.2.0))(@playwright/test@1.63.0)(@types/node@22.20.3)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       postprocessing:
-        specifier: ^6.39.5
-        version: 6.39.5(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
+        specifier: ^6.39.6
+        version: 6.39.6(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
       react:
         specifier: 19.2.8
         version: 19.2.8
@@ -2500,10 +2500,10 @@ packages:
     resolution: {integrity: sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postprocessing@6.39.5:
-    resolution: {integrity: sha512-YmH+t74J2X1lwYjKzK/tgs9C9kqWWPB9JwZiDF5mEf4BdCEAmEFbO8lXBA7NM0/j4g+x6FgD/Tt5/kT7ogbEDA==}
+  postprocessing@6.39.6:
+    resolution: {integrity: sha512-HIVhnU8R9tF2YBMXOF2x+TKt3ia+caSHGsycSqrfkd426vH/jwm7w19YQCWsA8jMQJXvAsniLYMiJaNugxUFtA==}
     peerDependencies:
-      three: '>= 0.168.0 < 0.187.0'
+      three: '>= 0.168.0 < 0.188.0'
 
   potpack@1.0.2:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
@@ -3665,12 +3665,12 @@ snapshots:
       - '@types/react'
       - immer
 
-  '@react-three/postprocessing@3.1.1(@react-three/fiber@9.7.0(@types/react@19.3.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(@types/three@0.186.0)(postprocessing@6.39.5(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(react@19.2.8)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))':
+  '@react-three/postprocessing@3.1.1(@react-three/fiber@9.7.0(@types/react@19.3.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(@types/three@0.186.0)(postprocessing@6.39.6(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(react@19.2.8)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))':
     dependencies:
       '@react-three/fiber': 9.7.0(@types/react@19.3.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
       maath: 0.10.8(@types/three@0.186.0)(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
-      n8ao: 2.0.1(postprocessing@6.39.5(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
-      postprocessing: 6.39.5(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
+      n8ao: 2.0.1(postprocessing@6.39.6(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
+      postprocessing: 6.39.6(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
       react: 19.2.8
       three: 0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)
     transitivePeerDependencies:
@@ -5226,9 +5226,9 @@ snapshots:
 
   ms@2.1.3: {}
 
-  n8ao@2.0.1(postprocessing@6.39.5(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)):
+  n8ao@2.0.1(postprocessing@6.39.6(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)))(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)):
     dependencies:
-      postprocessing: 6.39.5(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
+      postprocessing: 6.39.6(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200))
       three: 0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)
 
   nanoid@3.3.19: {}
@@ -5403,7 +5403,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  postprocessing@6.39.5(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)):
+  postprocessing@6.39.6(three@0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)):
     dependencies:
       three: 0.186.0(patch_hash=006be8b3da4f46e9aa3b56414f86036ac099d4abcadc74a680be108ad7f00200)
 
