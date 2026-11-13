@@ -8,9 +8,12 @@ Maße des Blockouts dort in §2. Zeitplan und Setup-Reihenfolge: `docs/PLAN.md`,
 Budget und Hebel für Wärme und Detail: `docs/ATMOSPHAERE.md`. Blender-Quelle:
 `blender/garage-blockout.blend`.
 
-Stand 2026-09-18: Tag 0 aus `docs/PLAN.md` ist erledigt (Scaffold, Toolchain, CI, 3D-Stack,
-Blockout im Browser mit Parallax). Toolchain-Vorlage ist Kuechenzettel, devblueprint kommt
-nicht zum Einsatz. Aus Woche 1 steht der Code: Store, Kamerafahrten, Hotspot-Klick,
+Stand laut Code: Phase 2, nicht Tag 0. Preview ist `develop` auf
+`garage.yannikwuenker.de` (`docs/BETRIEB.md`). Prod auf `yannikwuenker.de` ist nicht
+verdrahtet, der Deploy-Job kennt nur `develop`. Tag 0 (Scaffold, Toolchain, CI, 3D-Stack)
+ist erledigt, die Szene ist kein leeres Blockout mehr: fünf Screens, Strava/Fuelivo,
+Standbild-Fallback. Toolchain-Vorlage ist Kuechenzettel, devblueprint kommt nicht zum
+Einsatz. Aus Woche 1 steht der Code: Store, Kamerafahrten, Hotspot-Klick,
 `?view=`-Sync, Tastatur, Hover-Outline, Screens als `<Html transform occlude>` mit
 Platzhalter-UI, Deploy auf `garage.yannikwuenker.de` (`docs/BETRIEB.md`). Woche 1 komplett:
 Szene aus bpy-Skripten in `blender/build/` (ADR-0004). Woche 2 bis auf das Go-live komplett.
@@ -140,7 +143,11 @@ die Computer-Tests mit dem, was `/api/activity` liefert.
 # Kommandos
 
 - Quality Gate vor jedem Push: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`.
-  Grün oder nicht fertig.
+  Grün oder nicht fertig. `pnpm test` ist nur Vitest.
+- Browser-Suite: `pnpm test:e2e`. In CI eigener Job, Pflicht vor Image und Deploy.
+  Headless Chromium zeichnet WebGL mit SwiftShader, die Garage nimmt dann den
+  Standbild-Pfad (`lib/garage/capability.ts`). Der GPU-Kamerapfad bleibt manuell
+  (`tests/e2e/hotspots.spec.ts`).
 - Einzelner Test: `pnpm test -- <pattern>`
 - Dev-Server: `pnpm dev`, läuft eventuell schon, erst `.next/dev/lock` prüfen.
 - GLB und Hotspot-Koordinaten aus Blender: Skill `blender-export`.
