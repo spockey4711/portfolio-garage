@@ -197,5 +197,6 @@ Ziel: Tag/Nacht, restliche Hotspots, Atmosphäre.
 ## Reihenfolge innerhalb einer Woche
 
 Code und Blender laufen parallel: Blender liefert jede Woche ein neues GLB, der Code läuft
-immer gegen den letzten Stand. Nichts im Web wartet auf ein fertiges Modell; das Blockout
-bleibt der Platzhalter, bis das echte Objekt kommt.
+immer gegen den letzten Stand. Die Szene kommt aus `blender/build/` (ADR-0004), nicht mehr
+aus einem reinen Boxen-Blockout. Ein neues Möbelstück ersetzt sein Objekt im GLB; der
+Web-Code wartet nicht auf ein fertiges Gesamtmodell.

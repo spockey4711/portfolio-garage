@@ -193,7 +193,9 @@ Begründung:
 
 Was der Zeiger trotzdem tut: im Idle ein Parallax von ca. 3 Grad, bei Hover über einem Hotspot
 Outline plus Label. Nach 3 Sekunden ohne Interaktion einmalig ein leiser Hinweis am Radcomputer,
-damit klar ist, dass die Szene klickbar ist.
+damit klar ist, dass die Szene klickbar ist. Im Code nicht so: `components/garage/GarageStatus.tsx`
+zeigt den allgemeinen Satz sofort, sobald die Szene bereit ist, und blendet ihn nach dem ersten
+Hotspot aus. Abweichung ohne ADR, keine Entscheidung.
 
 | Eingabe           | Idle (Ruheposition)                    | Fokussiert (im Hotspot)                        |
 | ----------------- | -------------------------------------- | ---------------------------------------------- |
@@ -240,6 +242,11 @@ lib/garage/
 public/models/garage.glb   Draco + KTX2, Ziel < 3 MB
 ```
 
+Die Skizze ist der Konzeptstand vom 2026-09-18, nicht der Dateibaum. Der Cache ist eine
+JSON-Datei unter `DATA_DIR` (`lib/strava/env.ts`), kein Vercel KV. Die Lightmap im Code ist
+nur Tag (`lib/garage/lightmap.ts`, `garage-lightmap-tag.webp`). Kompression ist Meshopt,
+kein Draco/KTX2 (`docs/PLAN.md`).
+
 Stack: Next.js App Router, `@react-three/fiber`, `@react-three/drei` (`useGLTF`, `Html`,
 `PerformanceMonitor`, `useProgress`), `@react-three/postprocessing` nur für den Hover-Outline,
 `zustand` für die State-Machine, `gltf-transform` zum Komprimieren, Blender 4.x.
@@ -249,18 +256,20 @@ Stack: Next.js App Router, `@react-three/fiber`, `@react-three/drei` (`useGLTF`,
 - **Licht komplett backen.** In Blender mit Cycles AO + Diffuse in einen Atlas backen, im Web
   `MeshBasicMaterial` mit Lightmap. Kein Echtzeitlicht, deshalb läuft es überall. Tag/Nacht:
   zwei Lightmaps backen und per Uniform blenden, gesteuert von der echten Kölner Uhrzeit. Die
-  Werkbankleuchte bekommt ein Emissive, das nachts hochgeht.
+  Werkbankleuchte bekommt ein Emissive, das nachts hochgeht. Im Code nicht gebaut, nur die
+  Tag-Karte.
 - **Screens als DOM, nicht als Textur.** `<Html transform occlude>` legt echtes React auf die
   Display-Fläche. Scharf, selektierbar, Tab-Fokus funktioniert. Textur-Screens sind im Zoom
   immer matschig.
 - **Trainingsdaten über Strava, nicht Garmin Connect.** Garmin hat keine offizielle API für
   Privatpersonen (GarminDB nutzt die inoffizielle). Strava hat eine offizielle API mit Webhooks:
   Aktivität landet in Garmin, wird nach Strava gesynct, Webhook trifft die Route, JSON landet in
+  einer Datei unter `DATA_DIR` (`lib/strava/env.ts`, Volume auf dem Server, ADR-0002). Nicht
   Vercel KV. Ruhepuls/HRV später über die GarminDB-Pipeline anflanschen.
 - **Fallbacks von Anfang an.** `prefers-reduced-motion`, Viewport unter 768 px oder schwache
   GPU: statt Canvas ein vorgerendertes WebP der Szene mit klickbaren Hotspot-Bereichen. Sieht
-  gleich aus, kostet nichts, Lighthouse bleibt bei 100. Das Canvas lädt erst nach dem ersten
-  Paint.
+  gleich aus, kostet nichts. Lighthouse 100 ist ein Ziel, kein Messwert im Repo
+  (`docs/PLAN.md`). Das Canvas lädt erst nach dem ersten Paint.
 - **Budget:** GLB unter 3 MB, Texturen 2k als WebP im GLB (ADR-0006, kein KTX2), unter 100k
   Dreiecke, `PerformanceMonitor`
   senkt DPR bei Einbrüchen.
@@ -305,6 +314,10 @@ mit Spotify, Hover-Sounds mit Toggle, Katze.
 
 Nach Phase 1 könnte man aufhören und hätte trotzdem ein besseres Portfolio als die meisten.
 Alles danach ist Kür.
+
+Stand im Code, nicht der Plan vom 2026-09-18: die Inhalte von Phase 2 sind da, dazu
+Whiteboard und Werkzeugwand (`components/garage/screens/`). Nicht im Code: Nacht-Blend,
+Spotify, Hover-Sound, Katze. `yannikwuenker.de` ist nicht der Deploy dieses Repos.
 
 ## 8. Erster Schritt
 

@@ -7,8 +7,8 @@ Wie die Garage auf den Server kommt und dort läuft. Entscheidung und Begründun
 
 ```
 push auf develop
-  -> CI: Quality Gate (.github/workflows/ci.yml)
-  -> Image bauen (Dockerfile, Next standalone), Push nach GHCR
+  -> CI: Quality Gate und Playwright, beides Pflicht (.github/workflows/ci.yml)
+  -> Image bauen nur wenn beide grün sind (Dockerfile, Next standalone), Push nach GHCR
        ghcr.io/spockey4711/portfolio-garage:sha-<7 Zeichen>  (unveränderlich)
        ghcr.io/spockey4711/portfolio-garage:develop           (wandert mit)
   -> per SSH auf den VPS: compose.yaml und deploy/deploy-remote.sh nach
@@ -17,7 +17,9 @@ push auf develop
 ```
 
 Nichts wird auf dem Server gebaut. Der Container bindet nur an Loopback, Nginx ist der einzige
-öffentliche Eingang.
+öffentliche Eingang. Playwright läuft headless mit SwiftShader und erzwingt damit den
+Standbild-Pfad (`lib/garage/capability.ts`). Der GPU-Kamerapfad bleibt manuell. Prod auf
+`yannikwuenker.de` hängt nicht an diesem Workflow.
 
 ## Umgebungen
 
