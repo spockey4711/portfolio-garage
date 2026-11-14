@@ -85,7 +85,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       # Builds only after the Node gate and Playwright are green. A pull
       # request still builds the image then, so a broken Dockerfile fails
